@@ -49,7 +49,7 @@ public:
         init(buf, 10);
     }
 
-    BN(int init_int = 0) {   // Создать новое BN
+    BN(long long init_int = 0) {   // Создать новое BN
         memset(_b, 0, BSIZE);
         _n = 2 + ((init_int > 0 ? init_int : -init_int) >= RADIX);
         assert(_n < SIZE);

@@ -47,23 +47,10 @@ public:
     ~BN() {
     }
 
-    void print(const char *s) const {
-        printf("%s=(%Lf)\n", s, _b);
-    }
-
     bool is_zero() const {
         return _b == 0;
     }
 
-    bool is_one() const {
-        return _b == 1;;
-    }
-
-
-    BN &neg() {
-        _b = -_b;
-        return *this;
-    }
 
     BN &abs() { // Взять модуль
         _b = fabs(_b);
@@ -79,7 +66,7 @@ public:
 
     // Выдать представление BN в системе счисления radix в виде строки
     string to_string(int radix = 10) const {
-        char buf[30];
+        char buf[100];
         sprintf(buf, "%.0Lf", _b);
         return buf;
     }
@@ -105,11 +92,6 @@ public:
         return *this;
     }
 
-    // Возвести число в степень degree
-    BN &pow_to(int degree) {
-        _b = ::pow(_b, degree);
-        return *this;
-    }
 
     // Извлечь корень степени reciprocal из BN (бонусная функция)
     BN &root_to(int root = 2) {
@@ -124,38 +106,6 @@ public:
         return *this;
     }
 
-    // Аналоги операций x = l+r (l-r, l*r, l/r, l%r) 
-    BN add(BN const &right) const {
-        BN res(*this);
-        return res.add_to(right);
-    }
-
-    BN sub(BN const &right) const {
-        BN res(*this);
-        return res.sub_to(right);
-    }
-
-    BN mul(BN const &right) const {
-        BN res(*this);
-        return res.mul_to(right);
-    }
-
-    BN div(BN const &right) const {
-        BN res(*this);
-        return res.div_to(right);
-    }
-
-    BN pow(int p) const {
-        BN res(*this);
-        return res.pow_to(p);
-    }
-
-    // Если первое меньше, вернуть <0, 0, если равны, >0, если больше
-    static int cmp(BN const &left, BN const &right) {
-        if (left._b < right._b) return -1;
-        if (left._b == right._b) return 0;
-        return 1;
-    }
 
     bool operator<(BN const &right) const {
         return _b < right._b;

@@ -15,22 +15,29 @@
 #include <stdexcept>
 //#include "bn_fixed.h"
 #include "bn_ldbl.h"
-#define DEBUG 0
-
-#if DEBUG > 0
+#define DEBUG 1
+static int trace = DEBUG;
+#define TROFF { trace = 0; }
+#define TRON { trace = DEBUG; }
+#if DEBUG > 1
 #define T printf("Entering %s\n", __PRETTY_FUNCTION__)
 #define DBG printf("Now in %s line %d\n", __PRETTY_FUNCTION__ , __LINE__)
 #define E printf("Leaving %s\n", __PRETTY_FUNCTION__)
-#define P(x)      printf("[%d] %s=%s\n", __LINE__, #x, x.to_string(10).c_str())
-#define DP(x)      printf("[%d] %s=%.6f\n", __LINE__, #x, x)
-#define P256(x)    { printf("[%d] %s={", __LINE__, #x);    for (size_t i = 0; i < x.size(); i++) printf("%s ", x[i].to_string(10).c_str()); printf("}\n"); }
 #else
 #define T
 #define DBG
 #define E
+#endif
+#if DEBUG > 0
+#define P(x)      if (trace) printf("[%d] %s::%s=%s ", __LINE__, __FUNCTION__, #x, x.to_string(10).c_str())
+#define DP(x)      if (trace) printf("[%d] %s::%s=%.6f ", __LINE__, __FUNCTION__, #x, x)
+#define P256(x)    if (trace) { printf("[%d] %s::%s={", __LINE__, __FUNCTION__, #x);    for (size_t i = 0; i < x.size(); i++) printf("%s ", x[i].to_string(10).c_str()); printf("}\n"); }
+#define EOL     if (trace) printf("\n")
+#else
 #define P(x)
 #define DP(x)
 #define P256(x)
+#define EOL
 #endif
 
 using std::vector, std::string, std::pair, std::sort, std::map, std::min, std::max;
@@ -109,7 +116,7 @@ struct mapped_file {
     int fd;
     unsigned char *base = nullptr;
     size_t size = 0;
-    mapped_file(string const &name) {
+    explicit mapped_file(string const &name) {
         fd = open(name.c_str(), O_RDONLY);
         if (fd < 0) return;
         lseek(fd, 0, SEEK_END);
@@ -215,19 +222,19 @@ auto get_all() {
         }
     }
     clock_t start_time = clock();
-    debug_print("out first 5", out, 5);
-    debug_print("out last 5", out, -5);
+    //debug_print("out first 5", out, 5);
+    //debug_print("out last 5", out, -5);
     sort(out.begin(), out.end(), [](trade_one const &l, trade_one const &r) {
         return l.t < r.t;
     });
     clock_t end_time = clock();
-    debug_print("sorted out first 5", out, 5);
-    debug_print("sorted out last 5", out, -5);
+    //debug_print("sorted out first 5", out, 5);
+    //debug_print("sorted out last 5", out, -5);
     vector<trade_data> ret;
     for (auto &q: out) {
         ret.emplace_back(q.trade);
     }
-    printf("total %zu elements\n", ret.size());
+    //printf("total %zu elements\n", ret.size());
     print_clock("sorting took", start_time, end_time);
     return ret;
 }
@@ -238,19 +245,21 @@ i256 geometric_mean(vector<i256> x) {
     sort(x.begin(),x.end(), [](i256 const &l, i256 const &r) {
         return l > r;
     });
-    P256(x);
+    //P256(x);
     auto D = x[0];
+    i256 N1256((i256_init)N-1);
+    i256 N256((i256_init)N);
     for (int i = 0; i < 255; i++) {
         auto D_prev = D;
         auto tmp = grain;
         for (auto const &_x: x) {
             tmp = tmp * _x / D;
         }
-        D = D * (i256((i256_init) (N - 1)) * grain + tmp) / (i256((i256_init) N) * grain);
+        D = (D * (N1256 * grain + tmp)) / (N256 * grain);
         auto diff = (D - D_prev).abs();
         if (diff <= i256_1 or diff * grain < D) {
             E;
-            P(D);
+            //P(D); EOL;
             return D;
         }
     }
@@ -268,10 +277,11 @@ auto reduction_coefficient(vector<i256> const &x, i256 const &gamma) {
         x_prod = x_prod * x_i / grain;
         K = K * N256 * x_i / S;
     }
-    if (gamma > i256_0) {
+    if (gamma.sign() > 0) {
         K = gamma * grain / (gamma + grain - K);
     }
     E;
+    //P(K); EOL;
     return K;
 }
 
@@ -283,14 +293,13 @@ void print(vector<i256> const &x) {
     printf("]\n");
 }
 
-auto newton_D(i256 A, i256 const &gamma, vector<i256> const &x, i256 const &D0) {
-    T;
+auto newton_D(i256 A, i256 const &gamma, vector<i256> x, i256 const &D0) {
     auto D = D0;
     int i = 0;
 
     i256 S;
     for (auto const &q: x) S += q;
-    //sort(x.begin(), x.end(), [](i256 const &l, i256 const &r) { return l > r; });
+    sort(x.begin(), x.end(), [](i256 const &l, i256 const &r) { return l > r; });
     auto const N = x.size();
     i256 N256((i256_init) N);
     for (size_t j = 0; j < N; j++) { // XXX or just set A to be A*N**N?
@@ -323,7 +332,6 @@ auto newton_D(i256 A, i256 const &gamma, vector<i256> const &x, i256 const &D0) 
             D = D.abs() / i256_2;
         }
         if ((D - D_prev).abs() <= max(i256_100, D / grain14)) {
-            T;
             return D;
         }
     }
@@ -331,11 +339,14 @@ auto newton_D(i256 A, i256 const &gamma, vector<i256> const &x, i256 const &D0) 
 }
 
 auto newton_y(i256 A, i256 const &gamma, vector<i256> const &x, i256 const &D, int i) {
+    auto save_trace = trace;
+    TROFF;
     T;
-    P256(x);
+    //P256(x);
     auto N = x.size();
+    i256 N256((i256_init) N);
 
-    auto y = D / i256((i256_init) N);
+    auto y = D / N256;
     i256 K0_i(grain);
     i256 S_i;
     vector<i256> x_sorted(N - 1);
@@ -343,74 +354,69 @@ auto newton_y(i256 A, i256 const &gamma, vector<i256> const &x, i256 const &D, i
         if (j != i) x_sorted[cnt++] = x[j];
     }
     sort(x_sorted.begin(), x_sorted.end());
-    P256(x_sorted);
-    auto max_x_sorted = x_sorted.back();
-    P(max_x_sorted);
+    //P256(x_sorted);
+    auto max_x_sorted = x_sorted[0];
+    // auto max_x_sorted = x_sorted.back();
+    for (auto const &q: x_sorted) max_x_sorted = max(max_x_sorted, q);
+    //P(max_x_sorted);
     auto convergence_limit = max(max_x_sorted / grain14, D / grain14);
-    P(convergence_limit);
     convergence_limit = max(convergence_limit, i256_100);
-    P(convergence_limit);
-
-    i256 N256((i256_init) N);
-    P(N256);
+    //P(convergence_limit); EOL;
     for (auto const &_x: x_sorted) {
         y = y * D / (_x * N256); //  # Small _x first
         S_i += _x;
     }
-    P(S_i);
+    //P(S_i); EOL;
     for (auto it = x_sorted.rbegin(); it != x_sorted.rend(); it++) {
         auto const _x = *it;
         K0_i = K0_i * _x * N256 / D; //  # Large _x first
     }
-    P(K0_i);
+    //P(K0_i); EOL;
     for (size_t j = 0; j < N; j++) { // in range(N):  # XXX or just set A to be A*N**N?
         A = A * N256;
     }
-    P(A);
+    //P(A); EOL;
     for (size_t j = 0; j < 255; j++) {
         auto y_prev = y;
-        P(y_prev);
+        //P(y_prev);
 
         auto K0 = K0_i * y * N256 / D;
-        P(K0);
+        //P(K0);
         auto S = S_i + y;
-        P(S);
+        //P(S); EOL;
 
         auto _g1k0 = (gamma + grain - K0).abs();
-        P(_g1k0);
 
         // D / (A * N**N) * _g1k0**2 / gamma**2
         auto mul1 = grain * D / gamma * _g1k0 / gamma * _g1k0 / A;
-        P(mul1);
-        P(D);
-        P(gamma);
-        P(_g1k0);
-        P(A);
+        //P(mul1); P(D); P(gamma); P(_g1k0); P(A); EOL;
         // 2*K0 / _g1k0
         auto mul2 = grain + (grain+grain) * K0 / _g1k0;
-        P(mul2);
+        //P(mul2);
 
         auto yfprime = (grain * y + S * mul2 + mul1 - D * mul2);
-        P(yfprime);
+        //P(yfprime);
         auto fprime = yfprime / y;
-        P(fprime);
+        //P(fprime); EOL;
         assert (fprime.sign()  > 0) ;  //# Python only: f' > 0
 
         // y -= f / f_prime;  y = (y * fprime - f) / fprime
         y = (yfprime + grain * D - grain * S) / fprime + mul1 / fprime * (grain - K0) / K0;
-        P(y);
+        //P(y); EOL;
         if (j > 100) { //  # Just logging when doesn't converge
             printf("%zu %s %s ", j, y.to_string(10).c_str(), D.to_string(10).c_str());
             print(x);
         }
         if (y.sign() < 0 or fprime.sign() < 0) {
             y = y_prev / i256_2;
-            P(y);
+            //P(y);
         }
 
         if ((y - y_prev).abs() <= max(convergence_limit, y / grain14)) {
             E;
-            P(y);
+            //P(y); EOL;
+            trace = save_trace;
+            TRON;
             return y;
         }
     }
@@ -420,20 +426,20 @@ auto newton_y(i256 A, i256 const &gamma, vector<i256> const &x, i256 const &D, i
 
 auto solve_x(i256 const &A, i256 const &gamma, vector<i256> const &x, i256 const &D, int i) {
     T;
-    P(A);
-    P(gamma);
-    P256(x);
-    P(D);
+    //P(A);
+    //P(gamma);
+    //P256(x);
+    //P(D);
     return newton_y(A, gamma, x, D, i);
 }
 
 auto solve_D(i256 const &A, i256 const &gamma, vector<i256> const &x) {
     T;
-    P(A);
-    P(gamma);
-    P256(x);
+    //P(A);
+    //P(gamma);
+    //P256(x);
     auto D0 = i256((i256_init)x.size()) * geometric_mean(x); //  # <- fuzz to make sure it's ok XXX
-    P(D0);
+    //P(D0); EOL;
     return newton_D(A, gamma, x, D0);
 }
 
@@ -441,9 +447,9 @@ struct Curve {
     Curve(i256 const &A, i256 const &gamma, i256 const &D, int n, vector<i256> const &p) {
         T;
         this->A = A;
-        P(this->A);
+        //P(this->A);
         this->gamma = gamma;
-        P(this->gamma);
+        //P(this->gamma);
         this->n = n;
         if (!p.empty()) {
             this->p = p;
@@ -454,25 +460,25 @@ struct Curve {
         for(int i = 0; i < n; i++) {
             x[i] = D / i256((i256_init)n) * grain / p[i];
         }
-        P256(x);
+        //P256(x);
     }
 
     auto xp() const {
         T;
-        P256(x);
-        P256(p);
+        //P256(x);
+        //P256(p);
         vector<i256> ret(x.size());
         for (int i = 0; i < x.size(); i++) {
             ret[i] = x[i] * p[i] / grain;
         }
-        P256(ret);
+        //P256(ret);
         return ret;
     }
 
     auto D() const {
         T;
         auto xp = this->xp();
-        P256(xp);
+        //P256(xp);
         for (auto const &x: xp) {
             if (x.sign() <= 0) {
                 throw logic_error("Curve::D(): x <= 0");
@@ -528,8 +534,8 @@ struct Trader {
         this->slippage = i256_0;
         this->slippage_count = 0;
         this->not_adjusted = false;
-        this->heavy_tx = i256_0;
-        this->light_tx = i256_0;
+        this->heavy_tx = 0;
+        this->light_tx = 0;
         this->is_light = false;
         this->t = 0;
     }
@@ -555,27 +561,29 @@ struct Trader {
 
     auto price(int i, int j) {
         auto dx_raw = dx * grain / curve.p[i];
-        return dx_raw * grain / (curve.x[j] - curve.y(curve.x[i] + dx_raw, i, j));
+        auto ret = dx_raw * grain / (curve.x[j] - curve.y(curve.x[i] + dx_raw, i, j));
+        //P(ret);
+        return ret;
     }
 
     auto step_for_price(i256 dp, pair<int, int> p, int sign) {
         T;
-        P(dp); // printf("(%d,%d)\n", p.first, p.second);
+        //P(dp); // printf("(%d,%d)\n", p.first, p.second);
         auto p0 = price(p.first, p.second);
-        P(p0);
+        //P(p0);
         dp = p0 * dp / grain;
-        P(dp);
+        //P(dp);
         auto x0 = curve.x;
-        P256(x0);
+        //P256(x0);
         auto step = dx * grain / curve.p[p.first];
-        P(step);
+        //P(step);
         while (true) {
             curve.x[p.first] = x0[p.first] + i256((i256_init) sign) * step;
             auto dp_ = (p0 - price(p.first, p.second)).abs();
             if (dp_ >= dp or step >= curve.x[p.first] / i256_10) {
                 curve.x = x0;
                 E;
-                P(step);
+                //P(step); EOL;
                 return step;
             }
             step += step;
@@ -644,7 +652,7 @@ struct Trader {
     void ma_recorder(u64 t, vector<i256> const &price_vector) {
         //  XXX what if every block only has p_b being last
         if (t > this->t) {
-            double alpha = pow(0.5, ((t - this->t) / this->ma_half_time));
+            double alpha = pow(0.5, ((double)(t - this->t) / this->ma_half_time));
             for (int k = 1; k <= 2; k++) {
                 price_oracle[k] = i256(price_vector[k].get_double() * (1 - alpha) + price_oracle[k].get_double() * alpha);
             }
@@ -653,6 +661,7 @@ struct Trader {
     }
 
     auto tweak_price(u64 t, int a, int b, i256 const &p) {
+        TROFF;
         ma_recorder(t, last_price);
         if (b > 0) {
             last_price[b] = p * last_price[a] / grain;
@@ -661,29 +670,36 @@ struct Trader {
         }
 
         // # price_oracle looks like [1, p1, p2, ...] normalized to 1e18
+        P256(price_oracle);
+        P256(curve.p);
         i256 S;
         for (size_t i = 0; i < price_oracle.size(); i++) {
             auto t = price_oracle[i] * grain / curve.p[i] - grain;
             S += t*t;
         }
         auto norm = S;
-        norm.root_to(2);
-        if (norm <= max(price_threshold, adjustment_step)) {
+        // @@@norm.root_to(2);
+        auto mxp = (max(price_threshold, adjustment_step));
+        norm.root_to();
+        P(norm);
+        P(price_threshold);
+        P(adjustment_step); EOL;
+        if (norm <= mxp) {
             // Already close to the target price
             is_light = true;
-            light_tx += i256_1;
+            light_tx += 1;
             return norm;
         }
-
-        if (not not_adjusted and (xcp_profit_real - grain > (xcp_profit - grain) / i256("2") + grain13)) {
+        T;
+        if (not not_adjusted and (xcp_profit_real - grain > (xcp_profit - grain) / i256_2 + grain13)) {
             not_adjusted = true;
         }
         if (not not_adjusted) {
-            light_tx += i256_1;
+            light_tx += 1;
             is_light = true;
             return norm;
         }
-        heavy_tx += i256_1;
+        heavy_tx += 1;
         is_light = false;
 
         vector<i256> p_new(price_oracle.size());
@@ -700,13 +716,13 @@ struct Trader {
         curve.p = p_new;
         update_xcp(true);
 
-        if (i256("2") * (xcp_profit_real - grain) <= xcp_profit - grain) {
+        if (i256_2 * (xcp_profit_real - grain) <= xcp_profit - grain) {
             //  If real profit is less than half of maximum - revert params back
             curve.p = old_p;
             xcp_profit_real = old_profit;
             xcp = old_xcp;
             not_adjusted = false;
-            printf("%s ", ((xcp_profit_real - grain - (xcp_profit - grain) / i256("2")) / grain).to_string(10).c_str());
+            printf("%s\n", ((xcp_profit_real - grain - (xcp_profit - grain) / i256_2) / grain).to_string(10).c_str());
         }
         return norm;
     }
@@ -714,15 +730,18 @@ struct Trader {
 
     void simulate(vector<trade_data> const &mdata) {
         map<pair<int,int>,i256> lasts;
+        TROFF;
         auto t = mdata[0].t;
         for (size_t i = 0; i < mdata.size(); i++)  {
+            //if (i > 10) abort();
             auto const &d = mdata[i];
             // auto i = d.t;
             auto a = d.pair1.first;
             auto b = d.pair1.second;
+            //if (d.t >= 1614973320) exit(0);
             i256 vol;
             auto ext_vol = i256(d.volume * price_oracle[b].get_double()); //  <- now all is in USD
-            P(ext_vol);
+            //P(ext_vol);
             int ctr{0};
             i256 last;
             auto itl = lasts.find({a,b});
@@ -731,117 +750,118 @@ struct Trader {
             } else {
                 last = itl->second;
             }
-            P(last);
+            //P(last);
             auto _high = last;
             auto _low = last;
 
             //  Dynamic step
             //  f = reduction_coefficient(self.curve.xp(), self.curve.gamma)
-            DP(d.high);
-            DP(d.low);
-            P(grain17);
+            //DP(d.high);
+            //DP(d.low); EOL;
+            //P(grain17);
             auto candle = min(i256(dgrain * fabs((d.high - d.low) / d.high)), grain17);
-            P(candle);
+            //P(candle); EOL;
             candle = max(grain15, candle);
-            P(candle);
-            auto step1 = step_for_price(candle / i256("50"), d.pair1, 1);
-            P(step1);
-            auto step2 = step_for_price(candle / i256("50"), d.pair1, -1);
-            P(step2);
+            //P(candle); EOL;
+            auto step1 = step_for_price(candle / i256_50, d.pair1, 1);
+            auto step2 = step_for_price(candle / i256_50, d.pair1, -1);
             auto step = min(step1, step2);
-            P(step);
+            //P(step1);
+            //P(step2);
+            //P(step); EOL;
 
             auto max_price = dgrain * d.high;
-            DP(max_price);
+            //DP(max_price); EOL;
             i256 _dx;
             auto p_before = price(a, b);
-            P(p_before);
-            while (last.get_double() < max_price and vol < ext_vol / i256("2")) {
+            //P(p_before); EOL;
+            while (last.get_double() < max_price and vol < ext_vol / i256_2) {
                 auto dy = buy(step, a, b, max_price);
-                P(dy);
+                //P(dy); EOL;
                 if (dy.is_zero()) {
                     break;
                 }
                 vol += dy * price_oracle[b] / grain;
-                P(vol);
+                //P(vol);
                 _dx += dy;
-                P(_dx);
+                //P(_dx);
                 last = step * grain / dy;
-                P(last);
+                //P(last);
                 max_price = dgrain * d.high;
-                DP(max_price);
                 ctr += 1;
+                //DP(max_price); DP((double)ctr); EOL;
             }
             auto p_after = price(a, b);
-            P(p_after);
+            //P(p_before); P(p_after); EOL;
             if (p_before != p_after) {
                 slippage_count++;
-                slippage += _dx * curve.p[b] / grain * (p_before + p_after) / (i256("2") * (p_before - p_after).abs());
+                slippage += _dx * curve.p[b] / grain * (p_before + p_after) / (i256_2 * (p_before - p_after).abs());
+                //DP((double)slippage_count); P(slippage); EOL;
             }
             _high = last;
             auto min_price = dgrain * d.low;
-            DP(min_price);
+            //DP(min_price); EOL;
             _dx = i256_0;
             p_before = p_after;
-            while (last.get_double() > min_price and vol < ext_vol / i256("2")) {
+            //P(p_before); EOL;
+            while (last.get_double() > min_price and vol < ext_vol / i256_2) {
                 auto dx = step * grain / last;
-                P(dx);
+                //P(dx); EOL;
                 auto dy = sell(dx, a, b, min_price);
-                P(dy);
+                //P(dy); EOL;
                 _dx += dx;
                 if (dy.is_zero()) {
                     break;
                 }
                 vol += dx * price_oracle[b] / grain;
-                P(vol);
                 last = dy * grain / dx;
-                P(last);
                 min_price = dgrain * d.low;
-                DP(min_price);
                 ctr += 1;
+                //P(vol); P(last); DP(min_price); DP((double)ctr); EOL;
             }
             p_after = price(a, b);
-            P(p_after);
+            //P(p_before); P(p_after); EOL;
             if (p_before != p_after) {
                 slippage_count += 1;
-                slippage += _dx * curve.p[b] / grain * (p_before + p_after) / (i256("2") * (p_before - p_after).abs());
+                slippage += _dx * curve.p[b] / grain * (p_before + p_after) / (i256_2 * (p_before - p_after).abs());
             }
             _low = last;
-            P(_low);
+            //P(_low); EOL;
             lasts[d.pair1] = last;
 
-            tweak_price(d.t, a, b, (_high + _low) / i256("2"));
+            tweak_price(d.t, a, b, (_high + _low) / i256_2);
 
             total_vol += vol.get_double();
-            DP(total_vol);
-            if (i % 32 == 0 && log) {
+            //DP(total_vol); EOL;
+            if (log) {
                 try {
                     double last01, last02;
                     auto it01 = lasts.find({0,1});
                     if (it01 == lasts.end()) {
                         last01 = price_oracle[1].get_double() * dgrain / price_oracle[0].get_double() / dgrain;
                     } else {
-                        last01 = it01->second.get_double();
+                        last01 = it01->second.get_double() / dgrain;
                     }
                     auto it02 = lasts.find({0,2});
                     if (it02 == lasts.end()) {
                         last02 = price_oracle[2].get_double() * dgrain / price_oracle[0].get_double() / dgrain;
                     } else {
-                        last02 = it02->second.get_double();
+                        last02 = it02->second.get_double() / dgrain;
                     }
-                    printf("%.1f%%\ttrades: %d\t"
+                    printf("t=%llu %.1f%%\ttrades: %d\t"
                            "AMM: %.0f, %0.f\tTarget: %.0f, %.0f\t"
                            "Vol: %.4f\tPR:%.2f\txCP-growth: {%.5f}\t"
                            "APY:%.1f%%\tfee:%.3f%% %c\n",
+                          d.t,
                           100. * i / mdata.size(), ctr, last01, last02,
                           curve.p[1].get_double() / dgrain,
                           curve.p[2].get_double() / dgrain,
                           total_vol / dgrain,
                           (xcp_profit_real - grain).get_double() / (xcp_profit - grain).get_double(),
                           xcp_profit_real.get_double() / dgrain,
-                          (pow((xcp_profit_real.get_double() / dgrain),(86400 * 365 / (d.t - mdata[0].t + 1)) - 1) * 100),
-                          fee().get_double() / dgrain * 100,
-                          is_light? '*' : ' ');
+                          pow((xcp_profit_real.get_double() / dgrain),(86400. * 365. / (d.t - mdata[0].t + 1)) - 1) * 100.,
+                          fee().get_double() / dgrain * 100.,
+                          is_light? '*' : '.');
                 } catch (exception const &e) {
                     printf("caught '%s'\n", e.what());
                 }
@@ -872,8 +892,8 @@ struct Trader {
     i256 slippage;
     int slippage_count;
     bool not_adjusted;
-    i256 heavy_tx;
-    i256 light_tx;
+    int  heavy_tx;
+    int  light_tx;
     bool is_light;
     Curve curve;
 
@@ -907,15 +927,15 @@ int main() {
     const int LAST_ELEMS = 100000;
     clock_t start = clock();
     auto test_data = get_all();
-    //test_data.erase(test_data.begin(), test_data.begin() + test_data.size() - LAST_ELEMS);
+    test_data.erase(test_data.begin(), test_data.begin() + test_data.size() - LAST_ELEMS);
     //debug_print("test_data first 5", test_data, 5);
     //debug_print("test_data last 5", test_data, -5);
-    Trader trader(i256("135"), i256((7e-5 * igrain)), i256(dgrain*5'000'000), 3, get_price_vector(3, test_data),
+    Trader trader(i256("135"), i256((7e-5 * dgrain)), i256(grain*i256((i256_init )5'000'000)), 3, get_price_vector(3, test_data),
             4e-4, 4.0e-3,
-            0.0028, i256(0.01 * igrain),
+            0.0028, i256(0.01 * dgrain),
             0.0015, 600);
     trader.simulate(test_data);
-    printf("Fraction of light transactions:%.5f\n", (trader.light_tx / (trader.light_tx + trader.heavy_tx)).get_double());
+    printf("Fraction of light transactions:%.5f\n", (double)(trader.light_tx) / (trader.light_tx + trader.heavy_tx));
     clock_t end = clock();
     print_clock("Total time", start, end);
 }

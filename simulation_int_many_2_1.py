@@ -15,7 +15,7 @@ def geometric_mean(x):
         diff = abs(D - D_prev)
         if diff <= 1 or diff * 10**18 < D:
             return D
-    print(x)
+    #print(x)
     raise ValueError("Did not converge")
 
 
@@ -441,6 +441,7 @@ class Trader:
             self.total_vol += vol
             if self.log:
                 try:
+                    print("t=", d['t'], " ", end="")
                     print(("""{0:.1f}%\ttrades: {1}\t"""
                            """AMM: {2:.0f}, {3:.0f}\tTarget: {4:.0f}, {5:.0f}\t"""
                            """Vol: {6:.4f}\tPR:{7:.2f}\txCP-growth: {8:.5f}\t"""
@@ -479,4 +480,4 @@ if __name__ == '__main__':
 
     trader.simulate(test_data)
 
-    print('Fraction of light transactions:', trader.light_tx / (trader.light_tx + trader.heavy_tx))
+    ('Fraction of light transactions:', trader.light_tx / (trader.light_tx + trader.heavy_tx))
