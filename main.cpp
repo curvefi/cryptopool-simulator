@@ -722,7 +722,8 @@ struct Trader {
             xcp_profit_real = old_profit;
             xcp = old_xcp;
             not_adjusted = false;
-            printf("%s\n", ((xcp_profit_real - grain - (xcp_profit - grain) / i256_2) / grain).to_string(10).c_str());
+            auto val = ((xcp_profit_real - grain - (xcp_profit - grain) / i256_2).get_double() / dgrain);
+            // printf("%.6f\n", val);
         }
         return norm;
     }
@@ -833,7 +834,7 @@ struct Trader {
 
             total_vol += vol.get_double();
             //DP(total_vol); EOL;
-            if (log) {
+            if (i % 1024 == 0 && log) {
                 try {
                     double last01, last02;
                     auto it01 = lasts.find({0,1});
@@ -927,7 +928,7 @@ int main() {
     const int LAST_ELEMS = 100000;
     clock_t start = clock();
     auto test_data = get_all();
-    test_data.erase(test_data.begin(), test_data.begin() + test_data.size() - LAST_ELEMS);
+    //test_data.erase(test_data.begin(), test_data.begin() + test_data.size() - LAST_ELEMS);
     //debug_print("test_data first 5", test_data, 5);
     //debug_print("test_data last 5", test_data, -5);
     Trader trader(i256("135"), i256((7e-5 * dgrain)), i256(grain*i256((i256_init )5'000'000)), 3, get_price_vector(3, test_data),
