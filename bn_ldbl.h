@@ -22,11 +22,7 @@ public:
         _b = orig._b;
     }
 
-    explicit BN(long long init_int) {
-        _b = init_int;
-    }
-
-    explicit BN(double init_double) {
+    BN(long double init_double) {
         _b = init_double;
     }
 
@@ -39,7 +35,7 @@ public:
         _b = atof(in.c_str());
     }
 
-    BN(const char *init_string) {
+    explicit BN(const char *init_string) {
         _b = atof(init_string);
     }
 
@@ -171,7 +167,7 @@ public:
         return ret /= r;
     }
 
-    double get_double() const { // Veeeeeeeryyyy ugly
+    long double get_double() const { // Veeeeeeeryyyy ugly
         return _b;
     }
 
