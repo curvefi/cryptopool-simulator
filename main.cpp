@@ -47,14 +47,13 @@ using u64 = unsigned long long;
 //using i256 = BN<10>; // for 32 bit internals BN
 using i256 = BN;
 using i256_init = long long;
-static const i256       grain("1000000000000000000");
-static const long long  igrain = 1000000000000000000;
-static const double     dgrain = 1e18;
-static const i256       grain13("10000000000000");
-static const i256       grain14("100000000000000");
-static const i256       grain15("1000000000000000");
-static const i256       grain16("10000000000000000");
-static const i256       grain17("100000000000000000");
+static const i256       grain(1e18L);
+static const long double      dgrain(1e18L);
+static const i256       grain13(1e13L);
+static const i256       grain14(1e14L);
+static const i256       grain15(1e15L);
+static const i256       grain16(1e16L);
+static const i256       grain17(1e17L);
 static const i256       i256_0("0");
 static const i256       i256_1("1");
 static const i256       i256_2("2");
@@ -355,9 +354,9 @@ auto newton_y(i256 A, i256 const &gamma, vector<i256> const &x, i256 const &D, i
     }
     sort(x_sorted.begin(), x_sorted.end());
     //P256(x_sorted);
-    auto max_x_sorted = x_sorted[0];
-    // auto max_x_sorted = x_sorted.back();
-    for (auto const &q: x_sorted) max_x_sorted = max(max_x_sorted, q);
+    // auto max_x_sorted = x_sorted[0];
+    auto max_x_sorted = x_sorted.back();
+    //for (auto const &q: x_sorted) max_x_sorted = max(max_x_sorted, q);
     //P(max_x_sorted);
     auto convergence_limit = max(max_x_sorted / grain14, D / grain14);
     convergence_limit = max(convergence_limit, i256_100);
@@ -365,12 +364,13 @@ auto newton_y(i256 A, i256 const &gamma, vector<i256> const &x, i256 const &D, i
     for (auto const &_x: x_sorted) {
         y = y * D / (_x * N256); //  # Small _x first
         S_i += _x;
-    }
-    //P(S_i); EOL;
-    for (auto it = x_sorted.rbegin(); it != x_sorted.rend(); it++) {
-        auto const _x = *it;
         K0_i = K0_i * _x * N256 / D; //  # Large _x first
     }
+    //P(S_i); EOL;
+    // for (auto it = x_sorted.rbegin(); it != x_sorted.rend(); it++) {
+    //    auto const _x = *it;
+    //    K0_i = K0_i * _x * N256 / D; //  # Large _x first
+    // }
     //P(K0_i); EOL;
     for (size_t j = 0; j < N; j++) { // in range(N):  # XXX or just set A to be A*N**N?
         A = A * N256;
@@ -516,7 +516,7 @@ struct Trader {
         this->price_oracle = this->p0;
         this->last_price = this->p0;
         // this->curve = Curve(A, gamma, D, n, p0);
-        this->dx = i256(D / i256("100000000"));
+        this->dx = i256(D * i256(1e-8L));
         this->mid_fee = i256((mid_fee * dgrain));
         this->out_fee = i256((out_fee * dgrain));
         this->D0 = this->curve.D();
@@ -836,7 +836,7 @@ struct Trader {
             //DP(total_vol); EOL;
             if (i % 1024 == 0 && log) {
                 try {
-                    double last01, last02;
+                    long double last01, last02;
                     auto it01 = lasts.find({0,1});
                     if (it01 == lasts.end()) {
                         last01 = price_oracle[1].get_double() * dgrain / price_oracle[0].get_double() / dgrain;
@@ -849,19 +849,21 @@ struct Trader {
                     } else {
                         last02 = it02->second.get_double() / dgrain;
                     }
-                    printf("t=%llu %.1f%%\ttrades: %d\t"
-                           "AMM: %.0f, %0.f\tTarget: %.0f, %.0f\t"
-                           "Vol: %.4f\tPR:%.2f\txCP-growth: {%.5f}\t"
-                           "APY:%.1f%%\tfee:%.3f%% %c\n",
+                    long double ARU_x = xcp_profit_real.get_double() / dgrain;
+                    long double ARU_y = (86400.L * 365.L / (d.t - mdata[0].t + 1.L));
+                    printf("t=%llu %.1Lf%%\ttrades: %d\t"
+                           "AMM: %.0Lf, %0.Lf\tTarget: %.0Lf, %.0Lf\t"
+                           "Vol: %.4Lf\tPR:%.2Lf\txCP-growth: {%.5Lf}\t"
+                           "APY:%.1Lf%%\tfee:%.3Lf%% %c\n",
                           d.t,
-                          100. * i / mdata.size(), ctr, last01, last02,
+                          100.L * i / mdata.size(), ctr, last01, last02,
                           curve.p[1].get_double() / dgrain,
                           curve.p[2].get_double() / dgrain,
                           total_vol / dgrain,
                           (xcp_profit_real - grain).get_double() / (xcp_profit - grain).get_double(),
                           xcp_profit_real.get_double() / dgrain,
-                          pow((xcp_profit_real.get_double() / dgrain),(86400. * 365. / (d.t - mdata[0].t + 1)) - 1) * 100.,
-                          fee().get_double() / dgrain * 100.,
+                           (pow(ARU_x, ARU_y) - 1.L) * 100.L,
+                          fee().get_double() / dgrain * 100.L,
                           is_light? '*' : '.');
                 } catch (exception const &e) {
                     printf("caught '%s'\n", e.what());
@@ -887,7 +889,7 @@ struct Trader {
     i256 adjustment_step;
     bool log;
     i256 fee_gamma;
-    double total_vol;
+    long double total_vol;
     int ma_half_time;
     i256 ext_fee;
     i256 slippage;
@@ -928,7 +930,7 @@ int main() {
     const int LAST_ELEMS = 100000;
     clock_t start = clock();
     auto test_data = get_all();
-    //test_data.erase(test_data.begin(), test_data.begin() + test_data.size() - LAST_ELEMS);
+    test_data.erase(test_data.begin(), test_data.begin() + test_data.size() - LAST_ELEMS);
     //debug_print("test_data first 5", test_data, 5);
     //debug_print("test_data last 5", test_data, -5);
     Trader trader(i256("135"), i256((7e-5 * dgrain)), i256(grain*i256((i256_init )5'000'000)), 3, get_price_vector(3, test_data),
