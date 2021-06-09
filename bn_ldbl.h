@@ -62,8 +62,8 @@ public:
 
     // Выдать представление BN в системе счисления radix в виде строки
     string to_string(int radix = 10) const {
-        char buf[100];
-        sprintf(buf, "%.0Lf", _b);
+        char buf[200];
+        sprintf(buf, "%.016Lf", _b);
         return buf;
     }
 

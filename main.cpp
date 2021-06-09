@@ -15,7 +15,7 @@
 #include <stdexcept>
 //#include "bn_fixed.h"
 #include "bn_ldbl.h"
-#define DEBUG 1
+#define DEBUG 0
 static int trace = DEBUG;
 #define TROFF { trace = 0; }
 #define TRON { trace = DEBUG; }
@@ -30,7 +30,7 @@ static int trace = DEBUG;
 #endif
 #if DEBUG > 0
 #define P(x)      if (trace) printf("[%d] %s::%s=%s ", __LINE__, __FUNCTION__, #x, x.to_string(10).c_str())
-#define DP(x)      if (trace) printf("[%d] %s::%s=%.6f ", __LINE__, __FUNCTION__, #x, x)
+#define DP(x)      if (trace) printf("[%d] %s::%s=%.12Lf ", __LINE__, __FUNCTION__, #x, (long double)x)
 #define P256(x)    if (trace) { printf("[%d] %s::%s={", __LINE__, __FUNCTION__, #x);    for (size_t i = 0; i < x.size(); i++) printf("%s ", x[i].to_string(10).c_str()); printf("}\n"); }
 #define EOL     if (trace) printf("\n")
 #else
@@ -43,23 +43,32 @@ static int trace = DEBUG;
 using std::vector, std::string, std::pair, std::sort, std::map, std::min, std::max;
 
 using u64 = unsigned long long;
+using money = long double;
 //using i256 = BN<7>; // for 64 bit internals BN
 //using i256 = BN<10>; // for 32 bit internals BN
 using i256 = BN;
 using i256_init = long long;
+static const i256       grain14(1e14L);
+#if 0
 static const i256       grain(1e18L);
 static const long double      dgrain(1e18L);
 static const i256       grain13(1e13L);
-static const i256       grain14(1e14L);
 static const i256       grain15(1e15L);
-static const i256       grain16(1e16L);
 static const i256       grain17(1e17L);
+static const i256       grain2(100.L);
+#else
+static const i256       grain(1.L);
+static const long double      dgrain(1.L);
+static const i256       grain13(1.e-5L);
+static const i256       grain15(1.e-3L);
+static const i256       grain17(1.e-1L);
+static const i256       grain2(1.e-16);
+#endif
 static const i256       i256_0("0");
 static const i256       i256_1("1");
 static const i256       i256_2("2");
 static const i256       i256_10("10");
 static const i256       i256_50("50");
-static const i256       i256_100("100");
 
 
 static void print_clock(string const &mesg, clock_t start, clock_t end) {
@@ -68,14 +77,14 @@ static void print_clock(string const &mesg, clock_t start, clock_t end) {
 
 struct trade_data {
     u64 t = 0;          // 0
-    double open = 0;    // 1
-    double high = 0;    // 2
-    double low = 0;     // 3
-    double close = 0;   // 4
-    double volume = 0;  // 5
+    long double open = 0;    // 1
+    long double high = 0;    // 2
+    long double low = 0;     // 3
+    long double close = 0;   // 4
+    long double volume = 0;  // 5
     pair<int,int> pair1 = {0,0};
     void print() const {
-        printf("{ open: %.6f, high: %.6f low: %.6f close: %.6f t: %llu, volume: %.6f pair: (%d,%d)} ",
+        printf("{ open: %.6Lf, high: %.6Lf low: %.6Lf close: %.6Lf t: %llu, volume: %.6Lf pair: (%d,%d)} ",
                this->open, this->high, this->low, this->close, this->t, this->volume, this->pair1.first, this->pair1.second);
     }
 };
@@ -151,7 +160,7 @@ vector<trade_data> get_data(std::string const &fname) {
     vector<trade_data> ret;
     auto p = mf.base;
     if (*p == '[') p++; // skip initial '[';
-    auto scan_double = [] (unsigned char *p, double *d) {
+    auto scan_double = [] (unsigned char *p, long double *d) {
         if (*p == '"') p++;
         *d = atof((char *)p);
         while (*p != '"') p++;
@@ -244,7 +253,7 @@ i256 geometric_mean(vector<i256> x) {
     sort(x.begin(),x.end(), [](i256 const &l, i256 const &r) {
         return l > r;
     });
-    //P256(x);
+    P256(x);
     auto D = x[0];
     i256 N1256((i256_init)N-1);
     i256 N256((i256_init)N);
@@ -256,9 +265,10 @@ i256 geometric_mean(vector<i256> x) {
         }
         D = (D * (N1256 * grain + tmp)) / (N256 * grain);
         auto diff = (D - D_prev).abs();
-        if (diff <= i256_1 or diff * grain < D) {
+        P(D); P(diff); EOL;
+        if (diff <= i256_1 or diff * 10E18L < D) {
             E;
-            //P(D); EOL;
+            P(D); EOL;
             return D;
         }
     }
@@ -266,7 +276,7 @@ i256 geometric_mean(vector<i256> x) {
 }
 
 auto reduction_coefficient(vector<i256> const &x, i256 const &gamma) {
-    T;
+    P256(x); P(gamma); EOL;
     auto N256 = i256((i256_init) x.size());
     auto x_prod = grain;
     auto K = grain;
@@ -279,8 +289,7 @@ auto reduction_coefficient(vector<i256> const &x, i256 const &gamma) {
     if (gamma.sign() > 0) {
         K = gamma * grain / (gamma + grain - K);
     }
-    E;
-    //P(K); EOL;
+    P(K); EOL;
     return K;
 }
 
@@ -295,7 +304,7 @@ void print(vector<i256> const &x) {
 auto newton_D(i256 A, i256 const &gamma, vector<i256> x, i256 const &D0) {
     auto D = D0;
     int i = 0;
-
+    P(A); P(gamma); P(D0); P256(x);
     i256 S;
     for (auto const &q: x) S += q;
     sort(x.begin(), x.end(), [](i256 const &l, i256 const &r) { return l > r; });
@@ -330,7 +339,8 @@ auto newton_D(i256 A, i256 const &gamma, vector<i256> x, i256 const &D0) {
         if (D.sign() < 0) {
             D = D.abs() / i256_2;
         }
-        if ((D - D_prev).abs() <= max(i256_100, D / grain14)) {
+        if ((D - D_prev).abs() <= max(grain2, D / grain14)) {
+            P(D); EOL;
             return D;
         }
     }
@@ -339,9 +349,10 @@ auto newton_D(i256 A, i256 const &gamma, vector<i256> x, i256 const &D0) {
 
 auto newton_y(i256 A, i256 const &gamma, vector<i256> const &x, i256 const &D, int i) {
     auto save_trace = trace;
-    TROFF;
+    TRON;
     T;
-    //P256(x);
+    P(A); P(gamma); P(D); DP(i); EOL;
+    P256(x);
     auto N = x.size();
     i256 N256((i256_init) N);
 
@@ -358,15 +369,15 @@ auto newton_y(i256 A, i256 const &gamma, vector<i256> const &x, i256 const &D, i
     auto max_x_sorted = x_sorted.back();
     //for (auto const &q: x_sorted) max_x_sorted = max(max_x_sorted, q);
     //P(max_x_sorted);
-    auto convergence_limit = max(max_x_sorted / grain14, D / grain14);
-    convergence_limit = max(convergence_limit, i256_100);
+    auto convergence_limit = max(max_x_sorted / 1E14L, D / 1E14L);
+    convergence_limit = max(convergence_limit.get_double(), 1E-16L);
     //P(convergence_limit); EOL;
     for (auto const &_x: x_sorted) {
         y = y * D / (_x * N256); //  # Small _x first
         S_i += _x;
         K0_i = K0_i * _x * N256 / D; //  # Large _x first
     }
-    //P(S_i); EOL;
+    //P(S_i);
     // for (auto it = x_sorted.rbegin(); it != x_sorted.rend(); it++) {
     //    auto const _x = *it;
     //    K0_i = K0_i * _x * N256 / D; //  # Large _x first
@@ -409,12 +420,11 @@ auto newton_y(i256 A, i256 const &gamma, vector<i256> const &x, i256 const &D, i
         }
         if (y.sign() < 0 or fprime.sign() < 0) {
             y = y_prev / i256_2;
-            //P(y);
+            //P(y); EOL;
         }
 
         if ((y - y_prev).abs() <= max(convergence_limit, y / grain14)) {
-            E;
-            //P(y); EOL;
+            P(y); EOL;
             trace = save_trace;
             TRON;
             return y;
@@ -435,11 +445,11 @@ auto solve_x(i256 const &A, i256 const &gamma, vector<i256> const &x, i256 const
 
 auto solve_D(i256 const &A, i256 const &gamma, vector<i256> const &x) {
     T;
-    //P(A);
-    //P(gamma);
-    //P256(x);
+    P(A);
+    P(gamma); EOL;
+    P256(x);
     auto D0 = i256((i256_init)x.size()) * geometric_mean(x); //  # <- fuzz to make sure it's ok XXX
-    //P(D0); EOL;
+    P(D0); EOL;
     return newton_D(A, gamma, x, D0);
 }
 
@@ -464,7 +474,6 @@ struct Curve {
     }
 
     auto xp() const {
-        T;
         //P256(x);
         //P256(p);
         vector<i256> ret(x.size());
@@ -476,7 +485,6 @@ struct Curve {
     }
 
     auto D() const {
-        T;
         auto xp = this->xp();
         //P256(xp);
         for (auto const &x: xp) {
@@ -484,14 +492,18 @@ struct Curve {
                 throw logic_error("Curve::D(): x <= 0");
             }
         }
-        return solve_D(A, gamma, xp);
+        auto ret = solve_D(A, gamma, xp);
+        P(ret); EOL;
+        return ret;
     }
 
     auto y(i256 x, int i, int j) {
         auto xp = this->xp();
         xp[i] = x * this->p[i] / grain;
         auto yp = solve_x(A, gamma, xp, this->D(), j);
-        return i256(yp * grain / this->p[j]);
+        auto ret = i256(yp * grain / this->p[j]);
+        P(ret); EOL;
+        return ret;
     }
 
     i256 A;
@@ -560,15 +572,19 @@ struct Trader {
     }
 
     auto price(int i, int j) {
+        //printf("price: i=%d j=%d\n", i, j);
         auto dx_raw = dx * grain / curve.p[i];
-        auto ret = dx_raw * grain / (curve.x[j] - curve.y(curve.x[i] + dx_raw, i, j));
-        //P(ret);
+        auto curve_res = curve.y(curve.x[i] + dx_raw, i, j);
+        auto ret = dx_raw * grain / (curve.x[j] - curve_res);
+        P256(curve.x);
+        P(curve_res);
+        P(dx_raw);
+        P(ret); EOL;
         return ret;
     }
 
     auto step_for_price(i256 dp, pair<int, int> p, int sign) {
-        T;
-        //P(dp); // printf("(%d,%d)\n", p.first, p.second);
+        P(dp); EOL; // printf("(%d,%d)\n", p.first, p.second);
         auto p0 = price(p.first, p.second);
         //P(p0);
         dp = p0 * dp / grain;
@@ -580,10 +596,11 @@ struct Trader {
         while (true) {
             curve.x[p.first] = x0[p.first] + i256((i256_init) sign) * step;
             auto dp_ = (p0 - price(p.first, p.second)).abs();
+            //P256(curve.x);
+            //P(dp_); EOL;
             if (dp_ >= dp or step >= curve.x[p.first] / i256_10) {
                 curve.x = x0;
-                E;
-                //P(step); EOL;
+                P(step); EOL;
                 return step;
             }
             step += step;
@@ -661,7 +678,7 @@ struct Trader {
     }
 
     auto tweak_price(u64 t, int a, int b, i256 const &p) {
-        TROFF;
+        //TROFF;
         ma_recorder(t, last_price);
         if (b > 0) {
             last_price[b] = p * last_price[a] / grain;
@@ -670,8 +687,8 @@ struct Trader {
         }
 
         // # price_oracle looks like [1, p1, p2, ...] normalized to 1e18
-        P256(price_oracle);
-        P256(curve.p);
+        //P256(price_oracle);
+        //P256(curve.p);
         i256 S;
         for (size_t i = 0; i < price_oracle.size(); i++) {
             auto t = price_oracle[i] * grain / curve.p[i] - grain;
@@ -681,13 +698,14 @@ struct Trader {
         // @@@norm.root_to(2);
         auto mxp = (max(price_threshold, adjustment_step));
         norm.root_to();
-        P(norm);
-        P(price_threshold);
-        P(adjustment_step); EOL;
+        //P(norm);
+        //P(price_threshold);
+        //P(adjustment_step); EOL;
         if (norm <= mxp) {
             // Already close to the target price
             is_light = true;
             light_tx += 1;
+            P(norm); EOL;
             return norm;
         }
         T;
@@ -697,6 +715,7 @@ struct Trader {
         if (not not_adjusted) {
             light_tx += 1;
             is_light = true;
+            P(norm); EOL;
             return norm;
         }
         heavy_tx += 1;
@@ -725,16 +744,17 @@ struct Trader {
             auto val = ((xcp_profit_real - grain - (xcp_profit - grain) / i256_2).get_double() / dgrain);
             // printf("%.6f\n", val);
         }
+        P(norm); EOL;
         return norm;
     }
 
 
     void simulate(vector<trade_data> const &mdata) {
         map<pair<int,int>,i256> lasts;
-        TROFF;
+        TRON;
         auto t = mdata[0].t;
         for (size_t i = 0; i < mdata.size(); i++)  {
-            //if (i > 10) abort();
+            // if (i > 10) abort();
             auto const &d = mdata[i];
             // auto i = d.t;
             auto a = d.pair1.first;
@@ -759,7 +779,6 @@ struct Trader {
             //  f = reduction_coefficient(self.curve.xp(), self.curve.gamma)
             //DP(d.high);
             //DP(d.low); EOL;
-            //P(grain17);
             auto candle = min(i256(dgrain * fabs((d.high - d.low) / d.high)), grain17);
             //P(candle); EOL;
             candle = max(grain15, candle);
@@ -767,49 +786,49 @@ struct Trader {
             auto step1 = step_for_price(candle / i256_50, d.pair1, 1);
             auto step2 = step_for_price(candle / i256_50, d.pair1, -1);
             auto step = min(step1, step2);
-            //P(step1);
-            //P(step2);
-            //P(step); EOL;
+            P(step1);
+            P(step2);
+            P(step); EOL;
 
             auto max_price = dgrain * d.high;
-            //DP(max_price); EOL;
+            DP(max_price); EOL;
             i256 _dx;
             auto p_before = price(a, b);
-            //P(p_before); EOL;
+            P(p_before); EOL;
             while (last.get_double() < max_price and vol < ext_vol / i256_2) {
                 auto dy = buy(step, a, b, max_price);
-                //P(dy); EOL;
+                P(dy); EOL;
                 if (dy.is_zero()) {
                     break;
                 }
                 vol += dy * price_oracle[b] / grain;
-                //P(vol);
+                P(vol);
                 _dx += dy;
-                //P(_dx);
+                P(_dx);
                 last = step * grain / dy;
-                //P(last);
+                P(last);
                 max_price = dgrain * d.high;
                 ctr += 1;
-                //DP(max_price); DP((double)ctr); EOL;
+                DP(max_price); DP((long double)ctr); EOL;
             }
             auto p_after = price(a, b);
-            //P(p_before); P(p_after); EOL;
+            P(p_before); P(p_after); EOL;
             if (p_before != p_after) {
                 slippage_count++;
                 slippage += _dx * curve.p[b] / grain * (p_before + p_after) / (i256_2 * (p_before - p_after).abs());
-                //DP((double)slippage_count); P(slippage); EOL;
+                DP((long double)slippage_count); P(slippage); EOL;
             }
             _high = last;
             auto min_price = dgrain * d.low;
-            //DP(min_price); EOL;
+            DP(min_price); EOL;
             _dx = i256_0;
             p_before = p_after;
-            //P(p_before); EOL;
+            P(p_before); EOL;
             while (last.get_double() > min_price and vol < ext_vol / i256_2) {
                 auto dx = step * grain / last;
-                //P(dx); EOL;
+                P(dx); EOL;
                 auto dy = sell(dx, a, b, min_price);
-                //P(dy); EOL;
+                P(dy); EOL;
                 _dx += dx;
                 if (dy.is_zero()) {
                     break;
@@ -818,23 +837,23 @@ struct Trader {
                 last = dy * grain / dx;
                 min_price = dgrain * d.low;
                 ctr += 1;
-                //P(vol); P(last); DP(min_price); DP((double)ctr); EOL;
+                P(vol); P(last); DP(min_price); DP((long double)ctr); EOL;
             }
             p_after = price(a, b);
-            //P(p_before); P(p_after); EOL;
+            P(p_before); P(p_after); EOL;
             if (p_before != p_after) {
                 slippage_count += 1;
                 slippage += _dx * curve.p[b] / grain * (p_before + p_after) / (i256_2 * (p_before - p_after).abs());
             }
             _low = last;
-            //P(_low); EOL;
+            P(_low); EOL;
             lasts[d.pair1] = last;
 
             tweak_price(d.t, a, b, (_high + _low) / i256_2);
 
             total_vol += vol.get_double();
-            //DP(total_vol); EOL;
-            if (i % 1024 == 0 && log) {
+            DP(total_vol); EOL;
+            if (log) {
                 try {
                     long double last01, last02;
                     auto it01 = lasts.find({0,1});
