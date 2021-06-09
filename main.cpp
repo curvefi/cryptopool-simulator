@@ -263,7 +263,7 @@ i256 geometric_mean(vector<i256> x) {
         for (auto const &_x: x) {
             tmp = tmp * _x / D;
         }
-        D = (D * (N1256 * grain + tmp)) / (N256 * grain);
+        D = (D * (N1256 + tmp)) / (N256);
         auto diff = (D - D_prev).abs();
         P(D); P(diff); EOL;
         if (diff <= i256_1 or diff * 10E18L < D) {
@@ -283,11 +283,11 @@ auto reduction_coefficient(vector<i256> const &x, i256 const &gamma) {
     i256 S;
     for (auto const &q: x) S += q; // = sum(x)
     for (auto const &x_i: x) {
-        x_prod = x_prod * x_i / grain;
+        x_prod = x_prod * x_i;
         K = K * N256 * x_i / S;
     }
     if (gamma.sign() > 0) {
-        K = gamma * grain / (gamma + grain - K);
+        K = gamma / (gamma + grain - K);
     }
     P(K); EOL;
     return K;
@@ -325,16 +325,16 @@ auto newton_D(i256 A, i256 const &gamma, vector<i256> x, i256 const &D0) {
         auto _g1k0 = (gamma + grain - K0).abs();
 
         // # D / (A * N**N) * _g1k0**2 / gamma**2
-        auto mul1 = grain * D / gamma * _g1k0 / gamma * _g1k0 / A;
+        auto mul1 = D / gamma * _g1k0 / gamma * _g1k0 / A;
 
         // # 2*N*K0 / _g1k0
         auto mul2 = (grain + grain) * N256 * K0 / _g1k0;
 
-        auto neg_fprime = (S + S * mul2 / grain) + mul1 * N256 / K0 - mul2 * D / grain;
+        auto neg_fprime = (S + S * mul2) + mul1 * N256 / K0 - mul2 * D;
         assert (neg_fprime.sign() > 0); //   # Python only: -f' > 0
 
         // # D -= f / fprime
-        D = (D * neg_fprime + D * S - D * D) / neg_fprime - D * (mul1 / neg_fprime) / grain * (grain - K0) / K0;
+        D = (D * neg_fprime + D * S - D * D) / neg_fprime - D * (mul1 / neg_fprime) * (grain - K0) / K0;
 
         if (D.sign() < 0) {
             D = D.abs() / i256_2;
@@ -399,20 +399,20 @@ auto newton_y(i256 A, i256 const &gamma, vector<i256> const &x, i256 const &D, i
         auto _g1k0 = (gamma + grain - K0).abs();
 
         // D / (A * N**N) * _g1k0**2 / gamma**2
-        auto mul1 = grain * D / gamma * _g1k0 / gamma * _g1k0 / A;
+        auto mul1 = D / gamma * _g1k0 / gamma * _g1k0 / A;
         //P(mul1); P(D); P(gamma); P(_g1k0); P(A); EOL;
         // 2*K0 / _g1k0
-        auto mul2 = grain + (grain+grain) * K0 / _g1k0;
+        auto mul2 = i256(1.L) + i256(2.L) * K0 / _g1k0;
         //P(mul2);
 
-        auto yfprime = (grain * y + S * mul2 + mul1 - D * mul2);
+        auto yfprime = (y + S * mul2 + mul1 - D * mul2);
         //P(yfprime);
         auto fprime = yfprime / y;
         //P(fprime); EOL;
         assert (fprime.sign()  > 0) ;  //# Python only: f' > 0
 
         // y -= f / f_prime;  y = (y * fprime - f) / fprime
-        y = (yfprime + grain * D - grain * S) / fprime + mul1 / fprime * (grain - K0) / K0;
+        y = (yfprime + D - S) / fprime + mul1 / fprime * (i256(1.L) - K0) / K0;
         //P(y); EOL;
         if (j > 100) { //  # Just logging when doesn't converge
             printf("%zu %s %s ", j, y.to_string(10).c_str(), D.to_string(10).c_str());
@@ -468,7 +468,7 @@ struct Curve {
         }
         this->x.resize(n);
         for(int i = 0; i < n; i++) {
-            x[i] = D / i256((i256_init)n) * grain / p[i];
+            x[i] = D / i256((i256_init)n) / p[i];
         }
         //P256(x);
     }
@@ -478,7 +478,7 @@ struct Curve {
         //P256(p);
         vector<i256> ret(x.size());
         for (int i = 0; i < x.size(); i++) {
-            ret[i] = x[i] * p[i] / grain;
+            ret[i] = x[i] * p[i];
         }
         //P256(ret);
         return ret;
@@ -499,9 +499,9 @@ struct Curve {
 
     auto y(i256 x, int i, int j) {
         auto xp = this->xp();
-        xp[i] = x * this->p[i] / grain;
+        xp[i] = x * this->p[i];
         auto yp = solve_x(A, gamma, xp, this->D(), j);
-        auto ret = i256(yp * grain / this->p[j]);
+        auto ret = i256(yp / this->p[j]);
         P(ret); EOL;
         return ret;
     }
@@ -555,7 +555,7 @@ struct Trader {
 
     auto fee() {
         auto f = reduction_coefficient(curve.xp(), fee_gamma);
-        return (mid_fee * f + out_fee * (grain - f)) / grain;
+        return (mid_fee * f + out_fee * (grain - f));
     }
 
     i256 get_xcp() const {
@@ -565,7 +565,7 @@ struct Trader {
         i256 N256((i256_init) curve.x.size());
         vector<i256> X(curve.p.size());
         for (size_t i = 0; i < X.size(); i++) {
-            X[i] = D * grain / (N256 * curve.p[i]);
+            X[i] = D  / (N256 * curve.p[i]);
         }
 
         return geometric_mean(X);
@@ -573,9 +573,9 @@ struct Trader {
 
     auto price(int i, int j) {
         //printf("price: i=%d j=%d\n", i, j);
-        auto dx_raw = dx * grain / curve.p[i];
+        auto dx_raw = dx  / curve.p[i];
         auto curve_res = curve.y(curve.x[i] + dx_raw, i, j);
-        auto ret = dx_raw * grain / (curve.x[j] - curve_res);
+        auto ret = dx_raw  / (curve.x[j] - curve_res);
         P256(curve.x);
         P(curve_res);
         P(dx_raw);
@@ -587,11 +587,11 @@ struct Trader {
         P(dp); EOL; // printf("(%d,%d)\n", p.first, p.second);
         auto p0 = price(p.first, p.second);
         //P(p0);
-        dp = p0 * dp / grain;
+        dp = p0 * dp;
         //P(dp);
         auto x0 = curve.x;
         //P256(x0);
-        auto step = dx * grain / curve.p[p.first];
+        auto step = dx / curve.p[p.first];
         //P(step);
         while (true) {
             curve.x[p.first] = x0[p.first] + i256((i256_init) sign) * step;
@@ -628,9 +628,9 @@ struct Trader {
             curve.x[i] = x;
             curve.x[j] = y;
             auto fee = this->fee();
-            curve.x[j] += dy * fee / grain;
-            dy = dy * (grain - fee) / grain;
-            if ((dx * grain / dy).get_double() > max_price or dy.sign() < 0) {
+            curve.x[j] += dy * fee;
+            dy = dy * (grain - fee);
+            if ((dx / dy).get_double() > max_price or dy.sign() < 0) {
                 curve.x = x_old;
                 return i256_0;
             }
@@ -653,9 +653,9 @@ struct Trader {
             curve.x[i] = x;
             curve.x[j] = y;
             auto fee = this->fee();
-            curve.x[i] += dx * fee / grain;
-            dx = dx * (grain - fee) / grain;
-            if ((dx * grain / dy).get_double() < min_price or dx.sign() < 0) {
+            curve.x[i] += dx * fee;
+            dx = dx * (grain - fee);
+            if ((dx / dy).get_double() < min_price or dx.sign() < 0) {
                 curve.x = x_old;
                 return i256_0;
             }
@@ -681,9 +681,9 @@ struct Trader {
         //TROFF;
         ma_recorder(t, last_price);
         if (b > 0) {
-            last_price[b] = p * last_price[a] / grain;
+            last_price[b] = p * last_price[a];
         } else {
-            last_price[a] = last_price[0] * grain / p;
+            last_price[a] = last_price[0] / p;
         }
 
         // # price_oracle looks like [1, p1, p2, ...] normalized to 1e18
@@ -691,7 +691,7 @@ struct Trader {
         //P256(curve.p);
         i256 S;
         for (size_t i = 0; i < price_oracle.size(); i++) {
-            auto t = price_oracle[i] * grain / curve.p[i] - grain;
+            auto t = price_oracle[i] / curve.p[i] - grain;
             S += t*t;
         }
         auto norm = S;
@@ -767,7 +767,7 @@ struct Trader {
             i256 last;
             auto itl = lasts.find({a,b});
             if (itl == lasts.end()) {
-                last = price_oracle[b] * grain / price_oracle[a];
+                last = price_oracle[b] / price_oracle[a];
             } else {
                 last = itl->second;
             }
@@ -801,11 +801,11 @@ struct Trader {
                 if (dy.is_zero()) {
                     break;
                 }
-                vol += dy * price_oracle[b] / grain;
+                vol += dy * price_oracle[b];
                 P(vol);
                 _dx += dy;
                 P(_dx);
-                last = step * grain / dy;
+                last = step / dy;
                 P(last);
                 max_price = dgrain * d.high;
                 ctr += 1;
@@ -815,7 +815,7 @@ struct Trader {
             P(p_before); P(p_after); EOL;
             if (p_before != p_after) {
                 slippage_count++;
-                slippage += _dx * curve.p[b] / grain * (p_before + p_after) / (i256_2 * (p_before - p_after).abs());
+                slippage += _dx * curve.p[b] * (p_before + p_after) / (i256_2 * (p_before - p_after).abs());
                 DP((long double)slippage_count); P(slippage); EOL;
             }
             _high = last;
@@ -825,7 +825,7 @@ struct Trader {
             p_before = p_after;
             P(p_before); EOL;
             while (last.get_double() > min_price and vol < ext_vol / i256_2) {
-                auto dx = step * grain / last;
+                auto dx = step / last;
                 P(dx); EOL;
                 auto dy = sell(dx, a, b, min_price);
                 P(dy); EOL;
@@ -833,8 +833,8 @@ struct Trader {
                 if (dy.is_zero()) {
                     break;
                 }
-                vol += dx * price_oracle[b] / grain;
-                last = dy * grain / dx;
+                vol += dx * price_oracle[b];
+                last = dy / dx;
                 min_price = dgrain * d.low;
                 ctr += 1;
                 P(vol); P(last); DP(min_price); DP((long double)ctr); EOL;
@@ -843,7 +843,7 @@ struct Trader {
             P(p_before); P(p_after); EOL;
             if (p_before != p_after) {
                 slippage_count += 1;
-                slippage += _dx * curve.p[b] / grain * (p_before + p_after) / (i256_2 * (p_before - p_after).abs());
+                slippage += _dx * curve.p[b] / (p_before + p_after) / (i256_2 * (p_before - p_after).abs());
             }
             _low = last;
             P(_low); EOL;
@@ -853,7 +853,7 @@ struct Trader {
 
             total_vol += vol.get_double();
             DP(total_vol); EOL;
-            if (log) {
+            if (i % 1024 == 0 && log) {
                 try {
                     long double last01, last02;
                     auto it01 = lasts.find({0,1});
@@ -874,16 +874,16 @@ struct Trader {
                            "AMM: %.0Lf, %0.Lf\tTarget: %.0Lf, %.0Lf\t"
                            "Vol: %.4Lf\tPR:%.2Lf\txCP-growth: {%.5Lf}\t"
                            "APY:%.1Lf%%\tfee:%.3Lf%% %c\n",
-                          d.t,
-                          100.L * i / mdata.size(), ctr, last01, last02,
-                          curve.p[1].get_double() / dgrain,
-                          curve.p[2].get_double() / dgrain,
-                          total_vol / dgrain,
-                          (xcp_profit_real - grain).get_double() / (xcp_profit - grain).get_double(),
-                          xcp_profit_real.get_double() / dgrain,
+                           d.t,
+                           100.L * i / mdata.size(), ctr, last01, last02,
+                           curve.p[1].get_double() / dgrain,
+                           curve.p[2].get_double() / dgrain,
+                           total_vol / dgrain,
+                           (xcp_profit_real - grain).get_double() / (xcp_profit - grain).get_double(),
+                           xcp_profit_real.get_double() / dgrain,
                            (pow(ARU_x, ARU_y) - 1.L) * 100.L,
-                          fee().get_double() / dgrain * 100.L,
-                          is_light? '*' : '.');
+                           fee().get_double() / dgrain * 100.L,
+                           is_light? '*' : '.');
                 } catch (exception const &e) {
                     printf("caught '%s'\n", e.what());
                 }
@@ -953,11 +953,12 @@ int main() {
     //debug_print("test_data first 5", test_data, 5);
     //debug_print("test_data last 5", test_data, -5);
     Trader trader(i256("135"), i256((7e-5 * dgrain)), i256(grain*i256((i256_init )5'000'000)), 3, get_price_vector(3, test_data),
-            4e-4, 4.0e-3,
-            0.0028, i256(0.01 * dgrain),
-            0.0015, 600);
+                  4e-4, 4.0e-3,
+                  0.0028, i256(0.01 * dgrain),
+                  0.0015, 600);
+    clock_t start_simulation = clock();
     trader.simulate(test_data);
     printf("Fraction of light transactions:%.5f\n", (double)(trader.light_tx) / (trader.light_tx + trader.heavy_tx));
     clock_t end = clock();
-    print_clock("Total time", start, end);
+    print_clock("Total simulation time", start_simulation, end);
 }
