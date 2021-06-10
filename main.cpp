@@ -17,8 +17,6 @@
 #include "bn_ldbl.h"
 #define DEBUG 0
 static int trace = DEBUG;
-#define TROFF { trace = 0; }
-#define TRON { trace = DEBUG; }
 #if DEBUG > 1
 #define T printf("Entering %s\n", __PRETTY_FUNCTION__)
 #define DBG printf("Now in %s line %d\n", __PRETTY_FUNCTION__ , __LINE__)
@@ -296,7 +294,6 @@ void print(vector<i256> const &x) {
 
 auto newton_D(i256 A, i256 const &gamma, vector<i256> x, i256 const &D0) {
     auto D = D0;
-    int i = 0;
     i256 S;
     for (auto const &q: x) S += q;
     sort(x.begin(), x.end(), [](i256 const &l, i256 const &r) { return l > r; });
@@ -332,7 +329,6 @@ auto newton_D(i256 A, i256 const &gamma, vector<i256> x, i256 const &D0) {
             D = D.abs() / i256_2;
         }
         if ((D - D_prev).abs() <= max(grain2, D / grain14)) {
-            P(D); EOL;
             return D;
         }
     }
@@ -473,15 +469,15 @@ struct Trader {
         this->last_price = this->p0;
         // this->curve = Curve(A, gamma, D, n, p0);
         this->dx = i256(D * i256(1e-8L));
-        this->mid_fee = i256((mid_fee * dgrain));
-        this->out_fee = i256((out_fee * dgrain));
+        this->mid_fee = i256((mid_fee));
+        this->out_fee = i256((out_fee));
         this->D0 = this->curve.D();
         this->xcp_0 = this->get_xcp();
         this->xcp_profit = grain;
         this->xcp_profit_real = grain;
         this->xcp = this->xcp_0;
-        this->price_threshold = i256(price_threshold * dgrain);
-        this->adjustment_step = i256(adjustment_step * dgrain);
+        this->price_threshold = i256(price_threshold);
+        this->adjustment_step = i256(adjustment_step);
         this->log = log;
         this->fee_gamma = fee_gamma; // || gamma;
         this->total_vol = 0.0;
@@ -662,7 +658,7 @@ struct Trader {
             xcp_profit_real = old_profit;
             xcp = old_xcp;
             not_adjusted = false;
-            auto val = ((xcp_profit_real - grain - (xcp_profit - grain) / i256_2).get_double() / dgrain);
+            auto val = ((xcp_profit_real - grain - (xcp_profit - grain) / i256_2).get_double());
         }
         return norm;
     }
@@ -692,12 +688,12 @@ struct Trader {
 
             //  Dynamic step
             //  f = reduction_coefficient(self.curve.xp(), self.curve.gamma)
-            auto candle = min(i256(dgrain * fabs((d.high - d.low) / d.high)), grain17);
+            auto candle = min(i256(fabs((d.high - d.low) / d.high)), grain17);
             candle = max(grain15, candle);
             auto step1 = step_for_price(candle / i256_50, d.pair1, 1);
             auto step2 = step_for_price(candle / i256_50, d.pair1, -1);
             auto step = min(step1, step2);
-            auto max_price = dgrain * d.high;
+            auto max_price = d.high;
             i256 _dx;
             auto p_before = price(a, b);
             while (last.get_double() < max_price and vol < ext_vol / i256_2) {
@@ -708,17 +704,16 @@ struct Trader {
                 vol += dy * price_oracle[b];
                 _dx += dy;
                 last = step / dy;
-                max_price = dgrain * d.high;
+                max_price = d.high;
                 ctr += 1;
             }
             auto p_after = price(a, b);
             if (p_before != p_after) {
                 slippage_count++;
                 slippage += _dx * curve.p[b] * (p_before + p_after) / (i256_2 * (p_before - p_after).abs());
-                DP((long double)slippage_count); P(slippage); EOL;
             }
             _high = last;
-            auto min_price = dgrain * d.low;
+            auto min_price = d.low;
             _dx = i256_0;
             p_before = p_after;
             while (last.get_double() > min_price and vol < ext_vol / i256_2) {
@@ -730,7 +725,7 @@ struct Trader {
                 }
                 vol += dx * price_oracle[b];
                 last = dy / dx;
-                min_price = dgrain * d.low;
+                min_price = d.low;
                 ctr += 1;
             }
             p_after = price(a, b);
@@ -749,17 +744,17 @@ struct Trader {
                     long double last01, last02;
                     auto it01 = lasts.find({0,1});
                     if (it01 == lasts.end()) {
-                        last01 = price_oracle[1].get_double() * dgrain / price_oracle[0].get_double() / dgrain;
+                        last01 = price_oracle[1].get_double() / price_oracle[0].get_double();
                     } else {
-                        last01 = it01->second.get_double() / dgrain;
+                        last01 = it01->second.get_double();
                     }
                     auto it02 = lasts.find({0,2});
                     if (it02 == lasts.end()) {
-                        last02 = price_oracle[2].get_double() * dgrain / price_oracle[0].get_double() / dgrain;
+                        last02 = price_oracle[2].get_double() / price_oracle[0].get_double();
                     } else {
-                        last02 = it02->second.get_double() / dgrain;
+                        last02 = it02->second.get_double();
                     }
-                    long double ARU_x = xcp_profit_real.get_double() / dgrain;
+                    long double ARU_x = xcp_profit_real.get_double();
                     long double ARU_y = (86400.L * 365.L / (d.t - mdata[0].t + 1.L));
                     printf("t=%llu %.1Lf%%\ttrades: %d\t"
                            "AMM: %.0Lf, %0.Lf\tTarget: %.0Lf, %.0Lf\t"
@@ -767,13 +762,13 @@ struct Trader {
                            "APY:%.1Lf%%\tfee:%.3Lf%% %c\n",
                            d.t,
                            100.L * i / mdata.size(), ctr, last01, last02,
-                           curve.p[1].get_double() / dgrain,
-                           curve.p[2].get_double() / dgrain,
-                           total_vol / dgrain,
+                           curve.p[1].get_double(),
+                           curve.p[2].get_double(),
+                           total_vol,
                            (xcp_profit_real - grain).get_double() / (xcp_profit - grain).get_double(),
-                           xcp_profit_real.get_double() / dgrain,
+                           xcp_profit_real.get_double(),
                            (pow(ARU_x, ARU_y) - 1.L) * 100.L,
-                           fee().get_double() / dgrain * 100.L,
+                           fee().get_double() /100.L,
                            is_light? '*' : '.');
                 } catch (exception const &e) {
                     printf("caught '%s'\n", e.what());
@@ -840,7 +835,7 @@ int main() {
     const int LAST_ELEMS = 100000;
     clock_t start = clock();
     auto test_data = get_all();
-    test_data.erase(test_data.begin(), test_data.begin() + test_data.size() - LAST_ELEMS);
+    //test_data.erase(test_data.begin(), test_data.begin() + test_data.size() - LAST_ELEMS);
     //debug_print("test_data first 5", test_data, 5);
     //debug_print("test_data last 5", test_data, -5);
     Trader trader(i256("135"), i256((7e-5 * dgrain)), i256(grain*i256((i256_init )5'000'000)), 3, get_price_vector(3, test_data),
