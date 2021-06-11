@@ -444,7 +444,7 @@ struct Trader {
            money mid_fee,
            money out_fee,
            money price_threshold,
-           i256 const &fee_gamma,
+           money const &fee_gamma,
            money adjustment_step,
            int ma_half_time,
            bool log = true) : curve(A, gamma, D, n, p0) {
@@ -452,16 +452,16 @@ struct Trader {
         this->price_oracle = this->p0;
         this->last_price = this->p0;
         // this->curve = Curve(A, gamma, D, n, p0);
-        this->dx = i256(D * 1e-8L);
-        this->mid_fee = i256((mid_fee));
-        this->out_fee = i256((out_fee));
+        this->dx = D * 1e-8L;
+        this->mid_fee = mid_fee;
+        this->out_fee = out_fee;
         this->D0 = this->curve.D();
-        this->xcp_0 = this->get_xcp();
-        this->xcp_profit = i256(1);
-        this->xcp_profit_real = i256(1);
+        this->xcp_0 = this->get_xcp().get_double();
+        this->xcp_profit = 1.L;
+        this->xcp_profit_real = 1.L;
         this->xcp = this->xcp_0;
-        this->price_threshold = i256(price_threshold);
-        this->adjustment_step = i256(adjustment_step);
+        this->price_threshold = price_threshold;
+        this->adjustment_step = adjustment_step;
         this->log = log;
         this->fee_gamma = fee_gamma; // || gamma;
         this->total_vol = 0.0;
@@ -479,7 +479,7 @@ struct Trader {
 
     auto fee() {
         auto f = reduction_coefficient(curve.xp(), fee_gamma);
-        return (mid_fee * f + out_fee * (i256(1) - f));
+        return (mid_fee * f + out_fee * (1.L - f));
     }
 
     i256 get_xcp() const {
@@ -498,19 +498,19 @@ struct Trader {
     auto price(int i, int j) {
         auto dx_raw = dx  / curve.p[i];
         auto curve_res = curve.y(curve.x[i] + dx_raw, i, j);
-        auto ret = dx_raw  / (curve.x[j] - curve_res);
+        auto ret = dx_raw  / (curve.x[j].get_double() - curve_res.get_double());
         return ret;
     }
 
     auto step_for_price(i256 dp, pair<int, int> p, int sign) {
         auto p0 = price(p.first, p.second);
-        dp = p0 * dp;
+        dp = p0 * dp.get_double();
         auto x0 = curve.x;
         auto step = dx / curve.p[p.first];
         while (true) {
             curve.x[p.first] = x0[p.first] + i256((i256_init) sign) * step;
-            auto dp_ = (p0 - price(p.first, p.second)).abs();
-            if (dp_ >= dp or step >= curve.x[p.first] / i256(10)) {
+            auto dp_ = abs(p0 - price(p.first, p.second));
+            if (dp_ >= dp.get_double() or step >= curve.x[p.first].get_double() / 10.L) {
                 curve.x = x0;
                 return step;
             }
@@ -520,11 +520,11 @@ struct Trader {
 
     void update_xcp(bool only_real=false) {
         auto xcp = get_xcp();
-        xcp_profit_real = xcp_profit_real * xcp / this->xcp;
+        xcp_profit_real = xcp_profit_real * xcp.get_double() / this->xcp;
         if (not only_real) {
-            xcp_profit = xcp_profit * xcp / this->xcp;
+            xcp_profit = xcp_profit * xcp.get_double() / this->xcp;
         }
-        this->xcp = xcp;
+        this->xcp = xcp.get_double();
     }
 
     i256 buy(i256 const &dx, int i, int j, double max_price=1e100) {
@@ -611,7 +611,7 @@ struct Trader {
             light_tx += 1;
             return norm;
         }
-        if (not not_adjusted and (xcp_profit_real - i256(1) > (xcp_profit - i256(1)) / 2.L + grain13)) {
+        if (not not_adjusted and (xcp_profit_real - 1.L > (xcp_profit - 1.L) / 2.L + grain13.get_double())) {
             not_adjusted = true;
         }
         if (not not_adjusted) {
@@ -627,7 +627,7 @@ struct Trader {
         for (size_t i = 1; i < price_oracle.size(); i++) {
             auto p_target = curve.p[i];
             auto p_real = price_oracle[i];
-            p_new[i] = p_target + adjustment_step.get_double() * (p_real - p_target) / norm.get_double();
+            p_new[i] = p_target + adjustment_step * (p_real - p_target) / norm.get_double();
         }
         auto old_p = curve.p;
         auto old_profit = xcp_profit_real;
@@ -636,13 +636,13 @@ struct Trader {
         curve.p = p_new;
         update_xcp(true);
 
-        if (2.L * (xcp_profit_real - i256(1)).get_double() <= (xcp_profit - i256(1)).get_double()) {
+        if (2.L * (xcp_profit_real - 1.L) <= (xcp_profit - 1.L)) {
             //  If real profit is less than half of maximum - revert params back
             curve.p = old_p;
             xcp_profit_real = old_profit;
             xcp = old_xcp;
             not_adjusted = false;
-            auto val = ((xcp_profit_real - i256(1) - (xcp_profit - i256(1)) / 2.L).get_double());
+            auto val = ((xcp_profit_real - 1.L - (xcp_profit - 1.L) / 2.L));
             // printf("%.10Lf\n", val);
         }
         return norm;
@@ -689,21 +689,21 @@ struct Trader {
                 }
                 vol += dy * price_oracle[b];
                 _dx += dy;
-                last = step / dy;
+                last = step / dy.get_double();
                 max_price = d.high;
                 ctr += 1;
             }
             auto p_after = price(a, b);
             if (p_before != p_after) {
                 slippage_count++;
-                slippage += _dx * curve.p[b] * (p_before + p_after) / ((i256)2 * (p_before - p_after).abs());
+                slippage += _dx.get_double() * curve.p[b] * (p_before + p_after) / (2.L * abs(p_before - p_after));
             }
             _high = last;
             auto min_price = d.low;
             _dx = 0;
             p_before = p_after;
             while (last.get_double() > min_price and vol < ext_vol / i256(2)) {
-                auto dx = step / last;
+                auto dx = step / last.get_double();
                 auto dy = sell(dx, a, b, min_price);
                 _dx += dx;
                 if (dy.is_zero()) {
@@ -717,7 +717,7 @@ struct Trader {
             p_after = price(a, b);
             if (p_before != p_after) {
                 slippage_count += 1;
-                slippage += _dx * curve.p[b] / (p_before + p_after) / ((i256)2 * (p_before - p_after).abs());
+                slippage += _dx.get_double() * curve.p[b] / (p_before + p_after) / (2.L * abs(p_before - p_after));
             }
             _low = last;
             lasts[d.pair1] = last;
@@ -740,7 +740,7 @@ struct Trader {
                     } else {
                         last02 = it02->second.get_double();
                     }
-                    long double ARU_x = xcp_profit_real.get_double();
+                    long double ARU_x = xcp_profit_real;
                     long double ARU_y = (86400.L * 365.L / (d.t - mdata[0].t + 1.L));
                     printf("t=%llu %.1Lf%%\ttrades: %d\t"
                            "AMM: %.0Lf, %0.Lf\tTarget: %.0Lf, %.0Lf\t"
@@ -751,10 +751,10 @@ struct Trader {
                            curve.p[1],
                            curve.p[2],
                            total_vol,
-                           (xcp_profit_real - i256(1)).get_double() / (xcp_profit - i256(1)).get_double(),
-                           xcp_profit_real.get_double(),
+                           (xcp_profit_real - 1.) / (xcp_profit - 1.L),
+                           xcp_profit_real,
                            (pow(ARU_x, ARU_y) - 1.L) * 100.L,
-                           fee().get_double() * 100.L,
+                           fee() * 100.L,
                            is_light? '*' : '.');
                 } catch (exception const &e) {
                     printf("caught '%s'\n", e.what());
@@ -769,21 +769,21 @@ struct Trader {
     vector<money> price_oracle;
     vector<money> last_price;
     u64 t;
-    i256 dx;
-    i256 mid_fee;
-    i256 out_fee;
-    i256 D0;
-    i256 xcp, xcp_0;
-    i256 xcp_profit;
-    i256 xcp_profit_real;
-    i256 price_threshold;
-    i256 adjustment_step;
+    money dx;
+    money mid_fee;
+    money out_fee;
+    money D0;
+    money xcp, xcp_0;
+    money xcp_profit;
+    money xcp_profit_real;
+    money price_threshold;
+    money adjustment_step;
     bool log;
-    i256 fee_gamma;
-    long double total_vol;
+    money fee_gamma;
+    money total_vol;
     int ma_half_time;
-    i256 ext_fee;
-    i256 slippage;
+    money ext_fee;
+    money slippage;
     int slippage_count;
     bool not_adjusted;
     int  heavy_tx;
