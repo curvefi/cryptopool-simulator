@@ -388,18 +388,18 @@ auto solve_D(i256 const &A, i256 const &gamma, vector<i256> &x) {
 }
 
 struct Curve {
-    Curve(money const &A, money const &gamma, money const &D, int n, vector<i256> const &p) {
+    Curve(money const &A, money const &gamma, money const &D, int n, vector<money> const &p) {
         this->A = A;
         this->gamma = gamma;
         this->n = n;
         if (!p.empty()) {
             this->p = p;
         } else {
-            this->p.resize(n, i256(1));
+            this->p.resize(n, 1.L);
         }
         this->x.resize(n);
         for(int i = 0; i < n; i++) {
-            x[i] = D / n / p[i].get_double();
+            x[i] = D / n / p[i];
         }
     }
 
@@ -426,26 +426,26 @@ struct Curve {
         auto xp = this->xp();
         xp[i] = x * this->p[i];
         auto yp = solve_x(A, gamma, xp, this->D(), j);
-        auto ret = i256(yp / this->p[j].get_double());
+        auto ret = i256(yp / this->p[j]);
         return ret;
     }
 
     money A;
     money gamma;
     int n;
-    vector<i256> p;
+    vector<money> p;
     vector<i256> x;
 
 };
 
 
 struct Trader {
-    Trader(money const &A, money const &gamma, money const &D, int n, vector<i256> const &p0,
-           double mid_fee,
-           double out_fee,
-           double price_threshold,
+    Trader(money const &A, money const &gamma, money const &D, int n, vector<money> const &p0,
+           money mid_fee,
+           money out_fee,
+           money price_threshold,
            i256 const &fee_gamma,
-           double adjustment_step,
+           money adjustment_step,
            int ma_half_time,
            bool log = true) : curve(A, gamma, D, n, p0) {
         this->p0 = p0;
@@ -489,7 +489,7 @@ struct Trader {
         i256 N256((i256_init) curve.x.size());
         vector<i256> X(curve.p.size());
         for (size_t i = 0; i < X.size(); i++) {
-            X[i] = D  / (N256.get_double() * curve.p[i].get_double());
+            X[i] = D  / (N256.get_double() * curve.p[i]);
         }
 
         return geometric_mean(X);
@@ -577,18 +577,18 @@ struct Trader {
         }
     }
 
-    void ma_recorder(u64 t, vector<i256> const &price_vector) {
+    void ma_recorder(u64 t, vector<money> const &price_vector) {
         //  XXX what if every block only has p_b being last
         if (t > this->t) {
-            double alpha = pow(0.5, ((double)(t - this->t) / this->ma_half_time));
+            money alpha = pow(0.5, ((money)(t - this->t) / this->ma_half_time));
             for (int k = 1; k <= 2; k++) {
-                price_oracle[k] = i256(price_vector[k].get_double() * (1 - alpha) + price_oracle[k].get_double() * alpha);
+                price_oracle[k] = price_vector[k] * (1 - alpha) + price_oracle[k] * alpha;
             }
             this->t = t;
         }
     }
 
-    auto tweak_price(u64 t, int a, int b, i256 const &p) {
+    auto tweak_price(u64 t, int a, int b, money const &p) {
         ma_recorder(t, last_price);
         if (b > 0) {
             last_price[b] = p * last_price[a];
@@ -599,7 +599,7 @@ struct Trader {
         // # price_oracle looks like [1, p1, p2, ...] normalized to 1e18
         i256 S;
         for (size_t i = 0; i < price_oracle.size(); i++) {
-            auto t = price_oracle[i] / curve.p[i] - i256(1);
+            auto t = price_oracle[i] / curve.p[i] - 1.L;
             S += t*t;
         }
         auto norm = S;
@@ -622,12 +622,12 @@ struct Trader {
         heavy_tx += 1;
         is_light = false;
 
-        vector<i256> p_new(price_oracle.size());
-        p_new[0] = i256(1);
+        vector<money> p_new(price_oracle.size());
+        p_new[0] = money(1);
         for (size_t i = 1; i < price_oracle.size(); i++) {
             auto p_target = curve.p[i];
             auto p_real = price_oracle[i];
-            p_new[i] = p_target + adjustment_step * (p_real - p_target) / norm;
+            p_new[i] = p_target + adjustment_step.get_double() * (p_real - p_target) / norm.get_double();
         }
         auto old_p = curve.p;
         auto old_profit = xcp_profit_real;
@@ -660,7 +660,7 @@ struct Trader {
             auto b = d.pair1.second;
             //if (d.t >= 1614973320) exit(0);
             i256 vol;
-            auto ext_vol = i256(d.volume * price_oracle[b].get_double()); //  <- now all is in USD
+            auto ext_vol = i256(d.volume * price_oracle[b]); //  <- now all is in USD
             int ctr{0};
             i256 last;
             auto itl = lasts.find({a,b});
@@ -722,7 +722,7 @@ struct Trader {
             _low = last;
             lasts[d.pair1] = last;
 
-            tweak_price(d.t, a, b, (_high + _low) / (i256)2);
+            tweak_price(d.t, a, b, (_high + _low).get_double() / 2.L);
 
             total_vol += vol.get_double();
             if (i % 1024 == 0 && log) {
@@ -730,13 +730,13 @@ struct Trader {
                     long double last01, last02;
                     auto it01 = lasts.find({0,1});
                     if (it01 == lasts.end()) {
-                        last01 = price_oracle[1].get_double() / price_oracle[0].get_double();
+                        last01 = price_oracle[1] / price_oracle[0];
                     } else {
                         last01 = it01->second.get_double();
                     }
                     auto it02 = lasts.find({0,2});
                     if (it02 == lasts.end()) {
-                        last02 = price_oracle[2].get_double() / price_oracle[0].get_double();
+                        last02 = price_oracle[2] / price_oracle[0];
                     } else {
                         last02 = it02->second.get_double();
                     }
@@ -748,8 +748,8 @@ struct Trader {
                            "APY:%.1Lf%%\tfee:%.3Lf%% %c\n",
                            d.t,
                            100.L * i / mdata.size(), ctr, last01, last02,
-                           curve.p[1].get_double(),
-                           curve.p[2].get_double(),
+                           curve.p[1],
+                           curve.p[2],
                            total_vol,
                            (xcp_profit_real - i256(1)).get_double() / (xcp_profit - i256(1)).get_double(),
                            xcp_profit_real.get_double(),
@@ -765,9 +765,9 @@ struct Trader {
 
 
 
-    vector<i256> p0;
-    vector<i256> price_oracle;
-    vector<i256> last_price;
+    vector<money> p0;
+    vector<money> price_oracle;
+    vector<money> last_price;
     u64 t;
     i256 dx;
     i256 mid_fee;
@@ -795,19 +795,19 @@ struct Trader {
 };
 
 auto get_price_vector(int n, vector<trade_data> const &data) {
-    vector<i256> p(n);
-    p[0] = i256(1);
+    vector<money> p(n);
+    p[0] = 1.L;
     for (auto const &d: data) {
         if (d.pair1.first == 0) {
-            p[d.pair1.second] = i256( d.close);
+            p[d.pair1.second] =  d.close;
         }
         bool zeros = false;
         for (auto x: p) {
-            zeros |= x.is_zero();
+            zeros |= x == 0;
         }
         if (!zeros) {
             for (auto q: p) {
-                printf("%s ", q.to_string(10).c_str());
+                printf("%.16Lf ", q);
             }
             printf("\n");
             return p;
@@ -826,7 +826,7 @@ int main() {
     //debug_print("test_data last 5", test_data, -5);
     Trader trader(135, (7e-5), money(5'000'000), 3, get_price_vector(3, test_data),
                   4e-4, 4.0e-3,
-                  0.0028, i256(0.01),
+                  0.0028, 0.01L,
                   0.0015, 600);
     clock_t start_simulation = clock();
     trader.simulate(test_data);
