@@ -424,7 +424,7 @@ struct Curve {
 
     auto y(money x, int i, int j) {
         auto xp = this->xp();
-        xp[i] = x.get_double() * this->p[i];
+        xp[i] = x * this->p[i];
         auto yp = solve_x(A, gamma, xp, this->D(), j);
         auto ret = i256(yp / this->p[j]);
         return ret;
@@ -497,7 +497,7 @@ struct Trader {
 
     auto price(int i, int j) {
         auto dx_raw = dx  / curve.p[i];
-        auto curve_res = curve.y(curve.x[i] + dx_raw, i, j);
+        auto curve_res = curve.y(curve.x[i].get_double() + dx_raw, i, j);
         auto ret = dx_raw  / (curve.x[j].get_double() - curve_res.get_double());
         return ret;
     }
@@ -527,39 +527,39 @@ struct Trader {
         this->xcp = xcp;
     }
 
-    i256 buy(i256 const &dx, int i, int j, double max_price=1e100) {
+    money buy(money const &dx, int i, int j, double max_price=1e100) {
         //"""
         //Buy y for x
         //"""
         try {
             auto x_old = curve.x;
             auto x = curve.x[i] + dx;
-            auto y = curve.y(x, i, j);
+            auto y = curve.y(x.get_double(), i, j);
             auto dy = curve.x[j] - y;
             curve.x[i] = x;
             curve.x[j] = y;
             auto fee = this->fee();
             curve.x[j] += dy * fee;
             dy = dy * (i256(1) - fee);
-            if ((dx / dy).get_double() > max_price or dy.sign() < 0) {
+            if ((dx / dy.get_double()) > max_price or dy.sign() < 0) {
                 curve.x = x_old;
                 return 0;
             }
             update_xcp();
-            return dy;
+            return dy.get_double();
         } catch (...) {
             return 0;
         }
     }
 
-    i256 sell(i256 const &dy, int i, int j, double min_price=0) {
+    money sell(money const &dy, int i, int j, double min_price=0) {
         // """
         // Sell y for x
         // """
         try {
             auto x_old = curve.x;
             auto y = curve.x[j] + dy;
-            auto x = curve.y(y, j, i);
+            auto x = curve.y(y.get_double(), j, i);
             auto dx = curve.x[i] - x;
             curve.x[i] = x;
             curve.x[j] = y;
@@ -571,7 +571,7 @@ struct Trader {
                 return 0;
             }
             update_xcp();
-            return dx;
+            return dx.get_double();
         } catch (...) {
             return 0;
         }
@@ -684,12 +684,12 @@ struct Trader {
             auto p_before = price(a, b);
             while (last.get_double() < max_price and vol < ext_vol / (i256)2) {
                 auto dy = buy(step, a, b, max_price);
-                if (dy.is_zero()) {
+                if (dy == 0) {
                     break;
                 }
                 vol += dy * price_oracle[b];
                 _dx += dy;
-                last = step / dy.get_double();
+                last = step / dy;
                 max_price = d.high;
                 ctr += 1;
             }
@@ -706,7 +706,7 @@ struct Trader {
                 auto dx = step / last.get_double();
                 auto dy = sell(dx, a, b, min_price);
                 _dx += dx;
-                if (dy.is_zero()) {
+                if (dy == 0) {
                     break;
                 }
                 vol += dx * price_oracle[b];
