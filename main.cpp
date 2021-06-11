@@ -319,12 +319,12 @@ auto newton_D(i256 A, i256 const &gamma, vector<i256> &x, i256 const &D0) {
     throw logic_error("Did not converge");
 }
 
-auto newton_y(i256 A, i256 const &gamma, vector<i256> const &x, i256 const &D, int i) {
+auto newton_y(money A, money const &gamma, vector<i256> const &x, money const &D, int i) {
     money save_trace = trace;
     money N = x.size();
     money N256(N);
 
-    money y = D.get_double() / N256;
+    money y = D / N256;
     money K0_i = 1.;
     money S_i = 0.;
     vector<money> x_sorted(N - 1);
@@ -333,12 +333,12 @@ auto newton_y(i256 A, i256 const &gamma, vector<i256> const &x, i256 const &D, i
     }
     sort(x_sorted.begin(), x_sorted.end());
     money max_x_sorted = x_sorted.back();
-    money convergence_limit = max(max_x_sorted / 1E14L, D.get_double() / 1E14L);
+    money convergence_limit = max(max_x_sorted / 1E14L, D / 1E14L);
     convergence_limit = max(convergence_limit, 1E-16L);
     for (auto const &_x: x_sorted) {
-        y = y * D.get_double() / (_x * N256); //  # Small _x first
+        y = y * D / (_x * N256); //  # Small _x first
         S_i += _x;
-        K0_i = K0_i * _x * N256 / D.get_double(); //  # Large _x first
+        K0_i = K0_i * _x * N256 / D; //  # Large _x first
     }
     for (size_t j = 0; j < N; j++) { // in range(N):  # XXX or just set A to be A*N**N?
         A = A * N256;
@@ -346,24 +346,24 @@ auto newton_y(i256 A, i256 const &gamma, vector<i256> const &x, i256 const &D, i
     for (size_t j = 0; j < 255; j++) {
         money y_prev = y;
 
-        money K0 = K0_i * y * N256 / D.get_double();
+        money K0 = K0_i * y * N256 / D;
         money S = S_i + y;
 
-        money _g1k0 = abs((gamma.get_double() + 1. - K0));
+        money _g1k0 = abs((gamma + 1. - K0));
 
         // D / (A * N**N) * _g1k0**2 / gamma**2
-        money mul1 = D.get_double() / gamma.get_double() * _g1k0 / gamma.get_double() * _g1k0 / A.get_double();
+        money mul1 = D / gamma * _g1k0 / gamma * _g1k0 / A;
         // 2*K0 / _g1k0
         money mul2 = 1.L + 2.L * K0 / _g1k0;
 
-        money yfprime = (y + S * mul2 + mul1 - D.get_double() * mul2);
+        money yfprime = (y + S * mul2 + mul1 - D * mul2);
         money fprime = yfprime / y;
         assert (fprime  > 0) ;  //# Python only: f' > 0
 
         // y -= f / f_prime;  y = (y * fprime - f) / fprime
-        y = (yfprime + D.get_double() - S) / fprime + mul1 / fprime * (1.L - K0) / K0;
+        y = (yfprime + D - S) / fprime + mul1 / fprime * (1.L - K0) / K0;
         if (j > 100) { //  # Just logging when doesn't converge
-            printf("%zu %.6Lf %s ", j, y, D.to_string(10).c_str());
+            printf("%zu %.6Lf %.16Lf ", j, y, D);
             print(x);
         }
         if (y < 0 or fprime < 0) {
@@ -378,7 +378,7 @@ auto newton_y(i256 A, i256 const &gamma, vector<i256> const &x, i256 const &D, i
     throw logic_error("Did not converge");
 }
 
-auto solve_x(i256 const &A, i256 const &gamma, vector<i256> const &x, i256 const &D, int i) {
+money solve_x(money const &A, money const &gamma, vector<i256> const &x, money const &D, int i) {
     return newton_y(A, gamma, x, D, i);
 }
 
@@ -388,7 +388,7 @@ auto solve_D(i256 const &A, i256 const &gamma, vector<i256> &x) {
 }
 
 struct Curve {
-    Curve(i256 const &A, i256 const &gamma, i256 const &D, int n, vector<i256> const &p) {
+    Curve(money const &A, money const &gamma, money const &D, int n, vector<i256> const &p) {
         this->A = A;
         this->gamma = gamma;
         this->n = n;
@@ -399,7 +399,7 @@ struct Curve {
         }
         this->x.resize(n);
         for(int i = 0; i < n; i++) {
-            x[i] = D / i256((i256_init)n) / p[i];
+            x[i] = D / n / p[i].get_double();
         }
     }
 
@@ -430,8 +430,8 @@ struct Curve {
         return ret;
     }
 
-    i256 A;
-    i256 gamma;
+    money A;
+    money gamma;
     int n;
     vector<i256> p;
     vector<i256> x;
@@ -440,7 +440,7 @@ struct Curve {
 
 
 struct Trader {
-    Trader(i256 const &A, i256 const &gamma, i256 const &D, int n, vector<i256> const &p0,
+    Trader(money const &A, money const &gamma, money const &D, int n, vector<i256> const &p0,
            double mid_fee,
            double out_fee,
            double price_threshold,
@@ -452,7 +452,7 @@ struct Trader {
         this->price_oracle = this->p0;
         this->last_price = this->p0;
         // this->curve = Curve(A, gamma, D, n, p0);
-        this->dx = i256(D * i256(1e-8L));
+        this->dx = i256(D * 1e-8L);
         this->mid_fee = i256((mid_fee));
         this->out_fee = i256((out_fee));
         this->D0 = this->curve.D();
@@ -824,7 +824,7 @@ int main() {
     test_data.erase(test_data.begin(), test_data.begin() + test_data.size() - LAST_ELEMS);
     //debug_print("test_data first 5", test_data, 5);
     //debug_print("test_data last 5", test_data, -5);
-    Trader trader(i256("135"), i256((7e-5)), i256(i256((i256_init )5'000'000)), 3, get_price_vector(3, test_data),
+    Trader trader(135, (7e-5), money(5'000'000), 3, get_price_vector(3, test_data),
                   4e-4, 4.0e-3,
                   0.0028, i256(0.01),
                   0.0015, 600);
