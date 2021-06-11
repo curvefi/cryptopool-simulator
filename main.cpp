@@ -59,11 +59,11 @@ static void print_clock(string const &mesg, clock_t start, clock_t end) {
 
 struct trade_data {
     u64 t = 0;          // 0
-    long double open = 0;    // 1
-    long double high = 0;    // 2
-    long double low = 0;     // 3
-    long double close = 0;   // 4
-    long double volume = 0;  // 5
+    money open = 0;    // 1
+    money high = 0;    // 2
+    money low = 0;     // 3
+    money close = 0;   // 4
+    money volume = 0;  // 5
     pair<int,int> pair1 = {0,0};
     void print() const {
         printf("{ open: %.6Lf, high: %.6Lf low: %.6Lf close: %.6Lf t: %llu, volume: %.6Lf pair: (%d,%d)} ",
@@ -651,7 +651,7 @@ struct Trader {
 
     void simulate(vector<trade_data> const &mdata) {
         const money CANDLE_VARIATIVES = 50;
-        map<pair<int,int>,i256> lasts;
+        map<pair<int,int>,money> lasts;
         auto t = mdata[0].t;
         for (size_t i = 0; i < mdata.size(); i++)  {
             // if (i > 10) abort();
@@ -662,7 +662,7 @@ struct Trader {
             i256 vol;
             auto ext_vol = i256(d.volume * price_oracle[b]); //  <- now all is in USD
             int ctr{0};
-            i256 last;
+            money last;
             auto itl = lasts.find({a,b});
             if (itl == lasts.end()) {
                 last = price_oracle[b] / price_oracle[a];
@@ -682,7 +682,7 @@ struct Trader {
             auto max_price = d.high;
             i256 _dx;
             auto p_before = price(a, b);
-            while (last.get_double() < max_price and vol < ext_vol / (i256)2) {
+            while (last < max_price and vol < ext_vol / (i256)2) {
                 auto dy = buy(step, a, b, max_price);
                 if (dy == 0) {
                     break;
@@ -702,8 +702,8 @@ struct Trader {
             auto min_price = d.low;
             _dx = 0;
             p_before = p_after;
-            while (last.get_double() > min_price and vol < ext_vol / i256(2)) {
-                auto dx = step / last.get_double();
+            while (last > min_price and vol < ext_vol / i256(2)) {
+                auto dx = step / last;
                 auto dy = sell(dx, a, b, min_price);
                 _dx += dx;
                 if (dy == 0) {
@@ -722,7 +722,7 @@ struct Trader {
             _low = last;
             lasts[d.pair1] = last;
 
-            tweak_price(d.t, a, b, (_high + _low).get_double() / 2.L);
+            tweak_price(d.t, a, b, (_high + _low) / 2.L);
 
             total_vol += vol.get_double();
             if (i % 1024 == 0 && log) {
@@ -732,13 +732,13 @@ struct Trader {
                     if (it01 == lasts.end()) {
                         last01 = price_oracle[1] / price_oracle[0];
                     } else {
-                        last01 = it01->second.get_double();
+                        last01 = it01->second;
                     }
                     auto it02 = lasts.find({0,2});
                     if (it02 == lasts.end()) {
                         last02 = price_oracle[2] / price_oracle[0];
                     } else {
-                        last02 = it02->second.get_double();
+                        last02 = it02->second;
                     }
                     long double ARU_x = xcp_profit_real;
                     long double ARU_y = (86400.L * 365.L / (d.t - mdata[0].t + 1.L));
