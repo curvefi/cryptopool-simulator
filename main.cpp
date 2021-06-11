@@ -502,15 +502,15 @@ struct Trader {
         return ret;
     }
 
-    auto step_for_price(i256 dp, pair<int, int> p, int sign) {
+    auto step_for_price(money dp, pair<int, int> p, int sign) {
         auto p0 = price(p.first, p.second);
-        dp = p0 * dp.get_double();
+        dp = p0 * dp;
         auto x0 = curve.x;
         auto step = dx / curve.p[p.first];
         while (true) {
             curve.x[p.first] = x0[p.first] + i256((i256_init) sign) * step;
             auto dp_ = abs(p0 - price(p.first, p.second));
-            if (dp_ >= dp.get_double() or step >= curve.x[p.first].get_double() / 10.L) {
+            if (dp_ >= dp or step >= curve.x[p.first].get_double() / 10.L) {
                 curve.x = x0;
                 return step;
             }
@@ -650,7 +650,7 @@ struct Trader {
 
 
     void simulate(vector<trade_data> const &mdata) {
-        const i256 CANDLE_VARIATIVES = 50;
+        const money CANDLE_VARIATIVES = 50;
         map<pair<int,int>,i256> lasts;
         auto t = mdata[0].t;
         for (size_t i = 0; i < mdata.size(); i++)  {
@@ -674,8 +674,8 @@ struct Trader {
 
             //  Dynamic step
             //  f = reduction_coefficient(self.curve.xp(), self.curve.gamma)
-            auto candle = min(i256(fabs((d.high - d.low) / d.high)), grain17);
-            candle = max(grain15, candle);
+            auto candle = min(money(abs((d.high - d.low) / d.high)), grain17.get_double());
+            candle = max(grain15.get_double(), candle);
             auto step1 = step_for_price(candle / CANDLE_VARIATIVES, d.pair1, 1);
             auto step2 = step_for_price(candle / CANDLE_VARIATIVES, d.pair1, -1);
             auto step = min(step1, step2);
