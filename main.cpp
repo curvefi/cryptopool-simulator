@@ -229,22 +229,22 @@ auto get_all() {
     return ret;
 }
 
-i256 geometric_mean(vector<i256> const &x) {
+money geometric_mean(vector<money> const &x) {
     money N = x.size();
     //sort(x.begin(),x.end(), [](i256 const &l, i256 const &r) {
     //    return l > r;
     //});
-    money D = x[0].get_double();
-    money N1256((i256_init)N-1);
-    money N256((i256_init)N);
+    money D = x[0];
+    money N1256(N-1);
+    money N256(N);
     for (int i = 0; i < 255; i++) {
         money D_prev = D;
         money tmp = 1.;
         for (auto const &_x: x) {
-            tmp = tmp * _x.get_double() / D;
+            tmp = tmp * _x / D;
         }
         D = (D * (N1256 + tmp)) / (N256);
-        auto diff = fabs(D - D_prev);
+        auto diff = abs(D - D_prev);
         if (diff <= 1E-18 or diff * 1E18L < D) {
             return D;
         }
@@ -252,15 +252,15 @@ i256 geometric_mean(vector<i256> const &x) {
     throw logic_error("   Did not converge");
 }
 
-auto reduction_coefficient(vector<i256> const &x, i256 const &gamma) {
+auto reduction_coefficient(vector<money> const &x, i256 const &gamma) {
     money N256 = x.size();
     money x_prod = 1.;
     money K = 1.;
     money S = 0.;
-    for (auto const &q: x) S += q.get_double(); // = sum(x)
+    for (auto const &q: x) S += q; // = sum(x)
     for (auto const &x_i: x) {
-        x_prod = x_prod * x_i.get_double();
-        K = K * N256 * x_i.get_double() / S;
+        x_prod = x_prod * x_i;
+        K = K * N256 * x_i / S;
     }
     if (gamma.get_double() > 0) {
         K = gamma.get_double() / (gamma.get_double() + 1. - K);
@@ -268,18 +268,18 @@ auto reduction_coefficient(vector<i256> const &x, i256 const &gamma) {
     return K;
 }
 
-void print(vector<i256> const &x) {
+void print(vector<money> const &x) {
     printf("[");
     for (size_t i = 0; i < x.size(); i++) {
-        printf("%s ", x[i].to_string(10).c_str());
+        printf("%.16Lf ", x[i]);
     }
     printf("]\n");
 }
 
-auto newton_D(i256 A, i256 const &gamma, vector<i256> &x, i256 const &D0) {
+auto newton_D(i256 A, i256 const &gamma, vector<money> &x, i256 const &D0) {
     money D = D0.get_double();
     money S;
-    for (auto const &q: x) S += q.get_double();
+    for (auto const &q: x) S += q;
     sort(x.begin(), x.end(), [](i256 const &l, i256 const &r) { return l > r; });
     auto const N = x.size();
     money N256(N);
@@ -292,7 +292,7 @@ auto newton_D(i256 A, i256 const &gamma, vector<i256> &x, i256 const &D0) {
 
         money K0 = 1.;
         for (auto const &_x: x) {
-            K0 = K0 * _x.get_double() * N256 / D;
+            K0 = K0 * _x * N256 / D;
         }
 
         money _g1k0 = abs((gamma.get_double() + 1. - K0));
@@ -319,7 +319,7 @@ auto newton_D(i256 A, i256 const &gamma, vector<i256> &x, i256 const &D0) {
     throw logic_error("Did not converge");
 }
 
-auto newton_y(money A, money const &gamma, vector<i256> const &x, money const &D, int i) {
+auto newton_y(money A, money const &gamma, vector<money> const &x, money const &D, int i) {
     money save_trace = trace;
     money N = x.size();
     money N256(N);
@@ -329,7 +329,7 @@ auto newton_y(money A, money const &gamma, vector<i256> const &x, money const &D
     money S_i = 0.;
     vector<money> x_sorted(N - 1);
     for (int j = 0, cnt = 0; j < N; j++) {
-        if (j != i) x_sorted[cnt++] = x[j].get_double();
+        if (j != i) x_sorted[cnt++] = x[j];
     }
     sort(x_sorted.begin(), x_sorted.end());
     money max_x_sorted = x_sorted.back();
@@ -378,11 +378,11 @@ auto newton_y(money A, money const &gamma, vector<i256> const &x, money const &D
     throw logic_error("Did not converge");
 }
 
-money solve_x(money const &A, money const &gamma, vector<i256> const &x, money const &D, int i) {
+money solve_x(money const &A, money const &gamma, vector<money> const &x, money const &D, int i) {
     return newton_y(A, gamma, x, D, i);
 }
 
-auto solve_D(i256 const &A, i256 const &gamma, vector<i256> &x) {
+auto solve_D(i256 const &A, i256 const &gamma, vector<money> &x) {
     auto D0 = i256((i256_init)x.size()) * geometric_mean(x); //  # <- fuzz to make sure it's ok XXX
     return newton_D(A, gamma, x, D0);
 }
@@ -404,9 +404,9 @@ struct Curve {
     }
 
     auto xp() const {
-        vector<i256> ret(x.size());
+        vector<money> ret(x.size());
         for (int i = 0; i < x.size(); i++) {
-            ret[i] = x[i] * p[i];
+            ret[i] = x[i].get_double() * p[i];
         }
         return ret;
     }
@@ -414,7 +414,7 @@ struct Curve {
     auto D() const {
         auto xp = this->xp();
         for (auto const &x: xp) {
-            if (x.sign() <= 0) {
+            if (x <= 0) {
                 throw logic_error("Curve::D(): x <= 0");
             }
         }
@@ -424,7 +424,7 @@ struct Curve {
 
     auto y(i256 x, int i, int j) {
         auto xp = this->xp();
-        xp[i] = x * this->p[i];
+        xp[i] = x.get_double() * this->p[i];
         auto yp = solve_x(A, gamma, xp, this->D(), j);
         auto ret = i256(yp / this->p[j]);
         return ret;
@@ -456,7 +456,7 @@ struct Trader {
         this->mid_fee = mid_fee;
         this->out_fee = out_fee;
         this->D0 = this->curve.D();
-        this->xcp_0 = this->get_xcp().get_double();
+        this->xcp_0 = this->get_xcp();
         this->xcp_profit = 1.L;
         this->xcp_profit_real = 1.L;
         this->xcp = this->xcp_0;
@@ -482,12 +482,12 @@ struct Trader {
         return (mid_fee * f + out_fee * (1.L - f));
     }
 
-    i256 get_xcp() const {
+    money get_xcp() const {
         // First calculate the ideal balance
         //  Then calculate, what the constant-product would be
         auto D = curve.D();
         i256 N256((i256_init) curve.x.size());
-        vector<i256> X(curve.p.size());
+        vector<money> X(curve.p.size());
         for (size_t i = 0; i < X.size(); i++) {
             X[i] = D  / (N256.get_double() * curve.p[i]);
         }
@@ -520,11 +520,11 @@ struct Trader {
 
     void update_xcp(bool only_real=false) {
         auto xcp = get_xcp();
-        xcp_profit_real = xcp_profit_real * xcp.get_double() / this->xcp;
+        xcp_profit_real = xcp_profit_real * xcp / this->xcp;
         if (not only_real) {
-            xcp_profit = xcp_profit * xcp.get_double() / this->xcp;
+            xcp_profit = xcp_profit * xcp / this->xcp;
         }
-        this->xcp = xcp.get_double();
+        this->xcp = xcp;
     }
 
     i256 buy(i256 const &dx, int i, int j, double max_price=1e100) {
