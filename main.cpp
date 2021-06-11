@@ -252,7 +252,7 @@ money geometric_mean(vector<money> const &x) {
     throw logic_error("   Did not converge");
 }
 
-auto reduction_coefficient(vector<money> const &x, i256 const &gamma) {
+auto reduction_coefficient(vector<money> const &x, money const &gamma) {
     money N256 = x.size();
     money x_prod = 1.;
     money K = 1.;
@@ -262,8 +262,8 @@ auto reduction_coefficient(vector<money> const &x, i256 const &gamma) {
         x_prod = x_prod * x_i;
         K = K * N256 * x_i / S;
     }
-    if (gamma.get_double() > 0) {
-        K = gamma.get_double() / (gamma.get_double() + 1. - K);
+    if (gamma > 0) {
+        K = gamma / (gamma + 1. - K);
     }
     return K;
 }
@@ -280,7 +280,7 @@ auto newton_D(money A, money const &gamma, vector<money> &x, money const &D0) {
     money D = D0;
     money S;
     for (auto const &q: x) S += q;
-    sort(x.begin(), x.end(), [](i256 const &l, i256 const &r) { return l > r; });
+    sort(x.begin(), x.end(), [](money const &l, money const &r) { return l > r; });
     auto const N = x.size();
     money N256(N);
     for (size_t j = 0; j < N; j++) { // XXX or just set A to be A*N**N?
@@ -406,7 +406,7 @@ struct Curve {
     auto xp() const {
         vector<money> ret(x.size());
         for (int i = 0; i < x.size(); i++) {
-            ret[i] = x[i].get_double() * p[i];
+            ret[i] = x[i] * p[i];
         }
         return ret;
     }
@@ -422,11 +422,11 @@ struct Curve {
         return ret;
     }
 
-    auto y(money x, int i, int j) {
+    money y(money x, int i, int j) {
         auto xp = this->xp();
         xp[i] = x * this->p[i];
         auto yp = solve_x(A, gamma, xp, this->D(), j);
-        auto ret = i256(yp / this->p[j]);
+        auto ret = yp / this->p[j];
         return ret;
     }
 
@@ -434,7 +434,7 @@ struct Curve {
     money gamma;
     int n;
     vector<money> p;
-    vector<i256> x;
+    vector<money> x;
 
 };
 
@@ -497,8 +497,8 @@ struct Trader {
 
     auto price(int i, int j) {
         auto dx_raw = dx  / curve.p[i];
-        auto curve_res = curve.y(curve.x[i].get_double() + dx_raw, i, j);
-        auto ret = dx_raw  / (curve.x[j].get_double() - curve_res.get_double());
+        auto curve_res = curve.y(curve.x[i] + dx_raw, i, j);
+        auto ret = dx_raw  / (curve.x[j] - curve_res);
         return ret;
     }
 
@@ -508,9 +508,9 @@ struct Trader {
         auto x0 = curve.x;
         auto step = dx / curve.p[p.first];
         while (true) {
-            curve.x[p.first] = x0[p.first] + i256((i256_init) sign) * step;
+            curve.x[p.first] = x0[p.first] + sign * step;
             auto dp_ = abs(p0 - price(p.first, p.second));
-            if (dp_ >= dp or step >= curve.x[p.first].get_double() / 10.L) {
+            if (dp_ >= dp or step >= curve.x[p.first] / 10.L) {
                 curve.x = x0;
                 return step;
             }
@@ -534,19 +534,19 @@ struct Trader {
         try {
             auto x_old = curve.x;
             auto x = curve.x[i] + dx;
-            auto y = curve.y(x.get_double(), i, j);
+            auto y = curve.y(x, i, j);
             auto dy = curve.x[j] - y;
             curve.x[i] = x;
             curve.x[j] = y;
             auto fee = this->fee();
             curve.x[j] += dy * fee;
-            dy = dy * (i256(1) - fee);
-            if ((dx / dy.get_double()) > max_price or dy.sign() < 0) {
+            dy = dy * (1.L - fee);
+            if ((dx / dy) > max_price or dy < 0) {
                 curve.x = x_old;
                 return 0;
             }
             update_xcp();
-            return dy.get_double();
+            return dy;
         } catch (...) {
             return 0;
         }
@@ -559,19 +559,19 @@ struct Trader {
         try {
             auto x_old = curve.x;
             auto y = curve.x[j] + dy;
-            auto x = curve.y(y.get_double(), j, i);
+            auto x = curve.y(y, j, i);
             auto dx = curve.x[i] - x;
             curve.x[i] = x;
             curve.x[j] = y;
             auto fee = this->fee();
             curve.x[i] += dx * fee;
-            dx = dx * (i256(1) - fee);
-            if ((dx / dy).get_double() < min_price or dx.sign() < 0) {
+            dx = dx * (1.L - fee);
+            if ((dx / dy) < min_price or dx < 0) {
                 curve.x = x_old;
                 return 0;
             }
             update_xcp();
-            return dx.get_double();
+            return dx;
         } catch (...) {
             return 0;
         }
