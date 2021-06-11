@@ -14,7 +14,6 @@
 #include <sys/mman.h>
 #include <stdexcept>
 //#include "bn_fixed.h"
-#include "bn_ldbl.h"
 #define DEBUG 0
 static int trace = DEBUG;
 #if DEBUG > 1
@@ -42,15 +41,11 @@ using std::vector, std::string, std::pair, std::sort, std::map, std::min, std::m
 
 using u64 = unsigned long long;
 using money = long double;
-//using i256 = BN<7>; // for 64 bit internals BN
-//using i256 = BN<10>; // for 32 bit internals BN
-using i256 = BN;
-using i256_init = long long;
-static const i256       grain14(1e14L);
-static const i256       grain13(1.e-5L);
-static const i256       grain15(1.e-3L);
-static const i256       grain17(1.e-1L);
-static const i256       grain2(1.e-16);
+static const money      grain14(1e14L);
+static const money      grain13(1.e-5L);
+static const money      grain15(1.e-3L);
+static const money      grain17(1.e-1L);
+static const money      grain2(1.e-16);
 
 
 static void print_clock(string const &mesg, clock_t start, clock_t end) {
@@ -111,7 +106,7 @@ struct mapped_file {
         if (fd < 0) return;
         lseek(fd, 0, SEEK_END);
         size = lseek(fd, 0, SEEK_CUR);
-        base = (unsigned char *)::mmap(NULL, size, PROT_READ, MAP_SHARED, fd, 0);
+        base = (unsigned char *)::mmap(nullptr, size, PROT_READ, MAP_SHARED, fd, 0);
         printf("mapped_file::open: base=%p\n", base);
         if (base == MAP_FAILED) {
             perror(name.c_str());
@@ -231,7 +226,7 @@ auto get_all() {
 
 money geometric_mean(vector<money> const &x) {
     money N = x.size();
-    //sort(x.begin(),x.end(), [](i256 const &l, i256 const &r) {
+    //sort(x.begin(),x.end(), [](money const &l, money const &r) {
     //    return l > r;
     //});
     money D = x[0];
@@ -249,7 +244,7 @@ money geometric_mean(vector<money> const &x) {
             return D;
         }
     }
-    throw logic_error("   Did not converge");
+    throw std::logic_error("   Did not converge");
 }
 
 auto reduction_coefficient(vector<money> const &x, money const &gamma) {
@@ -270,15 +265,15 @@ auto reduction_coefficient(vector<money> const &x, money const &gamma) {
 
 void print(vector<money> const &x) {
     printf("[");
-    for (size_t i = 0; i < x.size(); i++) {
-        printf("%.16Lf ", x[i]);
+    for (auto const &q: x) {
+        printf("%.16Lf ", q);
     }
     printf("]\n");
 }
 
 auto newton_D(money A, money const &gamma, vector<money> &x, money const &D0) {
     money D = D0;
-    money S;
+    money S = 0;
     for (auto const &q: x) S += q;
     sort(x.begin(), x.end(), [](money const &l, money const &r) { return l > r; });
     auto const N = x.size();
@@ -312,16 +307,16 @@ auto newton_D(money A, money const &gamma, vector<money> &x, money const &D0) {
         if (D < 0) {
             D = abs(D) / 2.L;
         }
-        if (abs(D - D_prev) <= max(grain2.get_double(), D / grain14.get_double())) {
+        if (abs(D - D_prev) <= max(grain2, D / grain14)) {
             return D;
         }
     }
-    throw logic_error("Did not converge");
+    throw std::logic_error("Did not converge");
 }
 
 auto newton_y(money A, money const &gamma, vector<money> const &x, money const &D, int i) {
     money save_trace = trace;
-    money N = x.size();
+    size_t N = x.size();
     money N256(N);
 
     money y = D / N256;
@@ -370,12 +365,12 @@ auto newton_y(money A, money const &gamma, vector<money> const &x, money const &
             y = y_prev / 2.L;
         }
 
-        if (abs(y - y_prev) <= max(convergence_limit, y / grain14.get_double())) {
+        if (abs(y - y_prev) <= max(convergence_limit, y / grain14)) {
             trace = save_trace;
             return y;
         }
     }
-    throw logic_error("Did not converge");
+    throw std::logic_error("Did not converge");
 }
 
 money solve_x(money const &A, money const &gamma, vector<money> const &x, money const &D, int i) {
@@ -415,7 +410,7 @@ struct Curve {
         auto xp = this->xp();
         for (auto const &x: xp) {
             if (x <= 0) {
-                throw logic_error("Curve::D(): x <= 0");
+                throw std::logic_error("Curve::D(): x <= 0");
             }
         }
         auto ret = solve_D(A, gamma, xp);
@@ -486,10 +481,10 @@ struct Trader {
         // First calculate the ideal balance
         //  Then calculate, what the constant-product would be
         auto D = curve.D();
-        i256 N256((i256_init) curve.x.size());
+        money N256(curve.x.size());
         vector<money> X(curve.p.size());
         for (size_t i = 0; i < X.size(); i++) {
-            X[i] = D  / (N256.get_double() * curve.p[i]);
+            X[i] = D  / (N256 * curve.p[i]);
         }
 
         return geometric_mean(X);
@@ -611,7 +606,7 @@ struct Trader {
             light_tx += 1;
             return norm;
         }
-        if (not not_adjusted and (xcp_profit_real - 1.L > (xcp_profit - 1.L) / 2.L + grain13.get_double())) {
+        if (not not_adjusted and (xcp_profit_real - 1.L > (xcp_profit - 1.L) / 2.L + grain13)) {
             not_adjusted = true;
         }
         if (not not_adjusted) {
@@ -673,8 +668,8 @@ struct Trader {
 
             //  Dynamic step
             //  f = reduction_coefficient(self.curve.xp(), self.curve.gamma)
-            auto candle = min(money(abs((d.high - d.low) / d.high)), grain17.get_double());
-            candle = max(grain15.get_double(), candle);
+            auto candle = min(money(abs((d.high - d.low) / d.high)), grain17);
+            candle = max(grain15, candle);
             auto step1 = step_for_price(candle / CANDLE_VARIATIVES, d.pair1, 1);
             auto step2 = step_for_price(candle / CANDLE_VARIATIVES, d.pair1, -1);
             auto step = min(step1, step2);
@@ -755,7 +750,7 @@ struct Trader {
                            (pow(ARU_x, ARU_y) - 1.L) * 100.L,
                            fee() * 100.L,
                            is_light? '*' : '.');
-                } catch (exception const &e) {
+                } catch (std::exception const &e) {
                     printf("caught '%s'\n", e.what());
                 }
             }
