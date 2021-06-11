@@ -597,14 +597,14 @@ struct Trader {
         }
 
         // # price_oracle looks like [1, p1, p2, ...] normalized to 1e18
-        i256 S;
+        money S;
         for (size_t i = 0; i < price_oracle.size(); i++) {
             auto t = price_oracle[i] / curve.p[i] - 1.L;
             S += t*t;
         }
         auto norm = S;
         auto mxp = (max(price_threshold, adjustment_step));
-        norm.root_to();
+        norm = sqrt(norm); // .root_to();
         if (norm <= mxp) {
             // Already close to the target price
             is_light = true;
@@ -627,7 +627,7 @@ struct Trader {
         for (size_t i = 1; i < price_oracle.size(); i++) {
             auto p_target = curve.p[i];
             auto p_real = price_oracle[i];
-            p_new[i] = p_target + adjustment_step * (p_real - p_target) / norm.get_double();
+            p_new[i] = p_target + adjustment_step * (p_real - p_target) / norm;
         }
         auto old_p = curve.p;
         auto old_profit = xcp_profit_real;
