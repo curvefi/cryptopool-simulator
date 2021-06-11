@@ -276,8 +276,8 @@ void print(vector<money> const &x) {
     printf("]\n");
 }
 
-auto newton_D(i256 A, i256 const &gamma, vector<money> &x, i256 const &D0) {
-    money D = D0.get_double();
+auto newton_D(money A, money const &gamma, vector<money> &x, money const &D0) {
+    money D = D0;
     money S;
     for (auto const &q: x) S += q;
     sort(x.begin(), x.end(), [](i256 const &l, i256 const &r) { return l > r; });
@@ -295,10 +295,10 @@ auto newton_D(i256 A, i256 const &gamma, vector<money> &x, i256 const &D0) {
             K0 = K0 * _x * N256 / D;
         }
 
-        money _g1k0 = abs((gamma.get_double() + 1. - K0));
+        money _g1k0 = abs((gamma + 1. - K0));
 
         // # D / (A * N**N) * _g1k0**2 / gamma**2
-        money mul1 = D / gamma.get_double() * _g1k0 / gamma.get_double() * _g1k0 / A.get_double();
+        money mul1 = D / gamma * _g1k0 / gamma * _g1k0 / A;
 
         // # 2*N*K0 / _g1k0
         money mul2 = 2. * N256 * K0 / _g1k0;
@@ -382,8 +382,8 @@ money solve_x(money const &A, money const &gamma, vector<money> const &x, money 
     return newton_y(A, gamma, x, D, i);
 }
 
-auto solve_D(i256 const &A, i256 const &gamma, vector<money> &x) {
-    auto D0 = i256((i256_init)x.size()) * geometric_mean(x); //  # <- fuzz to make sure it's ok XXX
+auto solve_D(money const &A, money const &gamma, vector<money> &x) {
+    auto D0 = x.size() * geometric_mean(x); //  # <- fuzz to make sure it's ok XXX
     return newton_D(A, gamma, x, D0);
 }
 
@@ -422,7 +422,7 @@ struct Curve {
         return ret;
     }
 
-    auto y(i256 x, int i, int j) {
+    auto y(money x, int i, int j) {
         auto xp = this->xp();
         xp[i] = x.get_double() * this->p[i];
         auto yp = solve_x(A, gamma, xp, this->D(), j);
