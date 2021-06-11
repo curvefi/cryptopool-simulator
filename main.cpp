@@ -660,7 +660,7 @@ struct Trader {
             auto b = d.pair1.second;
             //if (d.t >= 1614973320) exit(0);
             i256 vol;
-            auto ext_vol = i256(d.volume * price_oracle[b]); //  <- now all is in USD
+            auto ext_vol = money(d.volume * price_oracle[b]); //  <- now all is in USD
             int ctr{0};
             money last;
             auto itl = lasts.find({a,b});
@@ -680,9 +680,9 @@ struct Trader {
             auto step2 = step_for_price(candle / CANDLE_VARIATIVES, d.pair1, -1);
             auto step = min(step1, step2);
             auto max_price = d.high;
-            i256 _dx;
+            money _dx;
             auto p_before = price(a, b);
-            while (last < max_price and vol < ext_vol / (i256)2) {
+            while (last < max_price and vol.get_double() < ext_vol / 2.L) {
                 auto dy = buy(step, a, b, max_price);
                 if (dy == 0) {
                     break;
@@ -696,13 +696,13 @@ struct Trader {
             auto p_after = price(a, b);
             if (p_before != p_after) {
                 slippage_count++;
-                slippage += _dx.get_double() * curve.p[b] * (p_before + p_after) / (2.L * abs(p_before - p_after));
+                slippage += _dx * curve.p[b] * (p_before + p_after) / (2.L * abs(p_before - p_after));
             }
             _high = last;
             auto min_price = d.low;
             _dx = 0;
             p_before = p_after;
-            while (last > min_price and vol < ext_vol / i256(2)) {
+            while (last > min_price and vol.get_double() < ext_vol / 2.L) {
                 auto dx = step / last;
                 auto dy = sell(dx, a, b, min_price);
                 _dx += dx;
@@ -717,7 +717,7 @@ struct Trader {
             p_after = price(a, b);
             if (p_before != p_after) {
                 slippage_count += 1;
-                slippage += _dx.get_double() * curve.p[b] / (p_before + p_after) / (2.L * abs(p_before - p_after));
+                slippage += _dx * curve.p[b] / (p_before + p_after) / (2.L * abs(p_before - p_after));
             }
             _low = last;
             lasts[d.pair1] = last;
