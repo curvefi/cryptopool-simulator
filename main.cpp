@@ -658,8 +658,7 @@ struct Trader {
             auto const &d = mdata[i];
             auto a = d.pair1.first;
             auto b = d.pair1.second;
-            //if (d.t >= 1614973320) exit(0);
-            i256 vol;
+            money vol(0);
             auto ext_vol = money(d.volume * price_oracle[b]); //  <- now all is in USD
             int ctr{0};
             money last;
@@ -682,7 +681,7 @@ struct Trader {
             auto max_price = d.high;
             money _dx;
             auto p_before = price(a, b);
-            while (last < max_price and vol.get_double() < ext_vol / 2.L) {
+            while (last < max_price and vol < ext_vol / 2.L) {
                 auto dy = buy(step, a, b, max_price);
                 if (dy == 0) {
                     break;
@@ -702,7 +701,7 @@ struct Trader {
             auto min_price = d.low;
             _dx = 0;
             p_before = p_after;
-            while (last > min_price and vol.get_double() < ext_vol / 2.L) {
+            while (last > min_price and vol < ext_vol / 2.L) {
                 auto dx = step / last;
                 auto dy = sell(dx, a, b, min_price);
                 _dx += dx;
@@ -724,7 +723,7 @@ struct Trader {
 
             tweak_price(d.t, a, b, (_high + _low) / 2.L);
 
-            total_vol += vol.get_double();
+            total_vol += vol;
             if (i % 1024 == 0 && log) {
                 try {
                     long double last01, last02;
