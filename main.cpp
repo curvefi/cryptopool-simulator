@@ -67,8 +67,8 @@ struct trade_one {
     trade_data trade;
 };
 
-money abs(money val) {
-    return val >= 0 ? val : -val;
+money mabs(money val) noexcept {
+   return val >= 0 ? val : -val;
 }
 
 void debug_print(string const &head, vector<trade_data> const &t, int count) {
@@ -238,7 +238,7 @@ money geometric_mean(money const *x, size_t N) {
             tmp = tmp * x[j] / D;
         }
         D = (D * ((N-1) + tmp)) / N;
-        auto diff = abs(D - D_prev);
+        auto diff = mabs(D - D_prev);
         if (diff <= 1E-18 or diff * 1E18L < D) {
             return D;
         }
@@ -292,7 +292,7 @@ auto newton_D(money A, money gamma, money const *xx, size_t N, money D0) {
             K0 = K0 * _x / D;
         }
 
-        money _g1k0 = abs((gamma + 1.L - K0));
+        money _g1k0 = mabs((gamma + 1.L - K0));
 
         // # D / (A * N**N) * _g1k0**2 / gamma**2
         money mul1 = D / gamma * _g1k0 / gamma * _g1k0 / A;
@@ -307,9 +307,9 @@ auto newton_D(money A, money gamma, money const *xx, size_t N, money D0) {
         D = (D * neg_fprime + D * S - D * D) / neg_fprime - D * (mul1 / neg_fprime) * (1.L - K0) / K0;
 
         if (D < 0) {
-            D = abs(D) / 2.L;
+            D = mabs(D) / 2.L;
         }
-        if (abs(D - D_prev) <= max(1e-16L, D / 1e14L)) {
+        if (mabs(D - D_prev) <= max(1e-16L, D / 1e14L)) {
             return D;
         }
     }
@@ -348,7 +348,7 @@ auto newton_y(money A, money gamma, money const *x, size_t N, money D, int i) {
         money K0_1 = 1.L - K0;
         money S = S_i + y;
 
-        money _g1k0 = abs((gamma + K0_1));
+        money _g1k0 = mabs((gamma + K0_1));
 
         // D / (A * N**N) * _g1k0**2 / gamma**2
         //money mul1 = D / gamma * _g1k0 / gamma * _g1k0 / A;
@@ -372,7 +372,7 @@ auto newton_y(money A, money gamma, money const *x, size_t N, money D, int i) {
             y = y_prev / 2.L;
         }
 
-        if (abs(y - y_prev) <= max(convergence_limit, y / 1e14L)) {
+        if (mabs(y - y_prev) <= max(convergence_limit, y / 1e14L)) {
             trace = save_trace;
             return y;
         }
@@ -512,7 +512,7 @@ struct Trader {
         auto step = dx / curve.p[p.first];
         while (true) {
             curve.x[p.first] = x0[p.first] + sign * step;
-            auto dp_ = abs(p0 - price(p.first, p.second));
+            auto dp_ = mabs(p0 - price(p.first, p.second));
             if (dp_ >= dp or step >= curve.x[p.first] / 10.L) {
                 curve.x = x0;
                 return step;
@@ -675,7 +675,7 @@ struct Trader {
 
             //  Dynamic step
             //  f = reduction_coefficient(self.curve.xp(), self.curve.gamma)
-            auto candle = min(money(abs((d.high - d.low) / d.high)), 0.1L);
+            auto candle = min(mabs((d.high - d.low) / d.high), 0.1L);
             candle = max(0.001L, candle);
             auto step1 = step_for_price(candle / CANDLE_VARIATIVES, d.pair1, 1);
             auto step2 = step_for_price(candle / CANDLE_VARIATIVES, d.pair1, -1);
@@ -697,7 +697,7 @@ struct Trader {
             auto p_after = price(a, b);
             if (p_before != p_after) {
                 slippage_count++;
-                slippage += _dx * curve.p[b] * (p_before + p_after) / (2.L * abs(p_before - p_after));
+                slippage += _dx * curve.p[b] * (p_before + p_after) / (2.L * mabs(p_before - p_after));
             }
             _high = last;
             auto min_price = d.low;
@@ -718,7 +718,7 @@ struct Trader {
             p_after = price(a, b);
             if (p_before != p_after) {
                 slippage_count += 1;
-                slippage += _dx * curve.p[b] / (p_before + p_after) / (2.L * abs(p_before - p_after));
+                slippage += _dx * curve.p[b] / (p_before + p_after) / (2.L * mabs(p_before - p_after));
             }
             _low = last;
             lasts[d.pair1] = last;
