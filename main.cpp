@@ -696,13 +696,14 @@ struct Trader {
             }
             auto p_after = price(a, b);
             if (p_before != p_after) {
-                slippage_count++;
-                slippage += _dx * (p_before + p_after) / (2.L * mabs(p_before - p_after) * curve.x[b]);
+                slippage_count += vol / xcp_profit_real;
+                slippage += vol / xcp_profit_real * _dx * (p_before + p_after) / (2.L * mabs(p_before - p_after) * curve.x[b]);
             }
             _high = last;
             auto min_price = d.low;
             _dx = 0;
             p_before = p_after;
+            money prev_vol = vol;
             while (last > min_price and vol < ext_vol / 2.L) {
                 auto dx = step / last;
                 auto dy = sell(dx, a, b, min_price);
@@ -717,8 +718,8 @@ struct Trader {
             }
             p_after = price(a, b);
             if (p_before != p_after) {
-                slippage_count += 1;
-                slippage += _dx * (p_before + p_after) / (2.L * mabs(p_before - p_after) * curve.x[b]);
+                slippage_count += (vol - prev_vol) / xcp_profit_real;
+                slippage += (vol - prev_vol) / xcp_profit_real * _dx * (p_before + p_after) / (2.L * mabs(p_before - p_after) * curve.x[b]);
             }
             _low = last;
             lasts[d.pair1] = last;
@@ -785,7 +786,7 @@ struct Trader {
     int ma_half_time;
     money ext_fee;
     money slippage;
-    int slippage_count;
+    money slippage_count;
     bool not_adjusted;
     int  heavy_tx;
     int  light_tx;
