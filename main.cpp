@@ -68,7 +68,7 @@ struct trade_one {
 };
 
 money mabs(money val) noexcept {
-    return val >= 0 ? val : -val;
+   return val >= 0 ? val : -val;
 }
 
 void debug_print(string const &head, vector<trade_data> const &t, int count) {
@@ -230,7 +230,12 @@ money geometric_mean(money const *x, size_t N) {
     //    return l > r;
     //});
     money D = x[0];
-    for (size_t i = 1; i < N; i++) D = max(D, x[i]);
+    money D2 = x[1];
+    for (size_t i = 1; i < N; i++) {
+        D = max(D,x[i]);
+        D2 = min(D2, x[i]);
+    }
+    D = sqrtl(D*D2);
     for (int i = 0; i < 255; i++) {
         money D_prev = D;
         money tmp = 1.L;
@@ -408,20 +413,17 @@ struct Curve {
     auto xp(money *ret, size_t N) const {
         for (int i = 0; i < N; i++) {
             ret[i] = x[i] * p[i];
-            assert(ret[i] > 0);
         }
     }
 
     auto D() const {
         money xp[n];
         this->xp(xp,n);
-#if 0
         for (size_t i = 0; i < n; i++) {
             if (xp[i] <= 0) {
                 throw std::logic_error("Curve::D(): x <= 0");
             }
         }
-#endif
         auto ret = solve_D(A, gamma, xp, n);
         return ret;
     }
