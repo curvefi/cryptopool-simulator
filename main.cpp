@@ -42,10 +42,7 @@ using std::vector, std::string, std::pair, std::sort, std::map, std::min, std::m
 
 using u64 = unsigned long long;
 using money = long double;
-static const int MAX_PAIRS = 3;
-static inline void copy_money(money *to, money const *from) {
-    memcpy(to, from, sizeof(money) * MAX_PAIRS);
-}
+
 
 static void print_clock(string const &mesg, clock_t start, clock_t end) {
     printf("%s %.3lf sec\n", mesg.c_str(), double(end - start) / CLOCKS_PER_SEC);
@@ -71,7 +68,7 @@ struct trade_one {
 };
 
 money mabs(money val) noexcept {
-   return val >= 0 ? val : -val;
+    return val >= 0 ? val : -val;
 }
 
 void debug_print(string const &head, vector<trade_data> const &t, int count) {
@@ -270,7 +267,7 @@ void print(money const *x, size_t N) {
     printf("]\n");
 }
 
-money newton_D(money A, money gamma, money const *xx, size_t N, money D0) {
+auto newton_D(money A, money gamma, money const *xx, size_t N, money D0) {
     money D = D0;
     money S = 0;
     money x[N];
@@ -319,7 +316,7 @@ money newton_D(money A, money gamma, money const *xx, size_t N, money D0) {
     throw std::logic_error("Newton_D: did not converge");
 }
 
-money newton_y(money A, money gamma, money const *x, size_t N, money D, int i) {
+auto newton_y(money A, money gamma, money const *x, size_t N, money D, int i) {
     money save_trace = trace;
 
     money y = D / N;
@@ -387,39 +384,44 @@ money solve_x(money A, money gamma, money const *x, size_t N, money D, int i) {
     return newton_y(A, gamma, x, N, D, i);
 }
 
-money solve_D(money A, money gamma, money const *x, size_t N) {
+auto solve_D(money A, money gamma, money const *x, size_t N) {
     auto D0 = N * geometric_mean(x, N); //  # <- fuzz to make sure it's ok XXX
     return newton_D(A, gamma, x, N, D0);
 }
 
 struct Curve {
-    Curve(money A, money gamma, money D, int n, money const *p) {
+    Curve(money A, money gamma, money D, int n, vector<money> const &p) {
         this->A = A;
         this->gamma = gamma;
         this->n = n;
-        assert (n <= MAX_PAIRS);
-        if (p != nullptr) {
-            copy_money(this->p,p);
+        if (!p.empty()) {
+            this->p = p;
         } else {
-            for (int i = 0; i < n; i++) {
-                this->p[i] = 1.L;
-            }
+            this->p.resize(n, 1.L);
         }
+        this->x.resize(n);
         for(int i = 0; i < n; i++) {
             x[i] = D / n / p[i];
         }
     }
 
-    void xp(money *ret, size_t N) const {
+    auto xp(money *ret, size_t N) const {
         for (int i = 0; i < N; i++) {
             ret[i] = x[i] * p[i];
             assert(ret[i] > 0);
         }
     }
 
-    money D() const {
+    auto D() const {
         money xp[n];
         this->xp(xp,n);
+#if 0
+        for (size_t i = 0; i < n; i++) {
+            if (xp[i] <= 0) {
+                throw std::logic_error("Curve::D(): x <= 0");
+            }
+        }
+#endif
         auto ret = solve_D(A, gamma, xp, n);
         return ret;
     }
@@ -436,24 +438,24 @@ struct Curve {
     money A;
     money gamma;
     size_t n;
-    money p [MAX_PAIRS]={123.L,456.L,789.L};
-    money x [MAX_PAIRS]={321.L,654.L,987.L};
+    vector<money> p;
+    vector<money> x;
 
 };
 
 
 struct Trader {
-    Trader(money A, money gamma, money D, int n, money const *p0,
+    Trader(money A, money gamma, money D, int n, vector<money> const &p0,
            money mid_fee,
            money out_fee,
            money price_threshold,
-           money fee_gamma,
+           money const &fee_gamma,
            money adjustment_step,
            int ma_half_time,
            bool log = true) : curve(A, gamma, D, n, p0) {
-        copy_money(this->p0,p0);
-        copy_money(this->price_oracle, this->p0);
-        copy_money(this->last_price,this->p0);
+        this->p0 = p0;
+        this->price_oracle = this->p0;
+        this->last_price = this->p0;
         // this->curve = Curve(A, gamma, D, n, p0);
         this->dx = D * 1e-8L;
         this->mid_fee = mid_fee;
@@ -480,7 +482,7 @@ struct Trader {
     }
 
 
-    money fee(size_t N) const {
+    auto fee(size_t N) {
         money xp[N];
         curve.xp(xp, N);
         auto f = reduction_coefficient(xp, N, fee_gamma);
@@ -490,8 +492,8 @@ struct Trader {
     money get_xcp() const {
         // First calculate the ideal balance
         //  Then calculate, what the constant-product would be
-        money D = curve.D();
-        size_t N = curve.n;
+        auto D = curve.D();
+        size_t N = curve.x.size();
         money X[N];
         for (size_t i = 0; i < N; i++) {
             X[i] = D  / (N * curve.p[i]);
@@ -499,24 +501,23 @@ struct Trader {
         return geometric_mean(X, N);
     }
 
-    money price(int i, int j) {
+    auto price(int i, int j) {
         auto dx_raw = dx  / curve.p[i];
         auto curve_res = curve.y(curve.x[i] + dx_raw, i, j);
         auto ret = dx_raw  / (curve.x[j] - curve_res);
         return ret;
     }
 
-    money step_for_price(money dp, pair<int, int> p, int sign) {
+    auto step_for_price(money dp, pair<int, int> p, int sign) {
         auto p0 = price(p.first, p.second);
         dp = p0 * dp;
-        money x0[MAX_PAIRS];
-        copy_money(x0, curve.x);
+        auto x0 = curve.x;
         auto step = dx / curve.p[p.first];
         while (true) {
             curve.x[p.first] = x0[p.first] + sign * step;
             auto dp_ = mabs(p0 - price(p.first, p.second));
             if (dp_ >= dp or step >= curve.x[p.first] / 10.L) {
-                copy_money(curve.x,x0);
+                curve.x = x0;
                 return step;
             }
             step += step;
@@ -524,7 +525,7 @@ struct Trader {
     }
 
     void update_xcp(bool only_real=false) {
-        money xcp = get_xcp();
+        auto xcp = get_xcp();
         xcp_profit_real = xcp_profit_real * xcp / this->xcp;
         if (not only_real) {
             xcp_profit = xcp_profit * xcp / this->xcp;
@@ -537,18 +538,17 @@ struct Trader {
         //Buy y for x
         //"""
         try {
-            money x_old[MAX_PAIRS];
-            copy_money(x_old, curve.x);
-            money x = curve.x[i] + dx;
-            money y = curve.y(x, i, j);
-            money dy = curve.x[j] - y;
+            auto x_old = curve.x;
+            auto x = curve.x[i] + dx;
+            auto y = curve.y(x, i, j);
+            auto dy = curve.x[j] - y;
             curve.x[i] = x;
             curve.x[j] = y;
-            money fee = this->fee(curve.n);
+            auto fee = this->fee(curve.x.size());
             curve.x[j] += dy * fee;
             dy = dy * (1.L - fee);
             if ((dx / dy) > max_price or dy < 0) {
-                copy_money(curve.x, x_old);
+                curve.x = x_old;
                 return 0;
             }
             update_xcp();
@@ -563,18 +563,17 @@ struct Trader {
         // Sell y for x
         // """
         try {
-            money x_old[MAX_PAIRS];
-            copy_money(x_old, curve.x);
-            money y = curve.x[j] + dy;
-            money x = curve.y(y, j, i);
-            money dx = curve.x[i] - x;
+            auto x_old = curve.x;
+            auto y = curve.x[j] + dy;
+            auto x = curve.y(y, j, i);
+            auto dx = curve.x[i] - x;
             curve.x[i] = x;
             curve.x[j] = y;
-            money fee = this->fee(curve.n);
+            auto fee = this->fee(curve.x.size());
             curve.x[i] += dx * fee;
             dx = dx * (1.L - fee);
             if ((dx / dy) < min_price or dx < 0) {
-                copy_money(curve.x, x_old);
+                curve.x = x_old;
                 return 0;
             }
             update_xcp();
@@ -584,7 +583,7 @@ struct Trader {
         }
     }
 
-    void ma_recorder(u64 t, money const *price_vector) {
+    void ma_recorder(u64 t, vector<money> const &price_vector) {
         //  XXX what if every block only has p_b being last
         if (t > this->t) {
             money alpha = powl(0.5, ((money)(t - this->t) / this->ma_half_time));
@@ -605,12 +604,12 @@ struct Trader {
 
         // # price_oracle looks like [1, p1, p2, ...] normalized to 1e18
         money S = 0;
-        for (size_t i = 0; i < MAX_PAIRS; i++) {
-            money tt = price_oracle[i] / curve.p[i] - 1.L;
-            S += tt*tt;
+        for (size_t i = 0; i < price_oracle.size(); i++) {
+            auto t = price_oracle[i] / curve.p[i] - 1.L;
+            S += t*t;
         }
-        money norm = S;
-        money mxp = (max(price_threshold, adjustment_step));
+        auto norm = S;
+        auto mxp = (max(price_threshold, adjustment_step));
         norm = sqrt(norm); // .root_to();
         if (norm <= mxp) {
             // Already close to the target price
@@ -629,28 +628,27 @@ struct Trader {
         heavy_tx += 1;
         is_light = false;
 
-        money p_new[MAX_PAIRS]; //(price_oracle.size());
-        p_new[0] = 1.L;
-        for (size_t i = 1; i < MAX_PAIRS; i++) {
+        vector<money> p_new(price_oracle.size());
+        p_new[0] = money(1);
+        for (size_t i = 1; i < price_oracle.size(); i++) {
             auto p_target = curve.p[i];
             auto p_real = price_oracle[i];
             p_new[i] = p_target + adjustment_step * (p_real - p_target) / norm;
         }
-        money old_p[MAX_PAIRS];
-        copy_money(old_p, curve.p);
-        money old_profit = xcp_profit_real;
-        money old_xcp = xcp;
+        auto old_p = curve.p;
+        auto old_profit = xcp_profit_real;
+        auto old_xcp = xcp;
 
-        copy_money(curve.p,p_new);
+        curve.p = p_new;
         update_xcp(true);
 
         if (2.L * (xcp_profit_real - 1.L) <= (xcp_profit - 1.L)) {
             //  If real profit is less than half of maximum - revert params back
-            copy_money(curve.p,old_p);
+            curve.p = old_p;
             xcp_profit_real = old_profit;
             xcp = old_xcp;
             not_adjusted = false;
-            money val = ((xcp_profit_real - 1.L - (xcp_profit - 1.L) / 2.L));
+            auto val = ((xcp_profit_real - 1.L - (xcp_profit - 1.L) / 2.L));
             // printf("%.10Lf\n", val);
         }
         return norm;
@@ -669,8 +667,8 @@ struct Trader {
             }
             auto a = d.pair1.first;
             auto b = d.pair1.second;
-            money vol{0.L};
-            money ext_vol = d.volume * price_oracle[b]; //  <- now all is in USD
+            money vol(0);
+            auto ext_vol = money(d.volume * price_oracle[b]); //  <- now all is in USD
             int ctr{0};
             money last;
             auto itl = lasts.find({a,b});
@@ -679,19 +677,19 @@ struct Trader {
             } else {
                 last = itl->second;
             }
-            money _high = last;
-            money _low = last;
+            auto _high = last;
+            auto _low = last;
 
             //  Dynamic step
             //  f = reduction_coefficient(self.curve.xp(), self.curve.gamma)
-            money candle = min(mabs((d.high - d.low) / d.high), 0.1L);
+            auto candle = min(mabs((d.high - d.low) / d.high), 0.1L);
             candle = max(0.001L, candle);
-            money step1 = step_for_price(candle / CANDLE_VARIATIVES, d.pair1, 1);
-            money step2 = step_for_price(candle / CANDLE_VARIATIVES, d.pair1, -1);
-            money step = min(step1, step2);
-            money max_price = d.high;
+            auto step1 = step_for_price(candle / CANDLE_VARIATIVES, d.pair1, 1);
+            auto step2 = step_for_price(candle / CANDLE_VARIATIVES, d.pair1, -1);
+            auto step = min(step1, step2);
+            auto max_price = d.high;
             money _dx = 0;
-            money p_before = price(a, b);
+            auto p_before = price(a, b);
             while (last < max_price and vol < ext_vol / 2.L) {
                 auto dy = buy(step, a, b, max_price);
                 if (dy == 0) {
@@ -777,9 +775,10 @@ struct Trader {
     }
 
 
-    money p0[MAX_PAIRS]={12.L,13.L,14.L};
-    money price_oracle[MAX_PAIRS]={22.L,23.L,24.L};
-    money last_price[MAX_PAIRS]={32.L,33.L,34.L};
+
+    vector<money> p0;
+    vector<money> price_oracle;
+    vector<money> last_price;
     u64 t;
     money dx;
     money mid_fee;
@@ -807,24 +806,26 @@ struct Trader {
 
 };
 
-void get_price_vector(int n, vector<trade_data> const &data, money *p) {
+auto get_price_vector(int n, vector<trade_data> const &data) {
+    vector<money> p(n);
     p[0] = 1.L;
     for (auto const &d: data) {
         if (d.pair1.first == 0) {
             p[d.pair1.second] =  d.close;
         }
         bool zeros = false;
-        for (size_t i = 0; i < MAX_PAIRS; i++) {
-            zeros |= p[i] == 0;
+        for (auto x: p) {
+            zeros |= x == 0;
         }
         if (!zeros) {
-            for (size_t i = 0; i < MAX_PAIRS; i++) {
-                printf("%.16Lf ", p[i]);
+            for (auto q: p) {
+                printf("%.16Lf ", q);
             }
             printf("\n");
-            return;
+            return p;
         }
     }
+    return p;
 }
 
 
@@ -839,9 +840,7 @@ int main(int argc, char **argv) {
     }
     //debug_print("test_data first 5", test_data, 5);
     //debug_print("test_data last 5", test_data, -5);
-    money price_vector[MAX_PAIRS]{0.L,0.L,0.L};
-    get_price_vector(3, test_data, price_vector);
-    Trader trader(135, (7e-5), money(100'000'000), 3, price_vector,
+    Trader trader(135, (7e-5), money(100'000'000), 3, get_price_vector(3, test_data),
                   4e-4, 4.0e-3,
                   0.0028, 0.01L,
                   0.0015, 600);
