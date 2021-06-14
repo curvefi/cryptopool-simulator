@@ -655,9 +655,13 @@ struct Trader {
     void simulate(vector<trade_data> const &mdata) {
         const money CANDLE_VARIATIVES = 50;
         map<pair<int,int>,money> lasts;
+        long double last_time = 0;
         for (size_t i = 0; i < mdata.size(); i++)  {
             // if (i > 10) abort();
             auto const &d = mdata[i];
+            if (last_time > 0) {
+                last_time = d.t - last_time;
+            }
             auto a = d.pair1.first;
             auto b = d.pair1.second;
             money vol(0);
@@ -696,8 +700,8 @@ struct Trader {
             }
             auto p_after = price(a, b);
             if (p_before != p_after) {
-                slippage_count += vol / xcp_profit_real;
-                slippage += vol / xcp_profit_real * _dx * (p_before + p_after) / (2.L * mabs(p_before - p_after) * curve.x[b]);
+                slippage_count += last_time;
+                slippage += last_time * _dx * (p_before + p_after) / (2.L * mabs(p_before - p_after) * curve.x[b]);
             }
             _high = last;
             auto min_price = d.low;
@@ -718,8 +722,8 @@ struct Trader {
             }
             p_after = price(a, b);
             if (p_before != p_after) {
-                slippage_count += (vol - prev_vol) / xcp_profit_real;
-                slippage += (vol - prev_vol) / xcp_profit_real * _dx * (p_before + p_after) / (2.L * mabs(p_before - p_after) * curve.x[b]);
+                slippage_count += last_time;
+                slippage += last_time * _dx * (p_before + p_after) / (2.L * mabs(p_before - p_after) * curve.x[b]);
             }
             _low = last;
             lasts[d.pair1] = last;
@@ -727,6 +731,7 @@ struct Trader {
             tweak_price(d.t, a, b, (_high + _low) / 2.L);
 
             total_vol += vol;
+            last_time = d.t;
             if (i % 1024 == 0 && log) {
                 try {
                     long double last01, last02;
@@ -744,6 +749,7 @@ struct Trader {
                     }
                     long double ARU_x = xcp_profit_real;
                     long double ARU_y = (86400.L * 365.L / (d.t - mdata[0].t + 1.L));
+                    APY = powl(ARU_x, ARU_y) - 1.L;
                     printf("t=%llu %.1Lf%%\ttrades: %d\t"
                            "AMM: %.0Lf, %0.Lf\tTarget: %.0Lf, %.0Lf\t"
                            "Vol: %.4Lf\tPR:%.2Lf\txCP-growth: {%.5Lf}\t"
@@ -755,7 +761,7 @@ struct Trader {
                            total_vol,
                            (xcp_profit_real - 1.) / (xcp_profit - 1.L),
                            xcp_profit_real,
-                           (powl(ARU_x, ARU_y) - 1.L) * 100.L,
+                           APY * 100.L,
                            fee(curve.p.size()) * 100.L,
                            is_light? '*' : '.');
                 } catch (std::exception const &e) {
@@ -787,6 +793,7 @@ struct Trader {
     money ext_fee;
     money slippage;
     money slippage_count;
+    long double APY;
     bool not_adjusted;
     int  heavy_tx;
     int  light_tx;
@@ -830,13 +837,14 @@ int main(int argc, char **argv) {
     }
     //debug_print("test_data first 5", test_data, 5);
     //debug_print("test_data last 5", test_data, -5);
-    Trader trader(135, (7e-5), money(5'000'000), 3, get_price_vector(3, test_data),
+    Trader trader(135, (7e-5), money(100'000'000), 3, get_price_vector(3, test_data),
                   4e-4, 4.0e-3,
                   0.0028, 0.01L,
                   0.0015, 600);
     clock_t start_simulation = clock();
     trader.simulate(test_data);
-    printf("Liquidity density vs that of xyz=k:%f\n", 2 * (double)(trader.slippage) / (double)(trader.slippage_count));
+    printf("Liquidity density vs that of xyz=k: %f\n", 2 * (double)(trader.slippage) / (double)(trader.slippage_count));
+    printf("APY: %Lf%%\n", (trader.APY * 100.L));
     clock_t end = clock();
     print_clock("Total simulation time", start_simulation, end);
 }
