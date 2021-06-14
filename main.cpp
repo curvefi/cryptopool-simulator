@@ -583,7 +583,7 @@ struct Trader {
     void ma_recorder(u64 t, vector<money> const &price_vector) {
         //  XXX what if every block only has p_b being last
         if (t > this->t) {
-            money alpha = pow(0.5, ((money)(t - this->t) / this->ma_half_time));
+            money alpha = powl(0.5, ((money)(t - this->t) / this->ma_half_time));
             for (int k = 1; k <= 2; k++) {
                 price_oracle[k] = price_vector[k] * (1 - alpha) + price_oracle[k] * alpha;
             }
@@ -754,7 +754,7 @@ struct Trader {
                            total_vol,
                            (xcp_profit_real - 1.) / (xcp_profit - 1.L),
                            xcp_profit_real,
-                           (pow(ARU_x, ARU_y) - 1.L) * 100.L,
+                           (powl(ARU_x, ARU_y) - 1.L) * 100.L,
                            fee(curve.p.size()) * 100.L,
                            is_light? '*' : '.');
                 } catch (std::exception const &e) {
