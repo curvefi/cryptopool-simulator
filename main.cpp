@@ -13,6 +13,7 @@
 #include <sys/fcntl.h>
 #include <sys/mman.h>
 #include <stdexcept>
+#include <cmath>
 //#include "bn_fixed.h"
 #define DEBUG 0
 static int trace = DEBUG;
@@ -41,11 +42,6 @@ using std::vector, std::string, std::pair, std::sort, std::map, std::min, std::m
 
 using u64 = unsigned long long;
 using money = long double;
-static const money      grain14(1e14L);
-static const money      grain13(1.e-5L);
-static const money      grain15(1.e-3L);
-static const money      grain17(1.e-1L);
-static const money      grain2(1.e-16);
 
 
 static void print_clock(string const &mesg, clock_t start, clock_t end) {
@@ -70,6 +66,10 @@ struct trade_one {
     u64 t;
     trade_data trade;
 };
+
+money abs(money val) {
+   return val >= 0 ? val : -val;
+}
 
 void debug_print(string const &head, vector<trade_data> const &t, int count) {
     printf("%s:\n", head.c_str());
@@ -224,148 +224,155 @@ auto get_all() {
     return ret;
 }
 
-money geometric_mean(vector<money> const &x) {
-    money N = x.size();
+money geometric_mean(money const *x, size_t N) {
+    // Newton process should converged without sort
     //sort(x.begin(),x.end(), [](money const &l, money const &r) {
     //    return l > r;
     //});
     money D = x[0];
-    money N1256(N-1);
-    money N256(N);
+    for (size_t i = 1; i < N; i++) D = max(D, x[i]);
     for (int i = 0; i < 255; i++) {
         money D_prev = D;
-        money tmp = 1.;
-        for (auto const &_x: x) {
-            tmp = tmp * _x / D;
+        money tmp = 1.L;
+        for (size_t j = 0; j < N; j++) {
+            tmp = tmp * x[j] / D;
         }
-        D = (D * (N1256 + tmp)) / (N256);
+        D = (D * ((N-1) + tmp)) / N;
         auto diff = abs(D - D_prev);
         if (diff <= 1E-18 or diff * 1E18L < D) {
             return D;
         }
     }
-    throw std::logic_error("   Did not converge");
+    throw std::logic_error("geometric_mean: Did not converge");
 }
 
-auto reduction_coefficient(vector<money> const &x, money const &gamma) {
-    money N256 = x.size();
-    money x_prod = 1.;
-    money K = 1.;
-    money S = 0.;
-    for (auto const &q: x) S += q; // = sum(x)
-    for (auto const &x_i: x) {
-        x_prod = x_prod * x_i;
-        K = K * N256 * x_i / S;
+auto reduction_coefficient(money const *x, size_t N, money gamma) {
+    money K = 1.L;
+    money S = 0.L;
+    for (size_t i = 0; i < N; i++) S += x[i]; // = sum(x)
+    for (size_t i = 0; i < N; i++)  {
+        K *= N * x[i] / S;
     }
     if (gamma > 0) {
-        K = gamma / (gamma + 1. - K);
+        K = gamma / (gamma + 1.L - K);
     }
     return K;
 }
 
-void print(vector<money> const &x) {
+void print(money const *x, size_t N) {
     printf("[");
-    for (auto const &q: x) {
-        printf("%.16Lf ", q);
+    for (size_t i = 0; i < N; i++) {
+        printf("%.16Lf ", x[i]);
     }
     printf("]\n");
 }
 
-auto newton_D(money A, money const &gamma, vector<money> &x, money const &D0) {
+auto newton_D(money A, money gamma, money const *xx, size_t N, money D0) {
     money D = D0;
     money S = 0;
-    for (auto const &q: x) S += q;
-    sort(x.begin(), x.end(), [](money const &l, money const &r) { return l > r; });
-    auto const N = x.size();
-    money N256(N);
-    for (size_t j = 0; j < N; j++) { // XXX or just set A to be A*N**N?
-        A = A * N256;
+    money x[N];
+    for (size_t i = 0; i < N; i++) {
+        S += x[i] = xx[i];
     }
+    sort(x+0, x+N, [](money l, money r) { return l > r; });
+    auto NN = 1.L;
+    for (size_t j = 0; j < N; j++) { // XXX or just set A to be A*N**N?
+        NN *= N;
+    }
+    A *= NN;
+    //for (size_t j = 0; j < N; j++) { // XXX or just set A to be A*N**N?
+    //    A = A * N;
+    //}
 
     for (int i = 0; i < 255; i++) {
         money D_prev = D;
 
-        money K0 = 1.;
+        money K0 = NN;
         for (auto const &_x: x) {
-            K0 = K0 * _x * N256 / D;
+            K0 = K0 * _x / D;
         }
 
-        money _g1k0 = abs((gamma + 1. - K0));
+        money _g1k0 = abs((gamma + 1.L - K0));
 
         // # D / (A * N**N) * _g1k0**2 / gamma**2
         money mul1 = D / gamma * _g1k0 / gamma * _g1k0 / A;
 
         // # 2*N*K0 / _g1k0
-        money mul2 = 2. * N256 * K0 / _g1k0;
+        money mul2 = 2.L * N * K0 / _g1k0;
 
-        money neg_fprime = (S + S * mul2) + mul1 * N256 / K0 - mul2 * D;
+        money neg_fprime = (S + S * mul2) + mul1 * N / K0 - mul2 * D;
         assert (neg_fprime > 0); //   # Python only: -f' > 0
 
         // # D -= f / fprime
-        D = (D * neg_fprime + D * S - D * D) / neg_fprime - D * (mul1 / neg_fprime) * (1. - K0) / K0;
+        D = (D * neg_fprime + D * S - D * D) / neg_fprime - D * (mul1 / neg_fprime) * (1.L - K0) / K0;
 
         if (D < 0) {
             D = abs(D) / 2.L;
         }
-        if (abs(D - D_prev) <= max(grain2, D / grain14)) {
+        if (abs(D - D_prev) <= max(1e-16L, D / 1e14L)) {
             return D;
         }
     }
-    throw std::logic_error("Did not converge");
+    throw std::logic_error("Newton_D: did not converge");
 }
 
-auto newton_y(money A, money const &gamma, vector<money> const &x, money const &D, int i) {
+auto newton_y(money A, money gamma, money const *x, size_t N, money D, int i) {
     money save_trace = trace;
-    size_t N = x.size();
-    money N256(N);
 
-    money y = D / N256;
+    money y = D / N;
     money K0_i = 1.;
     money S_i = 0.;
-    vector<money> x_sorted(N - 1);
+    money x_sorted[N - 1];
     for (int j = 0, cnt = 0; j < N; j++) {
         if (j != i) x_sorted[cnt++] = x[j];
     }
-    sort(x_sorted.begin(), x_sorted.end());
-    money max_x_sorted = x_sorted.back();
+    sort(x_sorted+0, x_sorted+N-1);
+    money max_x_sorted = x_sorted[N-2];
     money convergence_limit = max(max_x_sorted / 1E14L, D / 1E14L);
     convergence_limit = max(convergence_limit, 1E-16L);
     for (auto const &_x: x_sorted) {
-        y = y * D / (_x * N256); //  # Small _x first
+        y = y * D / (_x * N); //  # Small _x first
         S_i += _x;
-        K0_i = K0_i * _x * N256 / D; //  # Large _x first
+        K0_i = K0_i * _x * N / D; //  # Large _x first
     }
+    auto NN = 1.;
     for (size_t j = 0; j < N; j++) { // in range(N):  # XXX or just set A to be A*N**N?
-        A = A * N256;
+        NN *= N;
     }
+    A = A * NN;
+    auto g2a = (gamma * gamma * A);
     for (size_t j = 0; j < 255; j++) {
         money y_prev = y;
 
-        money K0 = K0_i * y * N256 / D;
+        money K0 = K0_i * y * N / D;
+        money K0_1 = 1.L - K0;
         money S = S_i + y;
 
-        money _g1k0 = abs((gamma + 1. - K0));
+        money _g1k0 = abs((gamma + K0_1));
 
         // D / (A * N**N) * _g1k0**2 / gamma**2
-        money mul1 = D / gamma * _g1k0 / gamma * _g1k0 / A;
+        //money mul1 = D / gamma * _g1k0 / gamma * _g1k0 / A;
+        money mul1 = D * _g1k0 * _g1k0 / g2a;
         // 2*K0 / _g1k0
-        money mul2 = 1.L + 2.L * K0 / _g1k0;
+        money mul2 = 1.L + (K0 + K0) / _g1k0;
 
-        money yfprime = (y + S * mul2 + mul1 - D * mul2);
+        // money yfprime = y + S * mul2 + mul1 - D * mul2;
+        money yfprime = y + mul1 + (S - D) * mul2;
         money fprime = yfprime / y;
         assert (fprime  > 0) ;  //# Python only: f' > 0
 
         // y -= f / f_prime;  y = (y * fprime - f) / fprime
-        y = (yfprime + D - S) / fprime + mul1 / fprime * (1.L - K0) / K0;
+        // y = (yfprime + D - S) / fprime + mul1 / fprime * K0_1 / K0;
+        y = ((yfprime + D - S) + mul1 * K0_1 / K0) / fprime;
         if (j > 100) { //  # Just logging when doesn't converge
             printf("%zu %.6Lf %.16Lf ", j, y, D);
-            print(x);
+            print(x, N);
         }
         if (y < 0 or fprime < 0) {
             y = y_prev / 2.L;
         }
 
-        if (abs(y - y_prev) <= max(convergence_limit, y / grain14)) {
+        if (abs(y - y_prev) <= max(convergence_limit, y / 1e14L)) {
             trace = save_trace;
             return y;
         }
@@ -373,17 +380,17 @@ auto newton_y(money A, money const &gamma, vector<money> const &x, money const &
     throw std::logic_error("Did not converge");
 }
 
-money solve_x(money const &A, money const &gamma, vector<money> const &x, money const &D, int i) {
-    return newton_y(A, gamma, x, D, i);
+money solve_x(money A, money gamma, money const *x, size_t N, money D, int i) {
+    return newton_y(A, gamma, x, N, D, i);
 }
 
-auto solve_D(money const &A, money const &gamma, vector<money> &x) {
-    auto D0 = x.size() * geometric_mean(x); //  # <- fuzz to make sure it's ok XXX
-    return newton_D(A, gamma, x, D0);
+auto solve_D(money A, money gamma, money const *x, size_t N) {
+    auto D0 = N * geometric_mean(x, N); //  # <- fuzz to make sure it's ok XXX
+    return newton_D(A, gamma, x, N, D0);
 }
 
 struct Curve {
-    Curve(money const &A, money const &gamma, money const &D, int n, vector<money> const &p) {
+    Curve(money A, money gamma, money D, int n, vector<money> const &p) {
         this->A = A;
         this->gamma = gamma;
         this->n = n;
@@ -398,36 +405,36 @@ struct Curve {
         }
     }
 
-    auto xp() const {
-        vector<money> ret(x.size());
-        for (int i = 0; i < x.size(); i++) {
+    auto xp(money *ret, size_t N) const {
+        for (int i = 0; i < N; i++) {
             ret[i] = x[i] * p[i];
         }
-        return ret;
     }
 
     auto D() const {
-        auto xp = this->xp();
-        for (auto const &x: xp) {
-            if (x <= 0) {
+        money xp[n];
+        this->xp(xp,n);
+        for (size_t i = 0; i < n; i++) {
+            if (xp[i] <= 0) {
                 throw std::logic_error("Curve::D(): x <= 0");
             }
         }
-        auto ret = solve_D(A, gamma, xp);
+        auto ret = solve_D(A, gamma, xp, n);
         return ret;
     }
 
     money y(money x, int i, int j) {
-        auto xp = this->xp();
+        money xp[n];
+        this->xp(xp,n);
         xp[i] = x * this->p[i];
-        auto yp = solve_x(A, gamma, xp, this->D(), j);
+        auto yp = solve_x(A, gamma, xp, n, this->D(), j);
         auto ret = yp / this->p[j];
         return ret;
     }
 
     money A;
     money gamma;
-    int n;
+    size_t n;
     vector<money> p;
     vector<money> x;
 
@@ -435,7 +442,7 @@ struct Curve {
 
 
 struct Trader {
-    Trader(money const &A, money const &gamma, money const &D, int n, vector<money> const &p0,
+    Trader(money A, money gamma, money D, int n, vector<money> const &p0,
            money mid_fee,
            money out_fee,
            money price_threshold,
@@ -472,8 +479,10 @@ struct Trader {
     }
 
 
-    auto fee() {
-        auto f = reduction_coefficient(curve.xp(), fee_gamma);
+    auto fee(size_t N) {
+        money xp[N];
+        curve.xp(xp, N);
+        auto f = reduction_coefficient(xp, N, fee_gamma);
         return (mid_fee * f + out_fee * (1.L - f));
     }
 
@@ -481,13 +490,12 @@ struct Trader {
         // First calculate the ideal balance
         //  Then calculate, what the constant-product would be
         auto D = curve.D();
-        money N256(curve.x.size());
-        vector<money> X(curve.p.size());
-        for (size_t i = 0; i < X.size(); i++) {
-            X[i] = D  / (N256 * curve.p[i]);
+        size_t N = curve.x.size();
+        money X[N];
+        for (size_t i = 0; i < N; i++) {
+            X[i] = D  / (N * curve.p[i]);
         }
-
-        return geometric_mean(X);
+        return geometric_mean(X, N);
     }
 
     auto price(int i, int j) {
@@ -522,7 +530,7 @@ struct Trader {
         this->xcp = xcp;
     }
 
-    money buy(money const &dx, int i, int j, double max_price=1e100) {
+    money buy(money dx, int i, int j, money max_price=1e100L) {
         //"""
         //Buy y for x
         //"""
@@ -533,7 +541,7 @@ struct Trader {
             auto dy = curve.x[j] - y;
             curve.x[i] = x;
             curve.x[j] = y;
-            auto fee = this->fee();
+            auto fee = this->fee(curve.x.size());
             curve.x[j] += dy * fee;
             dy = dy * (1.L - fee);
             if ((dx / dy) > max_price or dy < 0) {
@@ -547,7 +555,7 @@ struct Trader {
         }
     }
 
-    money sell(money const &dy, int i, int j, double min_price=0) {
+    money sell(money dy, int i, int j, money min_price=0) {
         // """
         // Sell y for x
         // """
@@ -558,7 +566,7 @@ struct Trader {
             auto dx = curve.x[i] - x;
             curve.x[i] = x;
             curve.x[j] = y;
-            auto fee = this->fee();
+            auto fee = this->fee(curve.x.size());
             curve.x[i] += dx * fee;
             dx = dx * (1.L - fee);
             if ((dx / dy) < min_price or dx < 0) {
@@ -583,7 +591,7 @@ struct Trader {
         }
     }
 
-    auto tweak_price(u64 t, int a, int b, money const &p) {
+    auto tweak_price(u64 t, int a, int b, money p) {
         ma_recorder(t, last_price);
         if (b > 0) {
             last_price[b] = p * last_price[a];
@@ -592,7 +600,7 @@ struct Trader {
         }
 
         // # price_oracle looks like [1, p1, p2, ...] normalized to 1e18
-        money S;
+        money S = 0;
         for (size_t i = 0; i < price_oracle.size(); i++) {
             auto t = price_oracle[i] / curve.p[i] - 1.L;
             S += t*t;
@@ -606,7 +614,7 @@ struct Trader {
             light_tx += 1;
             return norm;
         }
-        if (not not_adjusted and (xcp_profit_real - 1.L > (xcp_profit - 1.L) / 2.L + grain13)) {
+        if (not not_adjusted and (xcp_profit_real - 1.L > (xcp_profit - 1.L) / 2.L + 1e-5L)) {
             not_adjusted = true;
         }
         if (not not_adjusted) {
@@ -647,7 +655,6 @@ struct Trader {
     void simulate(vector<trade_data> const &mdata) {
         const money CANDLE_VARIATIVES = 50;
         map<pair<int,int>,money> lasts;
-        auto t = mdata[0].t;
         for (size_t i = 0; i < mdata.size(); i++)  {
             // if (i > 10) abort();
             auto const &d = mdata[i];
@@ -668,13 +675,13 @@ struct Trader {
 
             //  Dynamic step
             //  f = reduction_coefficient(self.curve.xp(), self.curve.gamma)
-            auto candle = min(money(abs((d.high - d.low) / d.high)), grain17);
-            candle = max(grain15, candle);
+            auto candle = min(money(abs((d.high - d.low) / d.high)), 0.1L);
+            candle = max(0.001L, candle);
             auto step1 = step_for_price(candle / CANDLE_VARIATIVES, d.pair1, 1);
             auto step2 = step_for_price(candle / CANDLE_VARIATIVES, d.pair1, -1);
             auto step = min(step1, step2);
             auto max_price = d.high;
-            money _dx;
+            money _dx = 0;
             auto p_before = price(a, b);
             while (last < max_price and vol < ext_vol / 2.L) {
                 auto dy = buy(step, a, b, max_price);
@@ -748,7 +755,7 @@ struct Trader {
                            (xcp_profit_real - 1.) / (xcp_profit - 1.L),
                            xcp_profit_real,
                            (pow(ARU_x, ARU_y) - 1.L) * 100.L,
-                           fee() * 100.L,
+                           fee(curve.p.size()) * 100.L,
                            is_light? '*' : '.');
                 } catch (std::exception const &e) {
                     printf("caught '%s'\n", e.what());
@@ -811,11 +818,15 @@ auto get_price_vector(int n, vector<trade_data> const &data) {
 }
 
 
-int main() {
-    const int LAST_ELEMS = 100000;
+int main(int argc, char **argv) {
+    int LAST_ELEMS = 100000;
     clock_t start = clock();
     auto test_data = get_all();
-    test_data.erase(test_data.begin(), test_data.begin() + test_data.size() - LAST_ELEMS);
+    if (argc > 1 && string(argv[1]) == "trim") {
+        if (argc > 2) LAST_ELEMS = atoi(argv[2]);
+        printf("Trimming: use last %d elements\n", LAST_ELEMS);
+        test_data.erase(test_data.begin(), test_data.begin() + test_data.size() - LAST_ELEMS);
+    }
     //debug_print("test_data first 5", test_data, 5);
     //debug_print("test_data last 5", test_data, -5);
     Trader trader(135, (7e-5), money(5'000'000), 3, get_price_vector(3, test_data),
