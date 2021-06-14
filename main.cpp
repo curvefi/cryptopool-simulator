@@ -697,7 +697,7 @@ struct Trader {
             auto p_after = price(a, b);
             if (p_before != p_after) {
                 slippage_count++;
-                slippage += _dx * curve.p[b] * (p_before + p_after) / (2.L * mabs(p_before - p_after));
+                slippage += _dx * (p_before + p_after) / (2.L * mabs(p_before - p_after) * curve.x[b]);
             }
             _high = last;
             auto min_price = d.low;
@@ -706,10 +706,10 @@ struct Trader {
             while (last > min_price and vol < ext_vol / 2.L) {
                 auto dx = step / last;
                 auto dy = sell(dx, a, b, min_price);
-                _dx += dx;
                 if (dy == 0) {
                     break;
                 }
+                _dx += dx;
                 vol += dx * price_oracle[b];
                 last = dy / dx;
                 min_price = d.low;
@@ -718,7 +718,7 @@ struct Trader {
             p_after = price(a, b);
             if (p_before != p_after) {
                 slippage_count += 1;
-                slippage += _dx * curve.p[b] / (p_before + p_after) / (2.L * mabs(p_before - p_after));
+                slippage += _dx * (p_before + p_after) / (2.L * mabs(p_before - p_after) * curve.x[b]);
             }
             _low = last;
             lasts[d.pair1] = last;
@@ -835,7 +835,7 @@ int main(int argc, char **argv) {
                   0.0015, 600);
     clock_t start_simulation = clock();
     trader.simulate(test_data);
-    printf("Fraction of light transactions:%.5f\n", (double)(trader.light_tx) / (trader.light_tx + trader.heavy_tx));
+    printf("Liquidity density vs that of xyz=k:%f\n", 2 * (double)(trader.slippage) / (double)(trader.slippage_count));
     clock_t end = clock();
     print_clock("Total simulation time", start_simulation, end);
 }
