@@ -562,7 +562,7 @@ money solve_x(money A, money gamma, money const *x, size_t N, money D, int i) {
 
 auto solve_D(money A, money gamma, money const *x, size_t N) {
     auto D0 = N * geometric_mean(x, N); //  # <- fuzz to make sure it's ok XXX
-    return N == 3 ? newton_D(A, gamma, x, N, D0) : newton_D_3(A, gamma, x, D0);
+    return N == 3 ? newton_D_3(A, gamma, x, D0) : newton_D(A, gamma, x, N, D0);
 }
 
 struct Curve {
@@ -709,12 +709,16 @@ struct Trader {
         this->xcp = xcp;
     }
 
+    inline void copy_money(money *to, money const *from, int n) {
+        ::memcpy(to, from, sizeof(money) * n);
+    }
     money buy(money dx, int i, int j, money max_price=1e100L) {
         //"""
         //Buy y for x
         //"""
         try {
-            auto x_old = curve.x;
+            money x_old[MAX_ARRAY];
+            copy_money(x_old, &curve.x[0], curve.x.size());
             auto x = curve.x[i] + dx;
             auto y = curve.y(x, i, j);
             auto dy = curve.x[j] - y;
@@ -724,7 +728,7 @@ struct Trader {
             curve.x[j] += dy * fee;
             dy = dy * (1.L - fee);
             if ((dx / dy) > max_price or dy < 0) {
-                curve.x = x_old;
+                copy_money(&curve.x[0], x_old, curve.x.size());
                 return 0;
             }
             update_xcp();
@@ -739,7 +743,8 @@ struct Trader {
         // Sell y for x
         // """
         try {
-            auto x_old = curve.x;
+            money x_old[MAX_ARRAY];
+            copy_money(x_old, &curve.x[0], curve.x.size());
             auto y = curve.x[j] + dy;
             auto x = curve.y(y, j, i);
             auto dx = curve.x[i] - x;
@@ -749,7 +754,7 @@ struct Trader {
             curve.x[i] += dx * fee;
             dx = dx * (1.L - fee);
             if ((dx / dy) < min_price or dx < 0) {
-                curve.x = x_old;
+                copy_money(&curve.x[0], x_old, curve.x.size());
                 return 0;
             }
             update_xcp();
