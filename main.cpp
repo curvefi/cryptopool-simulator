@@ -42,6 +42,7 @@ using std::vector, std::string, std::pair, std::sort, std::map, std::min, std::m
 
 using u64 = unsigned long long;
 using money = long double;
+static const int MAX_ARRAY = 3;
 
 
 static void print_clock(string const &mesg, clock_t start, clock_t end) {
@@ -225,28 +226,67 @@ auto get_all() {
 }
 
 money geometric_mean(money const *x, size_t N) {
-    // Newton process should converged without sort
-    //sort(x.begin(),x.end(), [](money const &l, money const &r) {
-    //    return l > r;
-    //});
-    money D = x[0];
-    money D2 = x[1];
-    for (size_t i = 1; i < N; i++) {
-        D = max(D,x[i]);
-        D2 = min(D2, x[i]);
-    }
-    D = sqrtl(D*D2);
-    for (int i = 0; i < 255; i++) {
-        money D_prev = D;
-        money tmp = 1.L;
-        for (size_t j = 0; j < N; j++) {
-            tmp = tmp * x[j] / D;
-        }
-        D = (D * ((N-1) + tmp)) / N;
-        auto diff = mabs(D - D_prev);
-        if (diff <= 1E-18 or diff * 1E18L < D) {
-            return D;
-        }
+    switch (N) {
+        case 2:
+            return sqrtl(x[0] * x[1]);
+        case 3:
+            // Newton process should converged without sort
+            //sort(x.begin(),x.end(), [](money const &l, money const &r) {
+            //    return l > r;
+            //});
+            // {0,1,2} {0,2,1} {1,0,2} {1,2,0} {2,0,1} {2,1,0}
+            auto median = [&x] {
+                money D = x[0];
+                if (x[0] >= x[1]) {
+                    // {1,0,2} {2,0,1} {2,1,0}
+                    if (x[0] >= x[2]) {
+                        // {2,0,1} {2,1,0}
+                        if (x[1] >= x[2]) D = x[2];
+                        else D = x[1];
+                    } // else {1,0,2}
+                } else {
+                    // {0,1,2} {0,2,1} {1,2,0}
+                    if (x[0] < x[2]) {
+                        // {0,1,2} {0,2,1}
+                        if (x[1] >= x[2]) D = x[2];
+                        else D = x[1];
+                    } // else {1,2,0}
+                }
+            };
+            auto min_max_mean = [&x] {
+                if (x[0] >= x[1]) {
+                    // {1,0,2} {2,0,1} {2,1,0}
+                    if (x[0] >= x[2]) {
+                        // {2,0,1} {2,1,0}
+                        if (x[1] >= x[2]) return sqrtl(x[0]*x[1]);
+                        else return sqrtl(x[0]*x[1]);
+                    }
+                    return sqrtl(x[1]*x[2]);
+                } else {
+                    // {0,1,2} {0,2,1} {1,2,0}
+                    if (x[0] < x[2]) {
+                        // {0,1,2} {0,2,1}
+                        if (x[1] >= x[2]) return sqrtl(x[0]*x[1]);
+                        else return sqrtl(x[0]*x[2]);
+                    }
+                    return sqrtl(x[1]*x[2]); // else {1,2,0}
+                }
+
+            };
+            //money MAX = max(x[0], max(x[1], x[2]));
+            money prod = x[0] * x[1] * x[2];
+            //money MIN = min(x[0], min(x[1], x[2]));
+            //money D = sqrtl(MAX * MIN);
+            auto D = min_max_mean();
+            for (int i = 0; i < 255; i++) {
+                money D_prev = D;
+                D = (D + D + prod / D / D) *0.333333333333333333333333L;
+                auto diff = mabs(D - D_prev);
+                if (diff <= 1E-18 or diff * 1E18L < D) {
+                    return D;
+                }
+            }
+            break;
     }
     throw std::logic_error("geometric_mean: Did not converge");
 }
@@ -275,7 +315,7 @@ void print(money const *x, size_t N) {
 auto newton_D(money A, money gamma, money const *xx, size_t N, money D0) {
     money D = D0;
     money S = 0;
-    money x[N];
+    money x[MAX_ARRAY];
     for (size_t i = 0; i < N; i++) {
         S += x[i] = xx[i];
     }
@@ -321,9 +361,55 @@ auto newton_D(money A, money gamma, money const *xx, size_t N, money D0) {
     throw std::logic_error("Newton_D: did not converge");
 }
 
-auto newton_y(money A, money gamma, money const *x, size_t N, money D, int i) {
-    money save_trace = trace;
+auto newton_D_3(money A, money gamma, money const *xx, money D0) {
+    money D = D0;
+    money S = 0;
+    money x[3];
+    for (size_t i = 0; i < 3; i++) {
+        S += x[i] = xx[i];
+    }
+    if (x[0] < x[1]) std::swap(x[0],x[1]);
+    if (x[1] < x[2]) std::swap(x[1],x[2]);
+    if (x[0] < x[1]) std::swap(x[0],x[1]);
+    // sort(x+0, x+3, [](money l, money r) { return l > r; });
+    A *= 27.L;
+    //for (size_t j = 0; j < N; j++) { // XXX or just set A to be A*N**N?
+    //    A = A * N;
+    //}
 
+    for (int i = 0; i < 255; i++) {
+        money D_prev = D;
+
+        money K0 = 27.L;
+        for (auto const &_x: x) {
+            K0 = K0 * _x / D;
+        }
+
+        money _g1k0 = mabs((gamma + 1.L - K0));
+
+        // # D / (A * N**N) * _g1k0**2 / gamma**2
+        money mul1 = D / gamma * _g1k0 / gamma * _g1k0 / A;
+
+        // # 2*N*K0 / _g1k0
+        money mul2 = 2.L * 3.L * K0 / _g1k0;
+
+        money neg_fprime = (S + S * mul2) + mul1 * 3.L / K0 - mul2 * D;
+        assert (neg_fprime > 0); //   # Python only: -f' > 0
+
+        // # D -= f / fprime
+        D = (D * neg_fprime + D * S - D * D) / neg_fprime - D * (mul1 / neg_fprime) * (1.L - K0) / K0;
+
+        if (D < 0) {
+            D = mabs(D) / 2.L;
+        }
+        if (mabs(D - D_prev) <= max(1e-16L, D / 1e14L)) {
+            return D;
+        }
+    }
+    throw std::logic_error("Newton_D: did not converge");
+}
+
+auto newton_y(money A, money gamma, money const *x, size_t N, money D, int i) {
     money y = D / N;
     money K0_i = 1.;
     money S_i = 0.;
@@ -378,7 +464,91 @@ auto newton_y(money A, money gamma, money const *x, size_t N, money D, int i) {
         }
 
         if (mabs(y - y_prev) <= max(convergence_limit, y / 1e14L)) {
-            trace = save_trace;
+            return y;
+        }
+    }
+    throw std::logic_error("Did not converge");
+}
+
+auto newton_y_3(money A, money gamma, money const *x, money D, int i) {
+    money y = D / 3.;
+    money K0_i = 1.;
+    money S_i = 0.;
+    money x_sorted[2];
+    switch (i) {
+        case 0:
+            if (x[1] < x[2]) {
+                x_sorted[0] = x[1];
+                x_sorted[1] = x[2];
+            } else {
+                x_sorted[1] = x[1];
+                x_sorted[0] = x[2];
+            }
+            break;
+        case 1:
+            if (x[0] < x[2]) {
+                x_sorted[0] = x[0];
+                x_sorted[1] = x[2];
+            } else {
+                x_sorted[1] = x[0];
+                x_sorted[0] = x[2];
+            }
+            break;
+        case 2:
+            if (x[0] < x[1]) {
+                x_sorted[0] = x[0];
+                x_sorted[1] = x[1];
+            } else {
+                x_sorted[1] = x[0];
+                x_sorted[0] = x[1];
+            }
+            break;
+        default:
+            abort();
+    }
+    money max_x_sorted = x_sorted[1];
+    money convergence_limit = max(max_x_sorted / 1E14L, D / 1E14L);
+    convergence_limit = max(convergence_limit, 1E-16L);
+    y = y * D / (x_sorted[0] * 3);
+    S_i += x_sorted[0];
+    K0_i = K0_i * x_sorted[0] * 3 / D;
+    y = y * D / (x_sorted[1] * 3);
+    S_i += x_sorted[1];
+    K0_i = K0_i * x_sorted[1] * 3 / D;
+    A = A * 27.L;
+    auto g2a = (gamma * gamma * A);
+    for (size_t j = 0; j < 255; j++) {
+        money y_prev = y;
+
+        money K0 = K0_i * y * 3 / D;
+        money K0_1 = 1.L - K0;
+        money S = S_i + y;
+
+        money _g1k0 = mabs((gamma + K0_1));
+
+        // D / (A * N**N) * _g1k0**2 / gamma**2
+        //money mul1 = D / gamma * _g1k0 / gamma * _g1k0 / A;
+        money mul1 = D * _g1k0 * _g1k0 / g2a;
+        // 2*K0 / _g1k0
+        money mul2 = 1.L + (K0 + K0) / _g1k0;
+
+        // money yfprime = y + S * mul2 + mul1 - D * mul2;
+        money yfprime = y + mul1 + (S - D) * mul2;
+        money fprime = yfprime / y;
+        assert (fprime  > 0) ;  //# Python only: f' > 0
+
+        // y -= f / f_prime;  y = (y * fprime - f) / fprime
+        // y = (yfprime + D - S) / fprime + mul1 / fprime * K0_1 / K0;
+        y = ((yfprime + D - S) + mul1 * K0_1 / K0) / fprime;
+        if (j > 100) { //  # Just logging when doesn't converge
+            printf("%zu %.6Lf %.16Lf ", j, y, D);
+            print(x, 3);
+        }
+        if (y < 0 or fprime < 0) {
+            y = y_prev * 0.5L;
+        }
+
+        if (mabs(y - y_prev) <= max(convergence_limit, y * 1e-14L)) {
             return y;
         }
     }
@@ -386,12 +556,13 @@ auto newton_y(money A, money gamma, money const *x, size_t N, money D, int i) {
 }
 
 money solve_x(money A, money gamma, money const *x, size_t N, money D, int i) {
-    return newton_y(A, gamma, x, N, D, i);
+    if (N == 3) return newton_y_3(A, gamma, x, D, i);
+    else return newton_y(A, gamma, x, N, D, i);
 }
 
 auto solve_D(money A, money gamma, money const *x, size_t N) {
     auto D0 = N * geometric_mean(x, N); //  # <- fuzz to make sure it's ok XXX
-    return newton_D(A, gamma, x, N, D0);
+    return N == 3 ? newton_D(A, gamma, x, N, D0) : newton_D_3(A, gamma, x, D0);
 }
 
 struct Curve {
@@ -413,23 +584,26 @@ struct Curve {
     auto xp(money *ret, size_t N) const {
         for (int i = 0; i < N; i++) {
             ret[i] = x[i] * p[i];
+            assert(x[i] > 0);
         }
     }
 
     auto D() const {
-        money xp[n];
+        money xp[MAX_ARRAY];
         this->xp(xp,n);
+#if 0
         for (size_t i = 0; i < n; i++) {
             if (xp[i] <= 0) {
                 throw std::logic_error("Curve::D(): x <= 0");
             }
         }
+#endif
         auto ret = solve_D(A, gamma, xp, n);
         return ret;
     }
 
     money y(money x, int i, int j) {
-        money xp[n];
+        money xp[MAX_ARRAY];
         this->xp(xp,n);
         xp[i] = x * this->p[i];
         auto yp = solve_x(A, gamma, xp, n, this->D(), j);
@@ -485,7 +659,7 @@ struct Trader {
 
 
     auto fee(size_t N) {
-        money xp[N];
+        money xp[MAX_ARRAY];
         curve.xp(xp, N);
         auto f = reduction_coefficient(xp, N, fee_gamma);
         return (mid_fee * f + out_fee * (1.L - f));
@@ -496,7 +670,7 @@ struct Trader {
         //  Then calculate, what the constant-product would be
         auto D = curve.D();
         size_t N = curve.x.size();
-        money X[N];
+        money X[MAX_ARRAY];
         for (size_t i = 0; i < N; i++) {
             X[i] = D  / (N * curve.p[i]);
         }
