@@ -14,6 +14,9 @@
 #include <sys/mman.h>
 #include <stdexcept>
 #include <cmath>
+#include <memory.h>
+#include "json.hpp"
+using nlohmann::json;
 //#include "bn_fixed.h"
 #define DEBUG 0
 static int trace = DEBUG;
@@ -201,7 +204,7 @@ auto get_price_vector(int n, vector<trade_data> const &data) {
     return p;
 }
 
-auto get_all(int last_elems, vector<money> & price_vector) {
+FILE* get_all(int last_elems, vector<money> & price_vector) {
     // 0 - usdt
     // 1 - btc
     // 2 - eth
@@ -251,6 +254,11 @@ auto get_all(int last_elems, vector<money> & price_vector) {
     price_vector = get_price_vector(3, ret);
     string tmp_name = "_tmp." + std::to_string(getpid());
     FILE *tmp = fopen(tmp_name.c_str(), "w+");
+    if (tmp == nullptr) {
+        printf("Temp file '%s' is not available\n", tmp_name.c_str());
+        return nullptr;
+    }
+    printf("Using temp file '%s' as interprocedural connect\n", tmp_name.c_str());
     fwrite(&ret[0], sizeof (trade_data), ret.size(), tmp);
     unlink(tmp_name.c_str()); // Does not work in Windows
     return tmp;
@@ -718,13 +726,14 @@ struct Trader {
     auto step_for_price(money dp, pair<int, int> p, int sign) {
         auto p0 = price(p.first, p.second);
         dp = p0 * dp;
-        auto x0 = curve.x;
+        money x0[curve.x.size()];
+        copy_money(x0, &curve.x[0], curve.x.size());
         auto step = dx / curve.p[p.first];
         while (true) {
             curve.x[p.first] = x0[p.first] + sign * step;
             auto dp_ = mabs(p0 - price(p.first, p.second));
             if (dp_ >= dp or step >= curve.x[p.first] / 10.L) {
-                curve.x = x0;
+                copy_money(&curve.x[0], x0, curve.x.size());
                 return step;
             }
             step += step;
@@ -1022,13 +1031,15 @@ struct Trader {
     int  light_tx;
     bool is_light;
     Curve curve;
-
-
 };
 
 
 
 int main(int argc, char **argv) {
+    //if (argc == 1) {
+    //    printf("Usage: %s [prepare|simulate] json-file\n");
+    //    return 0;
+    //}
     int LAST_ELEMS = 0;
     clock_t start = clock();
     if (argc > 1 && string(argv[1]) == "trim") {
