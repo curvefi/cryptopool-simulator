@@ -179,7 +179,29 @@ vector<trade_data> get_data(std::string const &fname) {
 
 }
 
-auto get_all() {
+auto get_price_vector(int n, vector<trade_data> const &data) {
+    vector<money> p(n);
+    p[0] = 1.L;
+    for (auto const &d: data) {
+        if (d.pair1.first == 0) {
+            p[d.pair1.second] =  d.close;
+        }
+        bool zeros = false;
+        for (auto x: p) {
+            zeros |= x == 0;
+        }
+        if (!zeros) {
+            for (auto q: p) {
+                printf("%.16Lf ", q);
+            }
+            printf("\n");
+            return p;
+        }
+    }
+    return p;
+}
+
+auto get_all(int last_elems, vector<money> & price_vector) {
     // 0 - usdt
     // 1 - btc
     // 2 - eth
@@ -218,11 +240,20 @@ auto get_all() {
     //debug_print("sorted out last 5", out, -5);
     vector<trade_data> ret;
     for (auto &q: out) {
-        ret.emplace_back(q.trade);
+        ret.push_back(q.trade);
     }
     //printf("total %zu elements\n", ret.size());
     print_clock("sorting took", start_time, end_time);
-    return ret;
+    if (last_elems > 0) {
+        printf("Trimming: use last %d elements\n", last_elems);
+        ret.erase(ret.begin(), ret.begin() + ret.size() - last_elems);
+    }
+    price_vector = get_price_vector(3, ret);
+    string tmp_name = "_tmp." + std::to_string(getpid());
+    FILE *tmp = fopen(tmp_name.c_str(), "w+");
+    fwrite(&ret[0], sizeof (trade_data), ret.size(), tmp);
+    unlink(tmp_name.c_str()); // Does not work in Windows
+    return tmp;
 }
 
 money geometric_mean(money const *x, size_t N) {
@@ -810,7 +841,7 @@ struct Trader {
         is_light = false;
 
         vector<money> p_new(price_oracle.size());
-        p_new[0] = money(1);
+        p_new[0] = 1.L;
         for (size_t i = 1; i < price_oracle.size(); i++) {
             auto p_target = curve.p[i];
             auto p_real = price_oracle[i];
@@ -836,19 +867,27 @@ struct Trader {
     }
 
 
-    void simulate(vector<trade_data> const &mdata) {
+    void simulate(FILE *in) {
+        // vector<trade_data> const &mdata
         const money CANDLE_VARIATIVES = 50;
         map<pair<int,int>,money> lasts;
+        u64 start_t = 0;
         long double last_time = 0;
-        for (size_t i = 0; i < mdata.size(); i++)  {
+        fseek(in, 0, SEEK_END);
+        auto file_size = ftello(in);
+        size_t total_elements = file_size / sizeof(trade_data);
+        rewind(in);
+        for (size_t i = 0; i < total_elements; i++)  {
             // if (i > 10) abort();
-            auto const &d = mdata[i];
+            trade_data d;
+            fread(&d, sizeof(d), 1, in);
+            if (i == 0) start_t = d.t;
             if (last_time > 0) {
                 last_time = d.t - last_time;
             }
             auto a = d.pair1.first;
             auto b = d.pair1.second;
-            money vol(0);
+            money vol{0.L};
             auto ext_vol = money(d.volume * price_oracle[b]); //  <- now all is in USD
             int ctr{0};
             money last;
@@ -932,14 +971,14 @@ struct Trader {
                         last02 = it02->second;
                     }
                     long double ARU_x = xcp_profit_real;
-                    long double ARU_y = (86400.L * 365.L / (d.t - mdata[0].t + 1.L));
+                    long double ARU_y = (86400.L * 365.L / (d.t - start_t + 1.L));
                     APY = powl(ARU_x, ARU_y) - 1.L;
                     printf("t=%llu %.1Lf%%\ttrades: %d\t"
                            "AMM: %.0Lf, %0.Lf\tTarget: %.0Lf, %.0Lf\t"
                            "Vol: %.4Lf\tPR:%.2Lf\txCP-growth: {%.5Lf}\t"
                            "APY:%.1Lf%%\tfee:%.3Lf%% %c\n",
                            d.t,
-                           100.L * i / mdata.size(), ctr, last01, last02,
+                           100.L * i / total_elements, ctr, last01, last02,
                            curve.p[1],
                            curve.p[2],
                            total_vol,
@@ -987,46 +1026,27 @@ struct Trader {
 
 };
 
-auto get_price_vector(int n, vector<trade_data> const &data) {
-    vector<money> p(n);
-    p[0] = 1.L;
-    for (auto const &d: data) {
-        if (d.pair1.first == 0) {
-            p[d.pair1.second] =  d.close;
-        }
-        bool zeros = false;
-        for (auto x: p) {
-            zeros |= x == 0;
-        }
-        if (!zeros) {
-            for (auto q: p) {
-                printf("%.16Lf ", q);
-            }
-            printf("\n");
-            return p;
-        }
-    }
-    return p;
-}
 
 
 int main(int argc, char **argv) {
-    int LAST_ELEMS = 100000;
+    int LAST_ELEMS = 0;
     clock_t start = clock();
-    auto test_data = get_all();
     if (argc > 1 && string(argv[1]) == "trim") {
+        LAST_ELEMS = 100000;
         if (argc > 2) LAST_ELEMS = atoi(argv[2]);
-        printf("Trimming: use last %d elements\n", LAST_ELEMS);
-        test_data.erase(test_data.begin(), test_data.begin() + test_data.size() - LAST_ELEMS);
     }
+    vector<money> price_vector;
+    auto test_data = get_all(LAST_ELEMS, price_vector);
     //debug_print("test_data first 5", test_data, 5);
     //debug_print("test_data last 5", test_data, -5);
-    Trader trader(135, (7e-5), money(100'000'000), 3, get_price_vector(3, test_data),
+    Trader trader(135, (7e-5), money(100'000'000), 3, price_vector,
                   4e-4, 4.0e-3,
                   0.0028, 0.01L,
                   0.0015, 600);
     clock_t start_simulation = clock();
+    printf("Begin simulation\n");
     trader.simulate(test_data);
+    fclose(test_data);
     printf("Liquidity density vs that of xyz=k: %f\n", 2 * (double)(trader.slippage) / (double)(trader.slippage_count));
     printf("APY: %Lf%%\n", (trader.APY * 100.L));
     clock_t end = clock();
