@@ -1,0 +1,36 @@
+{
+    "configuration": [
+        {
+            "A": 135,
+            "D": 100000000.0,
+            "adjustment_step": 0.0015,
+            "fee_gamma": 0.01,
+            "gamma": 7e-05,
+            "ma_half_time": 600,
+            "mid_fee": 0.0004,
+            "n": 3,
+            "log" : 1,
+            "out_fee": 0.004,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 135,
+            "D": 100000000.0,
+            "adjustment_step": 0.0013,
+            "fee_gamma": 0.01,
+            "gamma": 6e-05,
+            "ma_half_time": 600,
+            "mid_fee": 0.0003,
+            "n": 3,
+            "log" : 1,
+            "out_fee": 0.003,
+            "price_threshold": 0.0026
+        }
+    ],
+    "datafile": [
+        "btcusdt",
+        "ethusdt",
+        "ethbtc"
+    ],
+    "debug": 0
+}

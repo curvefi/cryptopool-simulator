@@ -17,7 +17,11 @@
 #include <memory.h>
 #include <fstream>
 #include <iostream>
+#include <iomanip>
 #include "json.hpp"
+#ifndef MAP_NOCACHE
+#define MAP_NOCACHE 0
+#endif
 using nlohmann::json;
 //#include "bn_fixed.h"
 #define DEBUG 0
@@ -77,31 +81,6 @@ money mabs(money val) noexcept {
     return val >= 0 ? val : -val;
 }
 
-void debug_print(string const &head, vector<trade_data> const &t, int count) {
-    printf("%s:\n", head.c_str());
-    size_t first = 0, last = count;
-    if (count < 0) {
-        first = t.size() + count;
-        last = t.size();
-    }
-    for (auto i = first; i < last; i++) {
-        t[i].print(); printf("\n");
-    }
-    printf("\n");
-}
-
-void debug_print(string const &head, vector<trade_one> const &t, int count) {
-    printf("%s:\n", head.c_str());
-    size_t first = 0, last = count;
-    if (count < 0) {
-        first = t.size() + count;
-        last = t.size();
-    }
-    for (auto i = first; i < last; i++) {
-        t[i].trade.print(); printf("\n");
-    }
-    printf("\n");
-}
 
 struct mapped_file {
     int fd;
@@ -217,126 +196,148 @@ bool get_all(json const &jin, int last_elems, vector<money> & price_vector, mapp
     // 1 - btc
     // 2 - eth
 
-    std::vector<string> names{"btcusdt", "ethusdt", "ethbtc"};
-    vector<pair<int,int>> pairs{{0,1}, {0,2}, {1, 2}};
-    auto d0 = get_data(names[0]);
-    auto d1 = get_data(names[1]);
-    auto d2 = get_data(names[2]);
-    map<string, vector<trade_data>> all_trades{{names[0], d0}, {names[1], d1}, {names[2], d2}};
-    u64 min_time = 1ull << 63;
-    u64 max_time = 0;
-    for (auto const &t: all_trades) {
-        min_time = min(min_time, t.second.front().t);
-        max_time = max(max_time, t.second.back().t);
-    }
-    vector<trade_one> out;
+    auto const N = jin["datafile"].size();
+    assert(N == 2 || N == 3);
+    if (N == 2) {
+        // TODO
+        return false;
+    } else {
+        vector<pair<int, int>> pairs{{0, 1},
+                                     {0, 2},
+                                     {1, 2}};
+        string names[3];
+        names[0] = jin["datafile"][0];
+        auto d0 = get_data(names[0]);
+        names[1] = jin["datafile"][1];
+        auto d1 = get_data(names[1]);
+        names[2] = jin["datafile"][2];
+        auto d2 = get_data(names[2]);
+        map<string, vector<trade_data>> all_trades{{names[0], d0},
+                                                   {names[1], d1},
+                                                   {names[2], d2}};
 
-    for (size_t i = 0; i < names.size(); i++) {
-        auto &trades = all_trades[names[i]];
-        for (auto &trade: trades) {
-            if (trade.t >= min_time && trade.t <= max_time) {
-                trade.pair1 = pairs[i];
-                out.push_back({trade.t + (trade.pair1.first + trade.pair1.second) * 15, trade});
+        u64 min_time = 1ull << 63;
+        u64 max_time = 0;
+        for (auto const &t: all_trades) {
+            min_time = min(min_time, t.second.front().t);
+            max_time = max(max_time, t.second.back().t);
+        }
+        vector<trade_one> out;
+
+        for (size_t i = 0; i < N; i++) {
+            auto &trades = all_trades[names[i]];
+            for (auto &trade: trades) {
+                if (trade.t >= min_time && trade.t <= max_time) {
+                    trade.pair1 = pairs[i];
+                    out.push_back({trade.t + (trade.pair1.first + trade.pair1.second) * 15, trade});
+                }
             }
         }
+        clock_t start_time = clock();
+        //debug_print("out first 5", out, 5);
+        //debug_print("out last 5", out, -5);
+        sort(out.begin(), out.end(), [](trade_one const &l, trade_one const &r) {
+            return l.t < r.t;
+        });
+        clock_t end_time = clock();
+        //debug_print("sorted out first 5", out, 5);
+        //debug_print("sorted out last 5", out, -5);
+        vector<trade_data> ret;
+        for (auto &q: out) {
+            ret.push_back(q.trade);
+        }
+        //printf("total %zu elements\n", ret.size());
+        print_clock("sorting took", start_time, end_time);
+        if (last_elems > 0) {
+            printf("Trimming: use last %d elements\n", last_elems);
+            ret.erase(ret.begin(), ret.begin() + ret.size() - last_elems);
+        }
+        price_vector = get_price_vector(3, ret);
+        string tmp_name = "_tmp." + std::to_string(getpid());
+        FILE *tmp = fopen(tmp_name.c_str(), "w+");
+        if (tmp == nullptr) {
+            printf("Temp file '%s' is not available\n", tmp_name.c_str());
+            return false;
+        }
+        printf("Using temp file '%s' as interprocedural connect\n", tmp_name.c_str());
+        fwrite(&ret[0], sizeof(trade_data), ret.size(), tmp);
+        //unlink(tmp_name.c_str()); // Does not work in Windows
+        mf.map(tmp_name);
+        return true;
     }
-    clock_t start_time = clock();
-    //debug_print("out first 5", out, 5);
-    //debug_print("out last 5", out, -5);
-    sort(out.begin(), out.end(), [](trade_one const &l, trade_one const &r) {
-        return l.t < r.t;
-    });
-    clock_t end_time = clock();
-    //debug_print("sorted out first 5", out, 5);
-    //debug_print("sorted out last 5", out, -5);
-    vector<trade_data> ret;
-    for (auto &q: out) {
-        ret.push_back(q.trade);
-    }
-    //printf("total %zu elements\n", ret.size());
-    print_clock("sorting took", start_time, end_time);
-    if (last_elems > 0) {
-        printf("Trimming: use last %d elements\n", last_elems);
-        ret.erase(ret.begin(), ret.begin() + ret.size() - last_elems);
-    }
-    price_vector = get_price_vector(3, ret);
-    string tmp_name = "_tmp." + std::to_string(getpid());
-    FILE *tmp = fopen(tmp_name.c_str(), "w+");
-    if (tmp == nullptr) {
-        printf("Temp file '%s' is not available\n", tmp_name.c_str());
-        return false;
-    }
-    printf("Using temp file '%s' as interprocedural connect\n", tmp_name.c_str());
-    fwrite(&ret[0], sizeof (trade_data), ret.size(), tmp);
-    //unlink(tmp_name.c_str()); // Does not work in Windows
-    mf.map(tmp_name);
-    return true;
 }
 
-money geometric_mean(money const *x, size_t N) {
-    switch (N) {
-        case 2:
-            return sqrtl(x[0] * x[1]);
-        case 3:
-            // Newton process should converged without sort
-            //sort(x.begin(),x.end(), [](money const &l, money const &r) {
-            //    return l > r;
-            //});
-            // {0,1,2} {0,2,1} {1,0,2} {1,2,0} {2,0,1} {2,1,0}
-            auto median = [&x] {
-                money D = x[0];
-                if (x[0] >= x[1]) {
-                    // {1,0,2} {2,0,1} {2,1,0}
-                    if (x[0] >= x[2]) {
-                        // {2,0,1} {2,1,0}
-                        if (x[1] >= x[2]) D = x[2];
-                        else D = x[1];
-                    } // else {1,0,2}
-                } else {
-                    // {0,1,2} {0,2,1} {1,2,0}
-                    if (x[0] < x[2]) {
-                        // {0,1,2} {0,2,1}
-                        if (x[1] >= x[2]) D = x[2];
-                        else D = x[1];
-                    } // else {1,2,0}
-                }
-            };
-            auto min_max_mean = [&x] {
-                if (x[0] >= x[1]) {
-                    // {1,0,2} {2,0,1} {2,1,0}
-                    if (x[0] >= x[2]) {
-                        // {2,0,1} {2,1,0}
-                        if (x[1] >= x[2]) return sqrtl(x[0]*x[1]);
-                        else return sqrtl(x[0]*x[2]);
-                    }
-                    return sqrtl(x[1]*x[2]);
-                } else {
-                    // {0,1,2} {0,2,1} {1,2,0}
-                    if (x[0] < x[2]) {
-                        // {0,1,2} {0,2,1}
-                        if (x[1] >= x[2]) return sqrtl(x[0]*x[1]);
-                        else return sqrtl(x[0]*x[2]);
-                    }
-                    return sqrtl(x[1]*x[2]); // else {1,2,0}
-                }
+money geometric_mean_2(money const *x) {
+    return sqrtl(x[0] * x[1]);
+}
 
-            };
-            //money MAX = max(x[0], max(x[1], x[2]));
-            money prod = x[0] * x[1] * x[2];
-            //money MIN = min(x[0], min(x[1], x[2]));
-            //money D = sqrtl(MAX * MIN);
-            auto D = min_max_mean();
-            for (int i = 0; i < 255; i++) {
-                money D_prev = D;
-                D = (D + D + prod / D / D) *0.333333333333333333333333L;
-                auto diff = mabs(D - D_prev);
-                if (diff <= 1E-18 or diff * 1E18L < D) {
-                    return D;
-                }
+money geometric_mean_3(money const *x) {
+    // {0,1,2} {0,2,1} {1,0,2} {1,2,0} {2,0,1} {2,1,0}
+    auto median = [&x] {
+        money D = x[0];
+        if (x[0] >= x[1]) {
+            // {1,0,2} {2,0,1} {2,1,0}
+            if (x[0] >= x[2]) {
+                // {2,0,1} {2,1,0}
+                if (x[1] >= x[2]) D = x[2];
+                else D = x[1];
+            } // else {1,0,2}
+        } else {
+            // {0,1,2} {0,2,1} {1,2,0}
+            if (x[0] < x[2]) {
+                // {0,1,2} {0,2,1}
+                if (x[1] >= x[2]) D = x[2];
+                else D = x[1];
+            } // else {1,2,0}
+        }
+    };
+    auto min_max_mean = [&x] {
+        if (x[0] >= x[1]) {
+            // {1,0,2} {2,0,1} {2,1,0}
+            if (x[0] >= x[2]) {
+                // {2,0,1} {2,1,0}
+                if (x[1] >= x[2]) return sqrtl(x[0]*x[1]);
+                else return sqrtl(x[0]*x[2]);
             }
-            break;
+            return sqrtl(x[1]*x[2]);
+        } else {
+            // {0,1,2} {0,2,1} {1,2,0}
+            if (x[0] < x[2]) {
+                // {0,1,2} {0,2,1}
+                if (x[1] >= x[2]) return sqrtl(x[0]*x[1]);
+                else return sqrtl(x[0]*x[2]);
+            }
+            return sqrtl(x[1]*x[2]); // else {1,2,0}
+        }
+
+    };
+    //money MAX = max(x[0], max(x[1], x[2]));
+    money prod = x[0] * x[1] * x[2];
+    //money MIN = min(x[0], min(x[1], x[2]));
+    //money D = sqrtl(MAX * MIN);
+    auto D = min_max_mean();
+    for (int i = 0; i < 255; i++) {
+        money D_prev = D;
+        D = (D + D + prod / D / D) *0.333333333333333333333333L;
+        auto diff = mabs(D - D_prev);
+        if (diff <= 1E-18 or diff * 1E18L < D) {
+            return D;
+        }
     }
     throw std::logic_error("geometric_mean: Did not converge");
+}
+
+auto reduction_coefficient_2(money const *x, money gamma) {
+    money K = 1.L;
+    money S = 0.L;
+    for (size_t i = 0; i < 2; i++) S += x[i]; // = sum(x)
+    for (size_t i = 0; i < 2; i++)  {
+        K *= 2.L * x[i] / S;
+    }
+    if (gamma > 0) {
+        K = gamma / (gamma + 1.L - K);
+    }
+    return K;
 }
 
 auto reduction_coefficient(money const *x, size_t N, money gamma) {
@@ -609,15 +610,21 @@ money solve_x(money A, money gamma, money const *x, size_t N, money D, int i) {
 }
 
 auto solve_D(money A, money gamma, money const *x, size_t N) {
-    auto D0 = N * geometric_mean(x, N); //  # <- fuzz to make sure it's ok XXX
-    return N == 3 ? newton_D_3(A, gamma, x, D0) : newton_D(A, gamma, x, N, D0);
+    if (N == 3) {
+        auto D0 = 3 * geometric_mean_3(x); //  # <- fuzz to make sure it's ok XXX
+        return newton_D_3(A, gamma, x, D0);
+    } else {
+        auto D0 = 2 * geometric_mean_2(x); //  # <- fuzz to make sure it's ok XXX
+        return N == 3 ? newton_D_3(A, gamma, x, D0) : newton_D(A, gamma, x, N, D0);
+    }
 }
 
 struct Curve {
-    Curve(money A, money gamma, money D, int n, vector<money> const &p) {
-        this->A = A;
-        this->gamma = gamma;
-        this->n = n;
+    Curve(json const &jconf, vector<money> const &p) {
+        this->A = jconf["A"];
+        this->gamma = jconf["gamma"];
+        money D = jconf["D"];
+        this->n = jconf["n"];
         if (!p.empty()) {
             this->p = p;
         } else {
@@ -669,32 +676,29 @@ struct Curve {
 
 
 struct Trader {
-    Trader(money A, money gamma, money D, int n, vector<money> const &p0,
-           money mid_fee,
-           money out_fee,
-           money price_threshold,
-           money const &fee_gamma,
-           money adjustment_step,
-           int ma_half_time,
-           bool log = true) : curve(A, gamma, D, n, p0) {
+    Trader(json const &jconf, vector<money> const &p0) : curve(jconf, p0) {
+        money A = jconf["A"];
+        money gamma = jconf["gamma"];
+        money D = jconf["D"];
+        int n = jconf["n"];
+        mid_fee = jconf["mid_fee"];
+        out_fee = jconf["out_fee"];
+        price_threshold = jconf["price_threshold"];
+        fee_gamma = jconf["fee_gamma"];
+        adjustment_step = jconf["adjustment_step"];
+        ma_half_time = jconf["ma_half_time"];
+        log = jconf["log"];
         this->p0 = p0;
         this->price_oracle = this->p0;
         this->last_price = this->p0;
         // this->curve = Curve(A, gamma, D, n, p0);
         this->dx = D * 1e-8L;
-        this->mid_fee = mid_fee;
-        this->out_fee = out_fee;
         this->D0 = this->curve.D();
         this->xcp_0 = this->get_xcp();
         this->xcp_profit = 1.L;
         this->xcp_profit_real = 1.L;
         this->xcp = this->xcp_0;
-        this->price_threshold = price_threshold;
-        this->adjustment_step = adjustment_step;
-        this->log = log;
-        this->fee_gamma = fee_gamma; // || gamma;
         this->total_vol = 0.0;
-        this->ma_half_time = ma_half_time;
         this->ext_fee = 0; //   # 0.03e-2
         this->slippage = 0;
         this->slippage_count = 0;
@@ -722,7 +726,7 @@ struct Trader {
         for (size_t i = 0; i < N; i++) {
             X[i] = D  / (N * curve.p[i]);
         }
-        return geometric_mean(X, N);
+        return N == 2 ? geometric_mean_2(X) : geometric_mean_3(X);
     }
 
     auto price(int i, int j) {
@@ -735,14 +739,14 @@ struct Trader {
     auto step_for_price(money dp, pair<int, int> p, int sign) {
         auto p0 = price(p.first, p.second);
         dp = p0 * dp;
-        money x0[curve.x.size()];
-        copy_money(x0, &curve.x[0], curve.x.size());
+        money x0[MAX_ARRAY];
+        copy_money_3(x0, &curve.x[0]);
         auto step = dx / curve.p[p.first];
         while (true) {
             curve.x[p.first] = x0[p.first] + sign * step;
             auto dp_ = mabs(p0 - price(p.first, p.second));
             if (dp_ >= dp or step >= curve.x[p.first] / 10.L) {
-                copy_money(&curve.x[0], x0, curve.x.size());
+                copy_money_3(&curve.x[0], x0);
                 return step;
             }
             step += step;
@@ -758,16 +762,24 @@ struct Trader {
         this->xcp = xcp;
     }
 
-    inline void copy_money(money *to, money const *from, int n) {
-        ::memcpy(to, from, sizeof(money) * n);
+    inline void static copy_money_3(money *to, money const *from) {
+        to[0] = from[0];
+        to[1] = from[1];
+        to[2] = from[2];
     }
+
+    inline void static copy_money_2(money *to, money const *from) {
+        to[0] = from[0];
+        to[1] = from[1];
+    }
+
     money buy(money dx, int i, int j, money max_price=1e100L) {
         //"""
         //Buy y for x
         //"""
         try {
             money x_old[MAX_ARRAY];
-            copy_money(x_old, &curve.x[0], curve.x.size());
+            copy_money_3(x_old, &curve.x[0]);
             auto x = curve.x[i] + dx;
             auto y = curve.y(x, i, j);
             auto dy = curve.x[j] - y;
@@ -777,7 +789,7 @@ struct Trader {
             curve.x[j] += dy * fee;
             dy = dy * (1.L - fee);
             if ((dx / dy) > max_price or dy < 0) {
-                copy_money(&curve.x[0], x_old, curve.x.size());
+                copy_money_3(&curve.x[0], x_old);
                 return 0;
             }
             update_xcp();
@@ -793,7 +805,7 @@ struct Trader {
         // """
         try {
             money x_old[MAX_ARRAY];
-            copy_money(x_old, &curve.x[0], curve.x.size());
+            copy_money_3(x_old, &curve.x[0]);
             auto y = curve.x[j] + dy;
             auto x = curve.y(y, j, i);
             auto dx = curve.x[i] - x;
@@ -803,7 +815,7 @@ struct Trader {
             curve.x[i] += dx * fee;
             dx = dx * (1.L - fee);
             if ((dx / dy) < min_price or dx < 0) {
-                copy_money(&curve.x[0], x_old, curve.x.size());
+                copy_money_3(&curve.x[0], x_old);
                 return 0;
             }
             update_xcp();
@@ -826,6 +838,7 @@ struct Trader {
 
     auto tweak_price(u64 t, int a, int b, money p) {
         ma_recorder(t, last_price);
+        size_t N = last_price.size();
         if (b > 0) {
             last_price[b] = p * last_price[a];
         } else {
@@ -834,7 +847,7 @@ struct Trader {
 
         // # price_oracle looks like [1, p1, p2, ...] normalized to 1e18
         money S = 0;
-        for (size_t i = 0; i < price_oracle.size(); i++) {
+        for (size_t i = 0; i < N; i++) {
             auto t = price_oracle[i] / curve.p[i] - 1.L;
             S += t*t;
         }
@@ -858,23 +871,25 @@ struct Trader {
         heavy_tx += 1;
         is_light = false;
 
-        vector<money> p_new(price_oracle.size());
+        money p_new[MAX_ARRAY];
         p_new[0] = 1.L;
         for (size_t i = 1; i < price_oracle.size(); i++) {
             auto p_target = curve.p[i];
             auto p_real = price_oracle[i];
             p_new[i] = p_target + adjustment_step * (p_real - p_target) / norm;
         }
-        auto old_p = curve.p;
+        money old_p[MAX_ARRAY];
+        copy_money_3(old_p, &curve.p[0]);
+
         auto old_profit = xcp_profit_real;
         auto old_xcp = xcp;
 
-        curve.p = p_new;
+        copy_money_3(&curve.p[0],p_new);
         update_xcp(true);
 
         if (2.L * (xcp_profit_real - 1.L) <= (xcp_profit - 1.L)) {
             //  If real profit is less than half of maximum - revert params back
-            curve.p = old_p;
+            copy_money_3(&curve.p[0], old_p);
             xcp_profit_real = old_profit;
             xcp = old_xcp;
             not_adjusted = false;
@@ -885,16 +900,16 @@ struct Trader {
     }
 
 
-    void simulate(mapped_file const &in) {
+    void simulate(mapped_file const &in, json &jout) {
         // vector<trade_data> const &mdata
         const money CANDLE_VARIATIVES = 50;
-        map<pair<int,int>,money> lasts;
+        map<pair<int, int>, money> lasts;
         u64 start_t = 0;
         long double last_time = 0;
         size_t total_elements = in.size / sizeof(trade_data);
-        trade_data const *mapped_data = (trade_data const *)in.base;
-        trade_data const *mapped_data_ptr = mapped_data;
-        for (size_t i = 0; i < total_elements; i++)  {
+        auto mapped_data = (trade_data const *) in.base;
+        auto mapped_data_ptr = mapped_data;
+        for (size_t i = 0; i < total_elements; i++) {
             // if (i > 10) abort();
             trade_data d = *mapped_data_ptr++;
             if (i == 0) start_t = d.t;
@@ -907,7 +922,7 @@ struct Trader {
             auto ext_vol = money(d.volume * price_oracle[b]); //  <- now all is in USD
             int ctr{0};
             money last;
-            auto itl = lasts.find({a,b});
+            auto itl = lasts.find({a, b});
             if (itl == lasts.end()) {
                 last = price_oracle[b] / price_oracle[a];
             } else {
@@ -974,13 +989,13 @@ struct Trader {
             if (i % 1024 == 0 && log) {
                 try {
                     long double last01, last02;
-                    auto it01 = lasts.find({0,1});
+                    auto it01 = lasts.find({0, 1});
                     if (it01 == lasts.end()) {
                         last01 = price_oracle[1] / price_oracle[0];
                     } else {
                         last01 = it01->second;
                     }
-                    auto it02 = lasts.find({0,2});
+                    auto it02 = lasts.find({0, 2});
                     if (it02 == lasts.end()) {
                         last02 = price_oracle[2] / price_oracle[0];
                     } else {
@@ -1002,14 +1017,15 @@ struct Trader {
                            xcp_profit_real,
                            APY * 100.L,
                            fee(curve.p.size()) * 100.L,
-                           is_light? '*' : '.');
+                           is_light ? '*' : '.');
                 } catch (std::exception const &e) {
                     printf("caught '%s'\n", e.what());
                 }
             }
         }
+        jout["liq_density"] = 2.L * slippage / slippage_count;
+        jout["APY"] = APY;
     }
-
 
 
     vector<money> p0;
@@ -1025,7 +1041,7 @@ struct Trader {
     money xcp_profit_real;
     money price_threshold;
     money adjustment_step;
-    bool log;
+    int log;
     money fee_gamma;
     money total_vol;
     int ma_half_time;
@@ -1074,33 +1090,35 @@ int main(int argc, char **argv) {
 #if 0
     json jout;
     jout["datafile"][0] = "btcusdt";
-    jout["datafile"][1] = "ethbtc";
     jout["datafile"][2] = "ethusdt";
+    jout["datafile"][1] = "ethbtc";
     jout["configuration"][0]["A"] = 135;
     jout["configuration"][0]["gamma"] = 7e-5;
     jout["configuration"][0]["D"] = 100'000'000.;
-    jout["configuration"][0]["mod_fee"] = 4e-4;
-    jout["configuration"][0]["out_frr"] = 7e-5;
+    jout["configuration"][0]["mid_fee"] = 4e-4;
+    jout["configuration"][0]["out_fee"] = 4e-3;
     jout["configuration"][0]["price_threshold"] = 0.0028;
     jout["configuration"][0]["fee_gamma"] = 0.01;
     jout["configuration"][0]["adjustment_step"] = 0.0015;
     jout["configuration"][0]["ma_half_time"] = 600;
+    jout["configuration"][0]["n"] = 3;
     jout["configuration"][1]["A"] = 135;
     jout["configuration"][1]["gamma"] = 6e-5;
     jout["configuration"][1]["D"] = 100'000'000.;
-    jout["configuration"][1]["mod_fee"] = 3e-4;
-    jout["configuration"][1]["out_frr"] = 8e-5;
+    jout["configuration"][1]["mid_fee"] = 3e-4;
+    jout["configuration"][1]["out_fee"] = 5e-3;
     jout["configuration"][1]["price_threshold"] = 0.0026;
     jout["configuration"][1]["fee_gamma"] = 0.01;
     jout["configuration"][1]["adjustment_step"] = 0.0013;
     jout["configuration"][1]["ma_half_time"] = 600;
+    jout["configuration"][1]["n"] = 3;
     jout["debug"] = 0;
     json_save("sample_in.json", jout);
     return 0;
 #endif
 #if 1
     json jin;
-    if (!json_load("sample_in.json", jin)) {
+    if (!json_load(in_json_name, jin)) {
         return 0;
     }
     printf("Total configurations: %zu\n", jin["configuration"].size());
@@ -1121,16 +1139,17 @@ int main(int argc, char **argv) {
     }
     //debug_print("test_data first 5", test_data, 5);
     //debug_print("test_data last 5", test_data, -5);
-    Trader trader(135, (7e-5), money(100'000'000), 3, price_vector,
-                  4e-4, 4.0e-3,
-                  0.0028, 0.01L,
-                  0.0015, 600);
+    Trader trader(jin["configuration"][0], price_vector);
     clock_t start_simulation = clock();
     printf("Begin simulation\n");
     unlink(test_data.name.c_str()); // Temp file can be deleted in *nix even being open
-    trader.simulate(test_data);
-    printf("Liquidity density vs that of xyz=k: %f\n", 2 * (double)(trader.slippage) / (double)(trader.slippage_count));
-    printf("APY: %Lf%%\n", (trader.APY * 100.L));
+    json jout;
+    trader.simulate(test_data, jout);
+    money liq_density = jout["liq_density"];
+    money APY = jout["APY"];
+    printf("Liquidity density vs that of xyz=k: %Lf\n", liq_density);
+    printf("APY: %Lf%%\n",  APY * 100.L);
+    json_save(out_json_name, jout);
     clock_t end = clock();
     print_clock("Total simulation time", start_simulation, end);
 }
