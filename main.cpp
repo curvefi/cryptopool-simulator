@@ -15,6 +15,8 @@
 #include <stdexcept>
 #include <cmath>
 #include <memory.h>
+#include <fstream>
+#include <iostream>
 #include "json.hpp"
 using nlohmann::json;
 //#include "bn_fixed.h"
@@ -72,7 +74,7 @@ struct trade_one {
 };
 
 money mabs(money val) noexcept {
-   return val >= 0 ? val : -val;
+    return val >= 0 ? val : -val;
 }
 
 void debug_print(string const &head, vector<trade_data> const &t, int count) {
@@ -105,17 +107,22 @@ struct mapped_file {
     int fd;
     unsigned char *base = nullptr;
     size_t size = 0;
-    explicit mapped_file(string const &name) {
+    string name;
+    explicit mapped_file() {}
+    bool map(string const &name) {
         fd = open(name.c_str(), O_RDONLY);
-        if (fd < 0) return;
+        if (fd < 0) return false;
         lseek(fd, 0, SEEK_END);
         size = lseek(fd, 0, SEEK_CUR);
-        base = (unsigned char *)::mmap(nullptr, size, PROT_READ, MAP_SHARED, fd, 0);
+        base = (unsigned char *)::mmap(nullptr, size, PROT_READ, MAP_NOCACHE|MAP_FILE|MAP_SHARED, fd, 0);
         printf("mapped_file::open: base=%p\n", base);
         if (base == MAP_FAILED) {
             perror(name.c_str());
             base = nullptr;
+            return false;
         }
+        this->name = name;
+        return true;
     }
     ~mapped_file() {
         if (base != nullptr) {
@@ -127,14 +134,15 @@ struct mapped_file {
     }
 };
 
+
 // py: returns list of dicts ['t'->u64, 'open'->float, 'high'->float, 'low'->float, 'close'->float, 'volume'->float]
 // c++ returns vector of struct datum
 vector<trade_data> get_data(std::string const &fname) {
     auto start_time = clock();
     auto name_to_open = "download/" + fname + "-1m.json";
     printf("parsing %s\n", name_to_open.c_str());
-    mapped_file mf(name_to_open);
-    if (mf.base == nullptr) {
+    mapped_file mf;
+    if (!mf.map(name_to_open)) {
         printf("failed to open '%s'\n", name_to_open.c_str());
         abort();
     }
@@ -204,7 +212,7 @@ auto get_price_vector(int n, vector<trade_data> const &data) {
     return p;
 }
 
-FILE* get_all(int last_elems, vector<money> & price_vector) {
+bool get_all(json const &jin, int last_elems, vector<money> & price_vector, mapped_file &mf) {
     // 0 - usdt
     // 1 - btc
     // 2 - eth
@@ -256,12 +264,13 @@ FILE* get_all(int last_elems, vector<money> & price_vector) {
     FILE *tmp = fopen(tmp_name.c_str(), "w+");
     if (tmp == nullptr) {
         printf("Temp file '%s' is not available\n", tmp_name.c_str());
-        return nullptr;
+        return false;
     }
     printf("Using temp file '%s' as interprocedural connect\n", tmp_name.c_str());
     fwrite(&ret[0], sizeof (trade_data), ret.size(), tmp);
-    unlink(tmp_name.c_str()); // Does not work in Windows
-    return tmp;
+    //unlink(tmp_name.c_str()); // Does not work in Windows
+    mf.map(tmp_name);
+    return true;
 }
 
 money geometric_mean(money const *x, size_t N) {
@@ -298,7 +307,7 @@ money geometric_mean(money const *x, size_t N) {
                     if (x[0] >= x[2]) {
                         // {2,0,1} {2,1,0}
                         if (x[1] >= x[2]) return sqrtl(x[0]*x[1]);
-                        else return sqrtl(x[0]*x[1]);
+                        else return sqrtl(x[0]*x[2]);
                     }
                     return sqrtl(x[1]*x[2]);
                 } else {
@@ -876,20 +885,18 @@ struct Trader {
     }
 
 
-    void simulate(FILE *in) {
+    void simulate(mapped_file const &in) {
         // vector<trade_data> const &mdata
         const money CANDLE_VARIATIVES = 50;
         map<pair<int,int>,money> lasts;
         u64 start_t = 0;
         long double last_time = 0;
-        fseek(in, 0, SEEK_END);
-        auto file_size = ftello(in);
-        size_t total_elements = file_size / sizeof(trade_data);
-        rewind(in);
+        size_t total_elements = in.size / sizeof(trade_data);
+        trade_data const *mapped_data = (trade_data const *)in.base;
+        trade_data const *mapped_data_ptr = mapped_data;
         for (size_t i = 0; i < total_elements; i++)  {
             // if (i > 10) abort();
-            trade_data d;
-            fread(&d, sizeof(d), 1, in);
+            trade_data d = *mapped_data_ptr++;
             if (i == 0) start_t = d.t;
             if (last_time > 0) {
                 last_time = d.t - last_time;
@@ -1033,13 +1040,74 @@ struct Trader {
     Curve curve;
 };
 
+static bool json_load(string const &name, json &j) {
+    try {
+        std::ifstream ifl(name);
+        if (!ifl) throw std::logic_error("can't open file " + name);
+        ifl >> j;
+    } catch (std::exception const &ex) {
+        printf("json_load: %s\n", ex.what());
+        return false;
+    }
+    return true;
+}
 
+static bool json_save(string const &name, json const &j) {
+    try {
+        std::ofstream ofl(name);
+        if (!ofl) throw std::logic_error("can't create file " + name);
+        ofl << std::setw(4) << j << "\n";
+    } catch (std::exception const &ex) {
+        printf("json_load: %s\n", ex.what());
+        return false;
+    }
+    return true;
+}
 
 int main(int argc, char **argv) {
-    //if (argc == 1) {
-    //    printf("Usage: %s [prepare|simulate] json-file\n");
-    //    return 0;
-    //}
+    if (argc == 1) {
+        printf("Usage: %s [prepare|simulate] in-json-file out-json-file\n", argv[0]);
+        return 0;
+    }
+    string in_json_name = "sample_in.json";
+    string out_json_name = "sample_out.json";
+#if 0
+    json jout;
+    jout["datafile"][0] = "btcusdt";
+    jout["datafile"][1] = "ethbtc";
+    jout["datafile"][2] = "ethusdt";
+    jout["configuration"][0]["A"] = 135;
+    jout["configuration"][0]["gamma"] = 7e-5;
+    jout["configuration"][0]["D"] = 100'000'000.;
+    jout["configuration"][0]["mod_fee"] = 4e-4;
+    jout["configuration"][0]["out_frr"] = 7e-5;
+    jout["configuration"][0]["price_threshold"] = 0.0028;
+    jout["configuration"][0]["fee_gamma"] = 0.01;
+    jout["configuration"][0]["adjustment_step"] = 0.0015;
+    jout["configuration"][0]["ma_half_time"] = 600;
+    jout["configuration"][1]["A"] = 135;
+    jout["configuration"][1]["gamma"] = 6e-5;
+    jout["configuration"][1]["D"] = 100'000'000.;
+    jout["configuration"][1]["mod_fee"] = 3e-4;
+    jout["configuration"][1]["out_frr"] = 8e-5;
+    jout["configuration"][1]["price_threshold"] = 0.0026;
+    jout["configuration"][1]["fee_gamma"] = 0.01;
+    jout["configuration"][1]["adjustment_step"] = 0.0013;
+    jout["configuration"][1]["ma_half_time"] = 600;
+    jout["debug"] = 0;
+    json_save("sample_in.json", jout);
+    return 0;
+#endif
+#if 1
+    json jin;
+    if (!json_load("sample_in.json", jin)) {
+        return 0;
+    }
+    printf("Total configurations: %zu\n", jin["configuration"].size());
+    //for (auto const &cfg: jin["configuration"]) {
+    //    std::cout << std::setw(4) << cfg << "\n";
+    // }
+#endif
     int LAST_ELEMS = 0;
     clock_t start = clock();
     if (argc > 1 && string(argv[1]) == "trim") {
@@ -1047,7 +1115,10 @@ int main(int argc, char **argv) {
         if (argc > 2) LAST_ELEMS = atoi(argv[2]);
     }
     vector<money> price_vector;
-    auto test_data = get_all(LAST_ELEMS, price_vector);
+    mapped_file test_data;
+    if (!get_all(jin, LAST_ELEMS, price_vector, test_data)) {
+        return 0;
+    }
     //debug_print("test_data first 5", test_data, 5);
     //debug_print("test_data last 5", test_data, -5);
     Trader trader(135, (7e-5), money(100'000'000), 3, price_vector,
@@ -1056,8 +1127,8 @@ int main(int argc, char **argv) {
                   0.0015, 600);
     clock_t start_simulation = clock();
     printf("Begin simulation\n");
+    unlink(test_data.name.c_str()); // Temp file can be deleted in *nix even being open
     trader.simulate(test_data);
-    fclose(test_data);
     printf("Liquidity density vs that of xyz=k: %f\n", 2 * (double)(trader.slippage) / (double)(trader.slippage_count));
     printf("APY: %Lf%%\n", (trader.APY * 100.L));
     clock_t end = clock();
