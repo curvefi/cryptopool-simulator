@@ -19,6 +19,8 @@
 #include <iostream>
 #include <iomanip>
 #include "json.hpp"
+#include <queue>
+#include <pthread.h>
 #ifndef MAP_NOCACHE
 #define MAP_NOCACHE 0
 #endif
@@ -674,6 +676,19 @@ struct Curve {
 
 };
 
+struct simulation_data {
+    int num = 0;
+    json const *jconf = nullptr;
+    vector<money> const *price_vector = nullptr;
+    mapped_file const *test_data = nullptr;
+    size_t total = 0;
+    size_t current = 0;
+};
+
+struct extra_data {
+    money APY = 0;
+    money liq_density = 0;
+};
 
 struct Trader {
     Trader(json const &jconf, vector<money> const &p0) : curve(jconf, p0) {
@@ -900,16 +915,18 @@ struct Trader {
     }
 
 
-    void simulate(mapped_file const &in, json &jout) {
+    void simulate(mapped_file const *in, simulation_data *simdata, extra_data *extdata) {
         // vector<trade_data> const &mdata
         const money CANDLE_VARIATIVES = 50;
         map<pair<int, int>, money> lasts;
         u64 start_t = 0;
         long double last_time = 0;
-        size_t total_elements = in.size / sizeof(trade_data);
-        auto mapped_data = (trade_data const *) in.base;
+        size_t total_elements = in->size / sizeof(trade_data);
+        simdata->total = total_elements;
+        auto mapped_data = (trade_data const *) in->base;
         auto mapped_data_ptr = mapped_data;
         for (size_t i = 0; i < total_elements; i++) {
+            simdata->current = i;
             // if (i > 10) abort();
             trade_data d = *mapped_data_ptr++;
             if (i == 0) start_t = d.t;
@@ -986,6 +1003,9 @@ struct Trader {
 
             total_vol += vol;
             last_time = d.t;
+            long double ARU_x = xcp_profit_real;
+            long double ARU_y = (86400.L * 365.L / (d.t - start_t + 1.L));
+            APY = powl(ARU_x, ARU_y) - 1.L;
             if (i % 1024 == 0 && log) {
                 try {
                     long double last01, last02;
@@ -1001,9 +1021,6 @@ struct Trader {
                     } else {
                         last02 = it02->second;
                     }
-                    long double ARU_x = xcp_profit_real;
-                    long double ARU_y = (86400.L * 365.L / (d.t - start_t + 1.L));
-                    APY = powl(ARU_x, ARU_y) - 1.L;
                     printf("t=%llu %.1Lf%%\ttrades: %d\t"
                            "AMM: %.0Lf, %0.Lf\tTarget: %.0Lf, %.0Lf\t"
                            "Vol: %.4Lf\tPR:%.2Lf\txCP-growth: {%.5Lf}\t"
@@ -1023,8 +1040,8 @@ struct Trader {
                 }
             }
         }
-        jout["liq_density"] = 2.L * slippage / slippage_count;
-        jout["APY"] = APY;
+        extdata->liq_density = 2.L * slippage / slippage_count;
+        extdata->APY = APY;
     }
 
 
@@ -1080,6 +1097,36 @@ static bool json_save(string const &name, json const &j) {
     return true;
 }
 
+
+bool simulation(simulation_data *data) {
+//        int num, json const *jconf, vector<money> const *price_vector, mapped_file const *test_data) {
+    Trader trader(*(data->jconf), *(data->price_vector));
+    clock_t start_simulation = clock();
+    printf("Thread %d: begin simulation\n", data->num);
+    unlink(data->test_data->name.c_str()); // Temp file can be deleted in *nix even being open
+    extra_data extdata;
+    trader.simulate(data->test_data, data, &extdata);
+    //money liq_density = jout["liq_density"];
+    //money APY = jout["APY"];
+    printf("Liquidity density vs that of xyz=k: %Lf\n", extdata.liq_density);
+    printf("APY: %Lf%%\n", extdata.APY * 100.L);
+//    json_save(out_json_name, jout);
+    clock_t end = clock();
+    print_clock("Total simulation time", start_simulation, end);
+    return true;
+}
+
+struct work_queue {
+    std::queue<simulation_data> wq;
+    pthread_mutex_t lock;
+};
+
+void *simulation_thread(void *args) {
+    simulation_data * data = (simulation_data *)args;
+    simulation(data);
+    return nullptr;
+}
+
 int main(int argc, char **argv) {
     if (argc == 1) {
         printf("Usage: %s [prepare|simulate] in-json-file out-json-file\n", argv[0]);
@@ -1121,7 +1168,13 @@ int main(int argc, char **argv) {
     if (!json_load(in_json_name, jin)) {
         return 0;
     }
-    printf("Total configurations: %zu\n", jin["configuration"].size());
+    int THREADS = jin["configuration"].size();
+    if (THREADS < 0) {
+        printf("No configurations found\n");
+        return 0;
+    }
+
+    printf("Total configurations: %d\n", THREADS);
     //for (auto const &cfg: jin["configuration"]) {
     //    std::cout << std::setw(4) << cfg << "\n";
     // }
@@ -1139,12 +1192,31 @@ int main(int argc, char **argv) {
     }
     //debug_print("test_data first 5", test_data, 5);
     //debug_print("test_data last 5", test_data, -5);
+    printf("Simulation in %d threads\n", THREADS);
+    vector<simulation_data> thr_data(THREADS);
+    vector<pthread_t> threads(THREADS);
+    for (int i = 0; i < THREADS; i++) {
+        thr_data[i].num = i;
+        thr_data[i].test_data = &test_data;
+        thr_data[i].price_vector = &price_vector;
+        thr_data[i].jconf = &jin["configuration"][i];
+        thr_data[i].current = 0;
+        thr_data[i].total = 0;
+        if (pthread_create(&threads[i], nullptr, simulation_thread, &thr_data[i]) != 0) {
+            printf("Can't create thread %d!\n", i);
+        }
+    }
+    for (int i = 0; i < THREADS; i++) {
+        pthread_join(threads[i], nullptr);
+    }
+    // simulation(0, jin["configuration"][0], &price_vector, &test_data);
+#if 0
     Trader trader(jin["configuration"][0], price_vector);
     clock_t start_simulation = clock();
     printf("Begin simulation\n");
     unlink(test_data.name.c_str()); // Temp file can be deleted in *nix even being open
     json jout;
-    trader.simulate(test_data, jout);
+    trader.simulate(&test_data, jout);
     money liq_density = jout["liq_density"];
     money APY = jout["APY"];
     printf("Liquidity density vs that of xyz=k: %Lf\n", liq_density);
@@ -1152,4 +1224,5 @@ int main(int argc, char **argv) {
     json_save(out_json_name, jout);
     clock_t end = clock();
     print_clock("Total simulation time", start_simulation, end);
+#endif
 }
