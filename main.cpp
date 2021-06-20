@@ -90,10 +90,10 @@ static double get_thread_time() {
     struct rusage usage;
     getrusage (RUSAGE_SELF, &usage);
     double ret = 0.;
-    ret += usage->utime.tv_sec;
-    ret += usage->utime.tv_usec / 1000000.;
-    ret += usage->stime.tv_sec;
-    ret += usage->stime.tv_usec / 1000000.;
+    ret += usage.ru_utime.tv_sec;
+    ret += usage.ru_utime.tv_usec / 1000000.;
+    ret += usage.ru_stime.tv_sec;
+    ret += usage.ru_stime.tv_usec / 1000000.;
     return ret;
 }
 #endif
