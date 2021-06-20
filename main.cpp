@@ -1184,7 +1184,9 @@ void *simulation_thread(void *args) {
         printf("[%d]: pick up configuration %d\n", data->num, simdata.num);
         simulation(&simdata);
         pthread_mutex_lock(data->result_lock);
-        (*(data->result))[simdata.num]["APY"] = simdata.result.APY;
+        (*(data->result))["configuration"][simdata.num]["Result"]["APY"] = simdata.result.APY;
+        (*(data->result))["configuration"][simdata.num]["Result"]["liq_density"] = simdata.result.liq_density;
+
         pthread_mutex_unlock(data->result_lock);
 
     }
@@ -1240,7 +1242,7 @@ int main(int argc, char **argv) {
     pthread_mutex_init(&queue_mutex, nullptr);
     pthread_mutex_t result_mutex;
     pthread_mutex_init(&result_mutex, nullptr);
-    json result;
+    json result = jin;
     for (int i = 0; i < configurations; i++) {
         simulation_data cd;
         cd.num = i;
@@ -1265,5 +1267,5 @@ int main(int argc, char **argv) {
     for (int i = 0; i < THREADS; i++) {
         pthread_join(threads[i], nullptr);
     }
-    std::cout << std::setw(4) << result << "\n";
+    json_save(out_json_name, result);
 }

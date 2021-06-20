@@ -1,4 +1,44 @@
 {
-    "APY": 0.11070630593483057,
-    "liq_density": 2.5073513763999764
+    "configuration": [
+        {
+            "A": 135,
+            "D": 100000000.0,
+            "Result": {
+                "APY": 0.1963651731278337,
+                "liq_density": 4.067994924534169
+            },
+            "adjustment_step": 0.0015,
+            "fee_gamma": 0.01,
+            "gamma": 7e-05,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.0004,
+            "n": 3,
+            "out_fee": 0.004,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 135,
+            "D": 100000000.0,
+            "Result": {
+                "APY": 0.17208566047502413,
+                "liq_density": 4.097555108925378
+            },
+            "adjustment_step": 0.0013,
+            "fee_gamma": 0.01,
+            "gamma": 8e-05,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.0005,
+            "n": 3,
+            "out_fee": 0.005,
+            "price_threshold": 0.003
+        }
+    ],
+    "datafile": [
+        "btcusdt",
+        "ethusdt",
+        "ethbtc"
+    ],
+    "debug": 0
 }
