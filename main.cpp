@@ -21,6 +21,8 @@
 #include "json.hpp"
 #include <queue>
 #include <pthread.h>
+#include <sys/time.h>
+#include <sys/resource.h>
 #ifndef MAP_NOCACHE
 #define MAP_NOCACHE 0
 #endif
@@ -55,9 +57,49 @@ using u64 = unsigned long long;
 using money = long double;
 static const int MAX_ARRAY = 3;
 
+#ifdef __MACH__
+#include <mach/mach_init.h>
+#include <mach/thread_act.h>
+#include <mach/mach_port.h>
+static double get_thread_time() {
+    mach_port_t thread;
+    kern_return_t kr;
+    mach_msg_type_number_t count;
+    thread_basic_info_data_t info;
 
-static void print_clock(string const &mesg, clock_t start, clock_t end) {
-    printf("%s %.3lf sec\n", mesg.c_str(), double(end - start) / CLOCKS_PER_SEC);
+    thread = mach_thread_self();
+
+    count = THREAD_BASIC_INFO_COUNT;
+    kr = thread_info(thread, THREAD_BASIC_INFO, (thread_info_t) &info, &count);
+    double ret = 0;
+    if (kr == KERN_SUCCESS && (info.flags & TH_FLAGS_IDLE) == 0) {
+        ret += info.user_time.seconds;
+        ret += info.user_time.microseconds / 1000000.;
+        ret += info.system_time.seconds;
+        ret += info.system_time.microseconds / 1000000.;
+    }
+    else {
+        abort();
+    }
+    mach_port_deallocate(mach_task_self(), thread);
+    return ret;
+}
+
+#else
+static double get_thread_time() {
+    struct rusage usage;
+    getrusage (RUSAGE_SELF, &usage);
+    double ret = 0.;
+    ret += usage->utime.tv_sec;
+    ret += usage->utime.tv_usec / 1000000.;
+    ret += usage->stime.tv_sec;
+    ret += usage->stime.tv_usec / 1000000.;
+    return ret;
+}
+#endif
+
+static void print_clock(string const &mesg, double start, double end) {
+    printf("%s %.3lf sec\n", mesg.c_str(), double(end - start));
 }
 
 struct trade_data {
@@ -119,7 +161,7 @@ struct mapped_file {
 // py: returns list of dicts ['t'->u64, 'open'->float, 'high'->float, 'low'->float, 'close'->float, 'volume'->float]
 // c++ returns vector of struct datum
 vector<trade_data> get_data(std::string const &fname) {
-    auto start_time = clock();
+    auto start_time = get_thread_time();
     auto name_to_open = "download/" + fname + "-1m.json";
     printf("parsing %s\n", name_to_open.c_str());
     mapped_file mf;
@@ -164,7 +206,7 @@ vector<trade_data> get_data(std::string const &fname) {
             p++; // skip ']'
         } else p++;
     }
-    auto end_time = clock();
+    auto end_time = get_thread_time();
     printf("%s: load %zu elements\n", name_to_open.c_str(), ret.size());
     print_clock("parsing took", start_time, end_time);
     return ret;
@@ -235,13 +277,13 @@ bool get_all(json const &jin, int last_elems, vector<money> & price_vector, mapp
                 }
             }
         }
-        clock_t start_time = clock();
+        auto start_time = get_thread_time();
         //debug_print("out first 5", out, 5);
         //debug_print("out last 5", out, -5);
         sort(out.begin(), out.end(), [](trade_one const &l, trade_one const &r) {
             return l.t < r.t;
         });
-        clock_t end_time = clock();
+        auto end_time = get_thread_time();
         //debug_print("sorted out first 5", out, 5);
         //debug_print("sorted out last 5", out, -5);
         vector<trade_data> ret;
@@ -617,7 +659,7 @@ auto solve_D(money A, money gamma, money const *x, size_t N) {
         return newton_D_3(A, gamma, x, D0);
     } else {
         auto D0 = 2 * geometric_mean_2(x); //  # <- fuzz to make sure it's ok XXX
-        return N == 3 ? newton_D_3(A, gamma, x, D0) : newton_D(A, gamma, x, N, D0);
+        return newton_D(A, gamma, x, N, D0);
     }
 }
 
@@ -676,19 +718,21 @@ struct Curve {
 
 };
 
+struct extra_data {
+    money APY = 0;
+    money liq_density = 0;
+};
+
 struct simulation_data {
     int num = 0;
     json const *jconf = nullptr;
     vector<money> const *price_vector = nullptr;
     mapped_file const *test_data = nullptr;
+    extra_data result;
     size_t total = 0;
     size_t current = 0;
 };
 
-struct extra_data {
-    money APY = 0;
-    money liq_density = 0;
-};
 
 struct Trader {
     Trader(json const &jconf, vector<money> const &p0) : curve(jconf, p0) {
@@ -1101,90 +1145,87 @@ static bool json_save(string const &name, json const &j) {
 bool simulation(simulation_data *data) {
 //        int num, json const *jconf, vector<money> const *price_vector, mapped_file const *test_data) {
     Trader trader(*(data->jconf), *(data->price_vector));
-    clock_t start_simulation = clock();
-    printf("Thread %d: begin simulation\n", data->num);
+    auto start_simulation = get_thread_time();
+    printf("Configuration %d: begin simulation\n", data->num);
     unlink(data->test_data->name.c_str()); // Temp file can be deleted in *nix even being open
     extra_data extdata;
     trader.simulate(data->test_data, data, &extdata);
+    data->result = extdata;
     //money liq_density = jout["liq_density"];
     //money APY = jout["APY"];
     printf("Liquidity density vs that of xyz=k: %Lf\n", extdata.liq_density);
     printf("APY: %Lf%%\n", extdata.APY * 100.L);
 //    json_save(out_json_name, jout);
-    clock_t end = clock();
+    auto end = get_thread_time();
     print_clock("Total simulation time", start_simulation, end);
     return true;
 }
 
 struct work_queue {
-    std::queue<simulation_data> wq;
-    pthread_mutex_t lock;
+    std::queue<simulation_data> *wq;
+    pthread_mutex_t *lock;
+    pthread_mutex_t *result_lock;
+    json *result;
+    int num;
 };
 
 void *simulation_thread(void *args) {
-    simulation_data * data = (simulation_data *)args;
-    simulation(data);
+    auto data = (work_queue *)args;
+    printf("[%d]: simulation thread started\n", data->num);
+    for (;;) {
+        pthread_mutex_lock(data->lock);
+        if (data->wq->empty()) {
+            pthread_mutex_unlock(data->lock);
+            break;
+        }
+        simulation_data simdata = data->wq->front();
+        data->wq->pop();
+        pthread_mutex_unlock(data->lock);
+        printf("[%d]: pick up configuration %d\n", data->num, simdata.num);
+        simulation(&simdata);
+        pthread_mutex_lock(data->result_lock);
+        (*(data->result))[simdata.num]["APY"] = simdata.result.APY;
+        pthread_mutex_unlock(data->result_lock);
+
+    }
+    printf("[%d]: simulation thread ended\n", data->num);
     return nullptr;
 }
 
 int main(int argc, char **argv) {
     if (argc == 1) {
-        printf("Usage: %s [prepare|simulate] in-json-file out-json-file\n", argv[0]);
+        printf("Usage: %s [trim] [threads=#] [in-json-file] [out-json-file]\n", argv[0]);
         return 0;
     }
-    string in_json_name = "sample_in.json";
-    string out_json_name = "sample_out.json";
-#if 0
-    json jout;
-    jout["datafile"][0] = "btcusdt";
-    jout["datafile"][2] = "ethusdt";
-    jout["datafile"][1] = "ethbtc";
-    jout["configuration"][0]["A"] = 135;
-    jout["configuration"][0]["gamma"] = 7e-5;
-    jout["configuration"][0]["D"] = 100'000'000.;
-    jout["configuration"][0]["mid_fee"] = 4e-4;
-    jout["configuration"][0]["out_fee"] = 4e-3;
-    jout["configuration"][0]["price_threshold"] = 0.0028;
-    jout["configuration"][0]["fee_gamma"] = 0.01;
-    jout["configuration"][0]["adjustment_step"] = 0.0015;
-    jout["configuration"][0]["ma_half_time"] = 600;
-    jout["configuration"][0]["n"] = 3;
-    jout["configuration"][1]["A"] = 135;
-    jout["configuration"][1]["gamma"] = 6e-5;
-    jout["configuration"][1]["D"] = 100'000'000.;
-    jout["configuration"][1]["mid_fee"] = 3e-4;
-    jout["configuration"][1]["out_fee"] = 5e-3;
-    jout["configuration"][1]["price_threshold"] = 0.0026;
-    jout["configuration"][1]["fee_gamma"] = 0.01;
-    jout["configuration"][1]["adjustment_step"] = 0.0013;
-    jout["configuration"][1]["ma_half_time"] = 600;
-    jout["configuration"][1]["n"] = 3;
-    jout["debug"] = 0;
-    json_save("sample_in.json", jout);
-    return 0;
-#endif
-#if 1
+    int LAST_ELEMS = 0;
+    if (argc > 1 && std::string(argv[1]).find("trim") != std::string::npos) {
+        if (argv[1][4] == 0) LAST_ELEMS = 100000;
+        else                 LAST_ELEMS = atoi(argv[1]+4);
+        argc--; argv++;
+    }
+    int THREADS = 1;
+    if (argc > 1 && std::string(argv[1]).find("threads=") != std::string::npos) {
+        THREADS = atoi(argv[1]+8);
+        argc--; argv++;
+    }
+
+    string in_json_name = argc > 1 ? argv[1] : "sample_in.json";
+    string out_json_name = argc > 2 ? argv[2] : "sample_out.json";
     json jin;
     if (!json_load(in_json_name, jin)) {
         return 0;
     }
-    int THREADS = jin["configuration"].size();
-    if (THREADS < 0) {
+    int configurations = jin["configuration"].size();
+    if (configurations <= 0) {
         printf("No configurations found\n");
         return 0;
     }
 
-    printf("Total configurations: %d\n", THREADS);
+    printf("Total %d configurations will be processed in %d threads\n", configurations, THREADS);
     //for (auto const &cfg: jin["configuration"]) {
     //    std::cout << std::setw(4) << cfg << "\n";
     // }
-#endif
-    int LAST_ELEMS = 0;
-    clock_t start = clock();
-    if (argc > 1 && string(argv[1]) == "trim") {
-        LAST_ELEMS = 100000;
-        if (argc > 2) LAST_ELEMS = atoi(argv[2]);
-    }
+    //
     vector<money> price_vector;
     mapped_file test_data;
     if (!get_all(jin, LAST_ELEMS, price_vector, test_data)) {
@@ -1192,37 +1233,37 @@ int main(int argc, char **argv) {
     }
     //debug_print("test_data first 5", test_data, 5);
     //debug_print("test_data last 5", test_data, -5);
-    printf("Simulation in %d threads\n", THREADS);
-    vector<simulation_data> thr_data(THREADS);
+    std::queue<simulation_data> sim_queue;
     vector<pthread_t> threads(THREADS);
+    vector<work_queue> thr_data(THREADS);
+    pthread_mutex_t queue_mutex;
+    pthread_mutex_init(&queue_mutex, nullptr);
+    pthread_mutex_t result_mutex;
+    pthread_mutex_init(&result_mutex, nullptr);
+    json result;
+    for (int i = 0; i < configurations; i++) {
+        simulation_data cd;
+        cd.num = i;
+        cd.test_data = &test_data;
+        cd.price_vector = &price_vector;
+        cd.jconf = &jin["configuration"][i];
+        cd.current = 0;
+        cd.total = 0;
+        sim_queue.push(cd);
+    }
     for (int i = 0; i < THREADS; i++) {
+        thr_data[i].wq = &sim_queue;
+        thr_data[i].lock = &queue_mutex;
+        thr_data[i].result_lock = &result_mutex;
         thr_data[i].num = i;
-        thr_data[i].test_data = &test_data;
-        thr_data[i].price_vector = &price_vector;
-        thr_data[i].jconf = &jin["configuration"][i];
-        thr_data[i].current = 0;
-        thr_data[i].total = 0;
+        thr_data[i].result = &result;
         if (pthread_create(&threads[i], nullptr, simulation_thread, &thr_data[i]) != 0) {
             printf("Can't create thread %d!\n", i);
         }
     }
+
     for (int i = 0; i < THREADS; i++) {
         pthread_join(threads[i], nullptr);
     }
-    // simulation(0, jin["configuration"][0], &price_vector, &test_data);
-#if 0
-    Trader trader(jin["configuration"][0], price_vector);
-    clock_t start_simulation = clock();
-    printf("Begin simulation\n");
-    unlink(test_data.name.c_str()); // Temp file can be deleted in *nix even being open
-    json jout;
-    trader.simulate(&test_data, jout);
-    money liq_density = jout["liq_density"];
-    money APY = jout["APY"];
-    printf("Liquidity density vs that of xyz=k: %Lf\n", liq_density);
-    printf("APY: %Lf%%\n",  APY * 100.L);
-    json_save(out_json_name, jout);
-    clock_t end = clock();
-    print_clock("Total simulation time", start_simulation, end);
-#endif
+    std::cout << std::setw(4) << result << "\n";
 }
