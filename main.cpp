@@ -88,7 +88,7 @@ static double get_thread_time() {
 #else
 static double get_thread_time() {
     struct rusage usage;
-    getrusage (RUSAGE_SELF, &usage);
+    getrusage (RUSAGE_THREAD, &usage);
     double ret = 0.;
     ret += usage.ru_utime.tv_sec;
     ret += usage.ru_utime.tv_usec / 1000000.;
@@ -97,6 +97,26 @@ static double get_thread_time() {
     return ret;
 }
 #endif
+
+static double get_total_time() {
+    struct rusage usage;
+    getrusage(RUSAGE_SELF, &usage);
+    double ret = 0.;
+    ret += usage.ru_utime.tv_sec;
+    ret += usage.ru_utime.tv_usec / 1000000.;
+    ret += usage.ru_stime.tv_sec;
+    ret += usage.ru_stime.tv_usec / 1000000.;
+    return ret;
+}
+
+static double get_wall_time() {
+    struct timeval tv;
+    gettimeofday(&tv, nullptr);
+    double ret = 0.;
+    ret += tv.tv_sec;
+    ret += tv.tv_usec / 1000000.;
+    return ret;
+}
 
 static void print_clock(string const &mesg, double start, double end) {
     printf("%s %.3lf sec\n", mesg.c_str(), double(end - start));
@@ -1210,9 +1230,9 @@ int main(int argc, char **argv) {
         THREADS = atoi(argv[1]+8);
         argc--; argv++;
     }
-
     string in_json_name = argc > 1 ? argv[1] : "sample_in.json";
     string out_json_name = argc > 2 ? argv[2] : "sample_out.json";
+    double real_time_start = get_total_time();
     json jin;
     if (!json_load(in_json_name, jin)) {
         return 0;
@@ -1235,6 +1255,8 @@ int main(int argc, char **argv) {
     }
     //debug_print("test_data first 5", test_data, 5);
     //debug_print("test_data last 5", test_data, -5);
+    double time_start = get_total_time();
+    double wall_time_start = get_wall_time();
     std::queue<simulation_data> sim_queue;
     vector<pthread_t> threads(THREADS);
     vector<work_queue> thr_data(THREADS);
@@ -1268,4 +1290,10 @@ int main(int argc, char **argv) {
         pthread_join(threads[i], nullptr);
     }
     json_save(out_json_name, result);
+    double time_end = get_total_time();
+    double wall_time_end = get_wall_time();
+    print_clock("Data reading and preprocessing time", real_time_start, time_start);
+    print_clock("Total simulation wall time", wall_time_start, wall_time_end);
+    print_clock("Total simulation processor time", time_start, time_end);
+    printf("Parallelizm ratio %.5lf\n", (time_end - time_start) / (wall_time_end - wall_time_start));
 }
