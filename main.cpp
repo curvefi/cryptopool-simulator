@@ -741,6 +741,7 @@ struct Curve {
 struct extra_data {
     money APY = 0;
     money liq_density = 0;
+    money volume = 0;
 };
 
 struct simulation_data {
@@ -778,9 +779,10 @@ struct Trader {
         this->xcp_profit_real = 1.L;
         this->xcp = this->xcp_0;
         this->total_vol = 0.0;
-        this->ext_fee = 0; //   # 0.03e-2
+        this->ext_fee = 1e-3; //   # 0.03e-2
         this->slippage = 0;
         this->slippage_count = 0;
+        this->volume = 0;
         this->not_adjusted = false;
         this->heavy_tx = 0;
         this->light_tx = 0;
@@ -1022,7 +1024,7 @@ struct Trader {
             auto max_price = d.high;
             money _dx = 0;
             auto p_before = price(a, b);
-            while (last < max_price and vol < ext_vol / 2.L) {
+            while (last < (max_price * (1 - ext_fee)) and vol < ext_vol / 2.L) {
                 auto dy = buy(step, a, b, max_price);
                 if (dy == 0) {
                     break;
@@ -1035,15 +1037,17 @@ struct Trader {
             }
             auto p_after = price(a, b);
             if (p_before != p_after) {
+                auto v = _dx / curve.x[b];
                 slippage_count += last_time;
                 slippage += last_time * _dx * (p_before + p_after) / (2.L * mabs(p_before - p_after) * curve.x[b]);
+                volume += v;
             }
             _high = last;
             auto min_price = d.low;
             _dx = 0;
             p_before = p_after;
             money prev_vol = vol;
-            while (last > min_price and vol < ext_vol / 2.L) {
+            while (last > (min_price * (1 + ext_fee)) and vol < ext_vol / 2.L) {
                 auto dx = step / last;
                 auto dy = sell(dx, a, b, min_price);
                 if (dy == 0) {
@@ -1057,8 +1061,10 @@ struct Trader {
             }
             p_after = price(a, b);
             if (p_before != p_after) {
+                auto v = _dx / curve.x[b];
                 slippage_count += last_time;
                 slippage += last_time * _dx * (p_before + p_after) / (2.L * mabs(p_before - p_after) * curve.x[b]);
+                volume += v;
             }
             _low = last;
             lasts[d.pair1] = last;
@@ -1106,6 +1112,7 @@ struct Trader {
         }
         extdata->liq_density = 2.L * slippage / slippage_count;
         extdata->APY = APY;
+        extdata->volume = volume;
     }
 
 
@@ -1127,6 +1134,7 @@ struct Trader {
     money total_vol;
     int ma_half_time;
     money ext_fee;
+    money volume;
     money slippage;
     money slippage_count;
     long double APY;
@@ -1206,6 +1214,7 @@ void *simulation_thread(void *args) {
         pthread_mutex_lock(data->result_lock);
         (*(data->result))["configuration"][simdata.num]["Result"]["APY"] = simdata.result.APY;
         (*(data->result))["configuration"][simdata.num]["Result"]["liq_density"] = simdata.result.liq_density;
+        (*(data->result))["configuration"][simdata.num]["Result"]["volume"] = simdata.result.volume;
 
         pthread_mutex_unlock(data->result_lock);
 
