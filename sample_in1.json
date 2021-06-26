@@ -1,0 +1,21 @@
+{
+  "configuration": [
+    {
+      "A": 135,
+      "D": 100000000.0,
+      "adjustment_step": 0.0015,
+      "fee_gamma": 0.01,
+      "gamma": 7e-05,
+      "ma_half_time": 600,
+      "mid_fee": 0.0004,
+      "n": 2,
+      "log" : 1,
+      "out_fee": 0.004,
+      "price_threshold": 0.0028
+    }
+  ],
+  "datafile": [
+    "ethbtc"
+  ],
+  "debug": 0
+}
