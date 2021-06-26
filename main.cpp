@@ -1292,7 +1292,7 @@ struct Trader {
                     }
                     if (N == 3) {
                         printf("t=%llu %.1Lf%%\ttrades: %d\t"
-                               "AMM: %.0Lf, %0.Lf\tTarget: %.0Lf, %.0Lf\t"
+                               "AMM: %.5Lf, %0.5Lf\tTarget: %.0Lf, %.0Lf\t"
                                "Vol: %.4Lf\tPR:%.2Lf\txCP-growth: {%.5Lf}\t"
                                "APY:%.1Lf%%\tfee:%.3Lf%% %c\n",
                                d.t,
@@ -1306,7 +1306,7 @@ struct Trader {
                                (curve.p.size() == 3 ? fee_3() : fee_2()) * 100.L,
                                is_light ? '*' : '.');
                     } else if (N == 2) {
-                        printf("t=%llu %.1Lf%%\ttrades: %d\tAMM: %.0Lf\tTarget: %.0Lf\tVol: %.4Lf\tPR:%.2Lf\txCP-growth: {%.5Lf}\tAPY:%.1Lf%%\tfee:%.3Lf%% %c\n",
+                        printf("t=%llu %.1Lf%%\ttrades: %d\tAMM: %.5Lf\tTarget: %.5Lf\tVol: %.4Lf\tPR:%.2Lf\txCP-growth: {%.5Lf}\tAPY:%.1Lf%%\tfee:%.3Lf%% %c\n",
                                    d.t,
                                         100.L * i / total_elements,
                                                         ctr,
