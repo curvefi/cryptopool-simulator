@@ -1,17 +1,18 @@
 {
   "configuration": [
     {
-      "A": 135,
+      "A": 100,
       "D": 100000000.0,
       "adjustment_step": 0.0015,
+      "ext_fee": 0.0,
       "fee_gamma": 0.01,
-      "gamma": 7e-05,
+      "gamma": 1.5e-04,
       "ma_half_time": 600,
-      "mid_fee": 0.0004,
+      "mid_fee": 0.0008,
       "n": 2,
       "log" : 1,
       "out_fee": 0.004,
-      "price_threshold": 0.0028
+      "price_threshold": 0.004
     }
   ],
   "datafile": [
