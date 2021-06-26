@@ -280,6 +280,9 @@ bool get_all(json const &jin, int last_elems, vector<money> & price_vector, mapp
         auto d1 = get_data(names[1]);
         names[2] = jin["datafile"][2];
         auto d2 = get_data(names[2]);
+        all_trades[names[0]] = d0;
+        all_trades[names[1]] = d1;
+        all_trades[names[2]] = d2;
     }
     u64 min_time = 1ull << 63;
     u64 max_time = 0;
@@ -315,7 +318,12 @@ bool get_all(json const &jin, int last_elems, vector<money> & price_vector, mapp
     print_clock("sorting took", start_time, end_time);
     if (last_elems > 0) {
         printf("Trimming: use last %d elements\n", last_elems);
-        ret.erase(ret.begin(), ret.begin() + ret.size() - last_elems);
+        typeof(ret) copy_ret;
+        for (auto i = 0; i < last_elems; i++) {
+            copy_ret.push_back(ret[ret.size()-last_elems+i]);
+            //ret.erase(ret.begin(), ret.begin() + ret.size() - last_elems);
+        }
+        std::swap(ret, copy_ret);
     }
     price_vector = get_price_vector(N, ret);
     string tmp_name = "_tmp." + std::to_string(getpid());
