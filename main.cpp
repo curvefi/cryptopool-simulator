@@ -1,10 +1,7 @@
 #include <cassert>
 #include <cstdio>
 #include <map>
-#include <unordered_map>
 #include <string>
-#include <ctime>
-#include <optional>
 #include <cstdlib>
 #include <unistd.h>
 #include <vector>
@@ -14,9 +11,7 @@
 #include <sys/mman.h>
 #include <stdexcept>
 #include <cmath>
-#include <memory.h>
 #include <fstream>
-#include <iostream>
 #include <iomanip>
 #include "json.hpp"
 #include <queue>
@@ -391,12 +386,12 @@ money geometric_mean_3(money const *x) {
     throw std::logic_error("geometric_mean: Did not converge");
 }
 
-auto reduction_coefficient_2(money const *x, money gamma) {
-    money K = 1.L;
-    money S = 0.L;
-    for (size_t i = 0; i < 2; i++) S += x[i]; // = sum(x)
-    for (size_t i = 0; i < 2; i++)  {
-        K *= 2.L * x[i] / S;
+
+auto reduction_coefficient_3(money const *x, money gamma) {
+    money K = 27.L;
+    money S = x[0] + x[1] + x[2];
+    for (size_t i = 0; i < 3; i++)  {
+        K *= x[i] / S;
     }
     if (gamma > 0) {
         K = gamma / (gamma + 1.L - K);
@@ -404,12 +399,12 @@ auto reduction_coefficient_2(money const *x, money gamma) {
     return K;
 }
 
-auto reduction_coefficient(money const *x, size_t N, money gamma) {
+auto reduction_coefficient_2(money const *x, money gamma) {
     money K = 1.L;
     money S = 0.L;
-    for (size_t i = 0; i < N; i++) S += x[i]; // = sum(x)
-    for (size_t i = 0; i < N; i++)  {
-        K *= N * x[i] / S;
+    for (size_t i = 0; i < 2; i++) S += x[i]; // = sum(x)
+    for (size_t i = 0; i < 2; i++)  {
+        K *= 2 * x[i] / S;
     }
     if (gamma > 0) {
         K = gamma / (gamma + 1.L - K);
@@ -438,6 +433,8 @@ auto newton_D(money A, money gamma, money const *xx, size_t N, money D0) {
         NN *= N;
     }
     A *= NN;
+    money rev_gamma = 1.L / gamma;
+    money gamma_1 = 1.L + gamma;
     //for (size_t j = 0; j < N; j++) { // XXX or just set A to be A*N**N?
     //    A = A * N;
     //}
@@ -450,10 +447,10 @@ auto newton_D(money A, money gamma, money const *xx, size_t N, money D0) {
             K0 = K0 * _x / D;
         }
 
-        money _g1k0 = mabs((gamma + 1.L - K0));
+        money _g1k0 = mabs((gamma_1 - K0));
 
         // # D / (A * N**N) * _g1k0**2 / gamma**2
-        money mul1 = D / gamma * _g1k0 / gamma * _g1k0 / A;
+        money mul1 = D * rev_gamma * _g1k0 * rev_gamma * _g1k0 / A;
 
         // # 2*N*K0 / _g1k0
         money mul2 = 2.L * N * K0 / _g1k0;
@@ -489,6 +486,8 @@ auto newton_D_3(money A, money gamma, money const *xx, money D0) {
     //for (size_t j = 0; j < N; j++) { // XXX or just set A to be A*N**N?
     //    A = A * N;
     //}
+    money rev_gamma = 1.L / gamma;
+    money gamma_1 = 1.L + gamma;
 
     for (int i = 0; i < 255; i++) {
         money D_prev = D;
@@ -510,7 +509,7 @@ auto newton_D_3(money A, money gamma, money const *xx, money D0) {
         assert (neg_fprime > 0); //   # Python only: -f' > 0
 
         // # D -= f / fprime
-        D = (D * neg_fprime + D * S - D * D) / neg_fprime - D * (mul1 / neg_fprime) * (1.L - K0) / K0;
+        D = (D * (neg_fprime + S - D)) / neg_fprime - D * (mul1 / neg_fprime) * (1.L - K0) / K0;
 
         if (D < 0) {
             D = mabs(D) / 2.L;
@@ -620,7 +619,7 @@ auto newton_y_3(money A, money gamma, money const *x, money D, int i) {
             abort();
     }
     money max_x_sorted = x_sorted[1];
-    money convergence_limit = max(max_x_sorted / 1E14L, D / 1E14L);
+    money convergence_limit = max(max_x_sorted * 1E-14L, D * 1E-14L);
     convergence_limit = max(convergence_limit, 1E-16L);
     y = y * D / (x_sorted[0] * 3);
     S_i += x_sorted[0];
@@ -700,32 +699,48 @@ struct Curve {
         }
     }
 
-    auto xp(money *ret, size_t N) const {
-        for (int i = 0; i < N; i++) {
+    auto xp_3(money *ret) const {
+        for (int i = 0; i < 3; i++) {
             ret[i] = x[i] * p[i];
             assert(x[i] > 0);
         }
     }
 
-    auto D() const {
-        money xp[MAX_ARRAY];
-        this->xp(xp,n);
-#if 0
-        for (size_t i = 0; i < n; i++) {
-            if (xp[i] <= 0) {
-                throw std::logic_error("Curve::D(): x <= 0");
-            }
+    auto xp_2(money *ret) const {
+        for (int i = 0; i < 2; i++) {
+            ret[i] = x[i] * p[i];
+            assert(x[i] > 0);
         }
-#endif
+    }
+
+    auto D_3() const {
+        money xp[3];
+        this->xp_3(xp);
         auto ret = solve_D(A, gamma, xp, n);
         return ret;
     }
 
-    money y(money x, int i, int j) {
-        money xp[MAX_ARRAY];
-        this->xp(xp,n);
+    auto D_2() const {
+        money xp[2];
+        this->xp_2(xp);
+        auto ret = solve_D(A, gamma, xp, n);
+        return ret;
+    }
+
+    money y_3(money x, int i, int j) {
+        money xp[3];
+        this->xp_3(xp);
         xp[i] = x * this->p[i];
-        auto yp = solve_x(A, gamma, xp, n, this->D(), j);
+        auto yp = solve_x(A, gamma, xp, n, this->D_3(), j);
+        auto ret = yp / this->p[j];
+        return ret;
+    }
+
+    money y_2(money x, int i, int j) {
+        money xp[2];
+        this->xp_2(xp);
+        xp[i] = x * this->p[i];
+        auto yp = solve_x(A, gamma, xp, n, this->D_2(), j);
         auto ret = yp / this->p[j];
         return ret;
     }
@@ -773,8 +788,8 @@ struct Trader {
         this->last_price = this->p0;
         // this->curve = Curve(A, gamma, D, n, p0);
         this->dx = D * 1e-8L;
-        this->D0 = this->curve.D();
-        this->xcp_0 = this->get_xcp();
+        this->D0 = n == 3 ? this->curve.D_3() : this->curve.D_2();
+        this->xcp_0 = n == 3 ? this->get_xcp_3() : this->get_xcp_2();
         this->xcp_profit = 1.L;
         this->xcp_profit_real = 1.L;
         this->xcp = this->xcp_0;
@@ -791,41 +806,68 @@ struct Trader {
     }
 
 
-    auto fee(size_t N) {
-        money xp[MAX_ARRAY];
-        curve.xp(xp, N);
-        auto f = reduction_coefficient(xp, N, fee_gamma);
+    auto fee_3() {
+        money xp[3];
+        curve.xp_3(xp);
+        auto f = reduction_coefficient_3(xp, fee_gamma);
         return (mid_fee * f + out_fee * (1.L - f));
     }
 
-    money get_xcp() const {
-        // First calculate the ideal balance
-        //  Then calculate, what the constant-product would be
-        auto D = curve.D();
-        size_t N = curve.x.size();
-        money X[MAX_ARRAY];
-        for (size_t i = 0; i < N; i++) {
-            X[i] = D  / (N * curve.p[i]);
-        }
-        return N == 2 ? geometric_mean_2(X) : geometric_mean_3(X);
+    auto fee_2() {
+        money xp[2];
+        curve.xp_2(xp);
+        auto f = reduction_coefficient_2(xp, fee_gamma);
+        return (mid_fee * f + out_fee * (1.L - f));
     }
 
-    auto price(int i, int j) {
+    money get_xcp_3() const {
+        // First calculate the ideal balance
+        //  Then calculate, what the constant-product would be
+        auto D = curve.D_3();
+        size_t N = 3;
+        money X[3];
+        for (size_t i = 0; i < 3; i++) {
+            X[i] = D  / (3 * curve.p[i]);
+        }
+        return geometric_mean_3(X);
+    }
+
+    money get_xcp_2() const {
+        // First calculate the ideal balance
+        //  Then calculate, what the constant-product would be
+        auto D = curve.D_2();
+        size_t N = 2;
+        money X[2];
+        for (size_t i = 0; i < 2; i++) {
+            X[i] = D  / (2 * curve.p[i]);
+        }
+        return geometric_mean_2(X);
+    }
+
+
+    auto price_3(int i, int j) {
         auto dx_raw = dx  / curve.p[i];
-        auto curve_res = curve.y(curve.x[i] + dx_raw, i, j);
+        auto curve_res = curve.y_3(curve.x[i] + dx_raw, i, j);
         auto ret = dx_raw  / (curve.x[j] - curve_res);
         return ret;
     }
 
-    auto step_for_price(money dp, pair<int, int> p, int sign) {
-        auto p0 = price(p.first, p.second);
+    auto price_2(int i, int j) {
+        auto dx_raw = dx  / curve.p[i];
+        auto curve_res = curve.y_2(curve.x[i] + dx_raw, i, j);
+        auto ret = dx_raw  / (curve.x[j] - curve_res);
+        return ret;
+    }
+
+    auto step_for_price_3(money dp, pair<int, int> p, int sign) {
+        auto p0 = price_3(p.first, p.second);
         dp = p0 * dp;
         money x0[MAX_ARRAY];
         copy_money_3(x0, &curve.x[0]);
         auto step = dx / curve.p[p.first];
         while (true) {
             curve.x[p.first] = x0[p.first] + sign * step;
-            auto dp_ = mabs(p0 - price(p.first, p.second));
+            auto dp_ = mabs(p0 - price_3(p.first, p.second));
             if (dp_ >= dp or step >= curve.x[p.first] / 10.L) {
                 copy_money_3(&curve.x[0], x0);
                 return step;
@@ -834,8 +876,34 @@ struct Trader {
         }
     }
 
-    void update_xcp(bool only_real=false) {
-        auto xcp = get_xcp();
+    auto step_for_price_2(money dp, pair<int, int> p, int sign) {
+        auto p0 = price_2(p.first, p.second);
+        dp = p0 * dp;
+        money x0[MAX_ARRAY];
+        copy_money_3(x0, &curve.x[0]);
+        auto step = dx / curve.p[p.first];
+        while (true) {
+            curve.x[p.first] = x0[p.first] + sign * step;
+            auto dp_ = mabs(p0 - price_2(p.first, p.second));
+            if (dp_ >= dp or step >= curve.x[p.first] / 10.L) {
+                copy_money_3(&curve.x[0], x0);
+                return step;
+            }
+            step += step;
+        }
+    }
+
+    void update_xcp_3(bool only_real=false) {
+        auto xcp = get_xcp_3();
+        xcp_profit_real = xcp_profit_real * xcp / this->xcp;
+        if (not only_real) {
+            xcp_profit = xcp_profit * xcp / this->xcp;
+        }
+        this->xcp = xcp;
+    }
+
+    void update_xcp_2(bool only_real=false) {
+        auto xcp = get_xcp_2();
         xcp_profit_real = xcp_profit_real * xcp / this->xcp;
         if (not only_real) {
             xcp_profit = xcp_profit * xcp / this->xcp;
@@ -854,52 +922,104 @@ struct Trader {
         to[1] = from[1];
     }
 
-    money buy(money dx, int i, int j, money max_price=1e100L) {
+    money buy_3(money dx, int i, int j, money max_price=1e100L) {
         //"""
         //Buy y for x
         //"""
         try {
-            money x_old[MAX_ARRAY];
+            money x_old[3];
             copy_money_3(x_old, &curve.x[0]);
             auto x = curve.x[i] + dx;
-            auto y = curve.y(x, i, j);
+            auto y = curve.y_3(x, i, j);
             auto dy = curve.x[j] - y;
             curve.x[i] = x;
             curve.x[j] = y;
-            auto fee = this->fee(curve.x.size());
+            auto fee = curve.x.size() == 3 ? this->fee_3() : this->fee_2();;
             curve.x[j] += dy * fee;
             dy = dy * (1.L - fee);
             if ((dx / dy) > max_price or dy < 0) {
                 copy_money_3(&curve.x[0], x_old);
                 return 0;
             }
-            update_xcp();
+            update_xcp_3();
             return dy;
         } catch (...) {
             return 0;
         }
     }
 
-    money sell(money dy, int i, int j, money min_price=0) {
+    money buy_2(money dx, int i, int j, money max_price=1e100L) {
+        //"""
+        //Buy y for x
+        //"""
+        try {
+            money x_old[2];
+            copy_money_2(x_old, &curve.x[0]);
+            auto x = curve.x[i] + dx;
+            auto y = curve.y_2(x, i, j);
+            auto dy = curve.x[j] - y;
+            curve.x[i] = x;
+            curve.x[j] = y;
+            auto fee = this->fee_3();
+            curve.x[j] += dy * fee;
+            dy = dy * (1.L - fee);
+            if ((dx / dy) > max_price or dy < 0) {
+                copy_money_2(&curve.x[0], x_old);
+                return 0;
+            }
+            update_xcp_2();
+            return dy;
+        } catch (...) {
+            return 0;
+        }
+    }
+
+    money sell_3(money dy, int i, int j, money min_price=0) {
         // """
         // Sell y for x
         // """
         try {
-            money x_old[MAX_ARRAY];
+            money x_old[3];
             copy_money_3(x_old, &curve.x[0]);
             auto y = curve.x[j] + dy;
-            auto x = curve.y(y, j, i);
+            auto x = curve.y_3(y, j, i);
             auto dx = curve.x[i] - x;
             curve.x[i] = x;
             curve.x[j] = y;
-            auto fee = this->fee(curve.x.size());
+            auto fee = this->fee_3();
             curve.x[i] += dx * fee;
             dx = dx * (1.L - fee);
             if ((dx / dy) < min_price or dx < 0) {
                 copy_money_3(&curve.x[0], x_old);
                 return 0;
             }
-            update_xcp();
+            update_xcp_3();
+            return dx;
+        } catch (...) {
+            return 0;
+        }
+    }
+
+    money sell_2(money dy, int i, int j, money min_price=0) {
+        // """
+        // Sell y for x
+        // """
+        try {
+            money x_old[2];
+            copy_money_2(x_old, &curve.x[0]);
+            auto y = curve.x[j] + dy;
+            auto x = curve.y_2(y, j, i);
+            auto dx = curve.x[i] - x;
+            curve.x[i] = x;
+            curve.x[j] = y;
+            auto fee = this->fee_2();
+            curve.x[i] += dx * fee;
+            dx = dx * (1.L - fee);
+            if ((dx / dy) < min_price or dx < 0) {
+                copy_money_2(&curve.x[0], x_old);
+                return 0;
+            }
+            update_xcp_2();
             return dx;
         } catch (...) {
             return 0;
@@ -966,7 +1086,8 @@ struct Trader {
         auto old_xcp = xcp;
 
         copy_money_3(&curve.p[0],p_new);
-        update_xcp(true);
+        if (N == 3) update_xcp_3(true);
+        else        update_xcp_2(true);
 
         if (2.L * (xcp_profit_real - 1.L) <= (xcp_profit - 1.L)) {
             //  If real profit is less than half of maximum - revert params back
@@ -985,6 +1106,7 @@ struct Trader {
         // vector<trade_data> const &mdata
         const money CANDLE_VARIATIVES = 50;
         map<pair<int, int>, money> lasts;
+        size_t N = price_oracle.size();
         u64 start_t = 0;
         long double last_time = 0;
         size_t total_elements = in->size / sizeof(trade_data);
@@ -1018,24 +1140,24 @@ struct Trader {
             //  f = reduction_coefficient(self.curve.xp(), self.curve.gamma)
             auto candle = min(mabs((d.high - d.low) / d.high), 0.1L);
             candle = max(0.001L, candle);
-            auto step1 = step_for_price(candle / CANDLE_VARIATIVES, d.pair1, 1);
-            auto step2 = step_for_price(candle / CANDLE_VARIATIVES, d.pair1, -1);
+            auto step1 = N == 3 ? step_for_price_3(candle / CANDLE_VARIATIVES, d.pair1, 1) : step_for_price_2(candle / CANDLE_VARIATIVES, d.pair1, 1);
+            auto step2 = N == 3 ? step_for_price_3(candle / CANDLE_VARIATIVES, d.pair1, -1) : step_for_price_2(candle / CANDLE_VARIATIVES, d.pair1, -1);
             auto step = min(step1, step2);
             auto max_price = d.high;
             money _dx = 0;
-            auto p_before = price(a, b);
+            auto p_before = N == 3 ? price_3(a, b) : price_2(a, b);
             while (last < (max_price * (1 - ext_fee)) and vol < ext_vol / 2.L) {
-                auto dy = buy(step, a, b, max_price);
+                auto dy = N == 3 ? buy_3(step, a, b, max_price) : buy_2(step, a, b, max_price);
                 if (dy == 0) {
                     break;
                 }
                 vol += dy * price_oracle[b];
                 _dx += dy;
-                last = step / dy;
+                last = step / dy; 
                 max_price = d.high;
                 ctr += 1;
             }
-            auto p_after = price(a, b);
+            auto p_after = N == 3 ? price_3(a, b) : price_2(a, b);
             if (p_before != p_after) {
                 auto v = _dx / curve.x[b];
                 slippage_count += last_time;
@@ -1049,7 +1171,7 @@ struct Trader {
             money prev_vol = vol;
             while (last > (min_price * (1 + ext_fee)) and vol < ext_vol / 2.L) {
                 auto dx = step / last;
-                auto dy = sell(dx, a, b, min_price);
+                auto dy = N == 3 ? sell_3(dx, a, b, min_price) : sell_2(dx, a, b, min_price);
                 if (dy == 0) {
                     break;
                 }
@@ -1059,7 +1181,7 @@ struct Trader {
                 min_price = d.low;
                 ctr += 1;
             }
-            p_after = price(a, b);
+            p_after = N == 3 ? price_3(a, b) : price_2(a, b);
             if (p_before != p_after) {
                 auto v = _dx / curve.x[b];
                 slippage_count += last_time;
@@ -1103,7 +1225,7 @@ struct Trader {
                            (xcp_profit_real - 1.) / (xcp_profit - 1.L),
                            xcp_profit_real,
                            APY * 100.L,
-                           fee(curve.p.size()) * 100.L,
+                           (curve.p.size() == 3 ? fee_3() : fee_2()) * 100.L,
                            is_light ? '*' : '.');
                 } catch (std::exception const &e) {
                     printf("caught '%s'\n", e.what());
