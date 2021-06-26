@@ -630,9 +630,11 @@ auto newton_y_3(money A, money gamma, money const *x, money D, int i) {
     money max_x_sorted = x_sorted[1];
     money convergence_limit = max(max_x_sorted * 1E-14L, D * 1E-14L);
     convergence_limit = max(convergence_limit, 1E-16L);
+
     y = y * D / (x_sorted[0] * 3);
     S_i += x_sorted[0];
     K0_i = K0_i * x_sorted[0] * 3 / D;
+
     y = y * D / (x_sorted[1] * 3);
     S_i += x_sorted[1];
     K0_i = K0_i * x_sorted[1] * 3 / D;
@@ -871,7 +873,7 @@ struct Trader {
     auto step_for_price_3(money dp, pair<int, int> p, int sign) {
         auto p0 = price_3(p.first, p.second);
         dp = p0 * dp;
-        money x0[MAX_ARRAY];
+        money x0[3];
         copy_money_3(x0, &curve.x[0]);
         auto step = dx / curve.p[p.first];
         while (true) {
@@ -888,7 +890,7 @@ struct Trader {
     auto step_for_price_2(money dp, pair<int, int> p, int sign) {
         auto p0 = price_2(p.first, p.second);
         dp = p0 * dp;
-        money x0[MAX_ARRAY];
+        money x0[2];
         copy_money_2(x0, &curve.x[0]);
         auto step = dx / curve.p[p.first];
         while (true) {
