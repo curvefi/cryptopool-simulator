@@ -767,6 +767,7 @@ struct Curve {
 struct extra_data {
     money APY = 0;
     money liq_density = 0;
+    money slippage = 0;
     money volume = 0;
 };
 
@@ -807,6 +808,7 @@ struct Trader {
         this->xcp = this->xcp_0;
         this->total_vol = 0.0;
         this->slippage = 0;
+        this->antislippage = 0;
         this->slippage_count = 0;
         this->volume = 0;
         this->not_adjusted = false;
@@ -1236,7 +1238,9 @@ struct Trader {
             if (p_before != p_after) {
                 auto v = _dx / curve.x[b];
                 slippage_count += last_time;
-                slippage += last_time * _dx * (p_before + p_after) / (2.L * mabs(p_before - p_after) * curve.x[b]);
+                auto s = (_dx * (p_before + p_after)) / (2.L * mabs(p_before - p_after) * curve.x[b]);
+                antislippage += last_time * s;
+                slippage += last_time / s;
                 volume += v;
             }
             _high = last;
@@ -1260,7 +1264,9 @@ struct Trader {
             if (p_before != p_after) {
                 auto v = _dx / curve.x[b];
                 slippage_count += last_time;
-                slippage += last_time * _dx * (p_before + p_after) / (2.L * mabs(p_before - p_after) * curve.x[b]);
+                auto s = (_dx * (p_before + p_after)) / (2.L * mabs(p_before - p_after) * curve.x[b]);
+                antislippage += last_time * s;
+                slippage += last_time / s;
                 volume += v;
             }
             _low = last;
@@ -1325,7 +1331,8 @@ struct Trader {
                 }
             }
         }
-        extdata->liq_density = 2.L * slippage / slippage_count;
+        extdata->slippage = slippage / slippage_count / 2.L;
+        extdata->liq_density = 2.L * antislippage / slippage_count;
         extdata->APY = APY;
         extdata->volume = volume;
     }
@@ -1351,6 +1358,7 @@ struct Trader {
     money ext_fee;
     money volume;
     money slippage;
+    money antislippage;
     money slippage_count;
     long double APY;
     bool not_adjusted;
@@ -1429,6 +1437,7 @@ void *simulation_thread(void *args) {
         pthread_mutex_lock(data->result_lock);
         (*(data->result))["configuration"][simdata.num]["Result"]["APY"] = simdata.result.APY;
         (*(data->result))["configuration"][simdata.num]["Result"]["liq_density"] = simdata.result.liq_density;
+        (*(data->result))["configuration"][simdata.num]["Result"]["slippage"] = simdata.result.slippage;
         (*(data->result))["configuration"][simdata.num]["Result"]["volume"] = simdata.result.volume;
 
         pthread_mutex_unlock(data->result_lock);
