@@ -1236,10 +1236,11 @@ struct Trader {
                 ctr += 1;
             }
             auto p_after = N == 3 ? price_3(a, b) : price_2(a, b);
+            auto _fee = N == 3 ? fee_3() : fee_2();
 
             if (p_before != p_after) {
                 auto v = _dx / curve.x[b];
-                _slippage = (_dx * (p_before + p_after)) / (2.L * mabs(p_before - p_after) * curve.x[b]);
+                _slippage = (_dx * (p_before + p_after)) / (2.L * (mabs(p_before - p_after) + _fee * p_after) * curve.x[b]);
                 volume += v;
             }
             if (_slippage > 0) {
@@ -1266,10 +1267,11 @@ struct Trader {
                 ctr += 1;
             }
             p_after = N == 3 ? price_3(a, b) : price_2(a, b);
+            _fee = N == 3 ? fee_3() : fee_2();
 
             if (p_before != p_after) {
                 auto v = _dx / curve.x[b];
-                _slippage = (_dx * (p_before + p_after)) / (2.L * mabs(p_before - p_after) * curve.x[b]);
+                _slippage = (_dx * (p_before + p_after)) / (2.L * (mabs(p_before - p_after) + _fee * p_after) * curve.x[b]);
                 volume += v;
             }
             if (_slippage > 0) {
