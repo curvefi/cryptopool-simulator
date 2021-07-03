@@ -1190,6 +1190,7 @@ struct Trader {
         simdata->total = total_elements;
         auto mapped_data = (trade_data const *) in->base;
         auto mapped_data_ptr = mapped_data;
+        money _slippage;
         for (size_t i = 0; i < total_elements; i++) {
             simdata->current = i;
             // if (i > 10) abort();
@@ -1235,14 +1236,18 @@ struct Trader {
                 ctr += 1;
             }
             auto p_after = N == 3 ? price_3(a, b) : price_2(a, b);
+
             if (p_before != p_after) {
                 auto v = _dx / curve.x[b];
-                slippage_count += last_time;
-                auto s = (_dx * (p_before + p_after)) / (2.L * mabs(p_before - p_after) * curve.x[b]);
-                antislippage += last_time * s;
-                slippage += last_time / s;
+                _slippage = (_dx * (p_before + p_after)) / (2.L * mabs(p_before - p_after) * curve.x[b]);
                 volume += v;
             }
+            if (_slippage > 0) {
+                slippage_count += last_time;
+                antislippage += last_time * _slippage;
+                slippage += last_time / _slippage;
+            }
+
             _high = last;
             auto min_price = d.low;
             _dx = 0;
@@ -1261,14 +1266,18 @@ struct Trader {
                 ctr += 1;
             }
             p_after = N == 3 ? price_3(a, b) : price_2(a, b);
+
             if (p_before != p_after) {
                 auto v = _dx / curve.x[b];
-                slippage_count += last_time;
-                auto s = (_dx * (p_before + p_after)) / (2.L * mabs(p_before - p_after) * curve.x[b]);
-                antislippage += last_time * s;
-                slippage += last_time / s;
+                _slippage = (_dx * (p_before + p_after)) / (2.L * mabs(p_before - p_after) * curve.x[b]);
                 volume += v;
             }
+            if (_slippage > 0) {
+                slippage_count += last_time;
+                antislippage += last_time * _slippage;
+                slippage += last_time / _slippage;
+            }
+
             _low = last;
             lasts[d.pair1] = last;
 
