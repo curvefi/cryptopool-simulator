@@ -1,0 +1,2 @@
+7.5e-4 / 3e-2 - fees for max apy
+4e-4 / 2e-2 - for min slippage

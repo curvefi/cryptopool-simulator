@@ -1,0 +1,7 @@
+Scan A x gamma
+A=0.269
+gamma=1.45e-3
+
+fee = 3 bps
+TVL = 3e8
+last 100 days

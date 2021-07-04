@@ -1,0 +1,1930 @@
+{
+    "configuration": [
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.3939088957452301,
+                "liq_density": 0.6649930286137865,
+                "slippage": 2.879911467245134,
+                "volume": 420.9009598424964
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.0001,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.395119807878783,
+                "liq_density": 0.6704793577703081,
+                "slippage": 2.856512072899883,
+                "volume": 423.23914361484265
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.00010496696290308787,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.39731720395959974,
+                "liq_density": 0.675959307716958,
+                "slippage": 2.8354443258024715,
+                "volume": 425.78307125862466
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.00011018063301098225,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.39831894017427344,
+                "liq_density": 0.6798715307395847,
+                "slippage": 2.818396242030282,
+                "volume": 427.908266671959
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.00011565326417902513,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.3992598481184813,
+                "liq_density": 0.6849107724169007,
+                "slippage": 2.798545734976556,
+                "volume": 430.0679804861178
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.0001213977189070074,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.40121775099311957,
+                "liq_density": 0.6908414712114014,
+                "slippage": 2.771003646378649,
+                "volume": 432.77978535448693
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.00012742749857031334,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.4031963289387689,
+                "liq_density": 0.6945051462115605,
+                "slippage": 2.7601253862094026,
+                "volume": 435.08020890367095
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.00013375677515263363,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.40448569342744933,
+                "liq_density": 0.7007550625938704,
+                "slippage": 2.7326648044728206,
+                "volume": 437.3617843360639
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.0001404004245548316,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.40580177109194326,
+                "liq_density": 0.7052945350918637,
+                "slippage": 2.7141515686457445,
+                "volume": 439.79219174862044
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.00014737406155824795,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.40812970225196726,
+                "liq_density": 0.710537100209796,
+                "slippage": 2.6918460385475513,
+                "volume": 442.2141931784853
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.00015469407652462,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.4099400226890008,
+                "liq_density": 0.7155019648639361,
+                "slippage": 2.6748181248156806,
+                "volume": 444.3870257156688
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.0001623776739188721,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.41132240188288866,
+                "liq_density": 0.7217151854029908,
+                "slippage": 2.6473697934670457,
+                "volume": 447.05575634672937
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.00017044291274531946,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.4139555165517065,
+                "liq_density": 0.7255441969343196,
+                "slippage": 2.6376164519493615,
+                "volume": 449.4569237593709
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.00017890874899232191,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.4158778853849492,
+                "liq_density": 0.7315670497623362,
+                "slippage": 2.612384093546464,
+                "volume": 451.968980387963
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.00018779508018514912,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.417265051752154,
+                "liq_density": 0.7368594394157698,
+                "slippage": 2.5914541217291536,
+                "volume": 454.4810660805205
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.0001971227921517696,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.41914548324532797,
+                "liq_density": 0.7419905025545533,
+                "slippage": 2.576696867221957,
+                "volume": 456.71630858578453
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.00020691380811147902,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.4211559657206493,
+                "liq_density": 0.7471056507693263,
+                "slippage": 2.55219110193625,
+                "volume": 459.2484099431165
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.0002171911402017426,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.42276801666547104,
+                "liq_density": 0.7513306617297287,
+                "slippage": 2.541051387765848,
+                "volume": 461.634851078603
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.0002279789435643567,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.42468265830481455,
+                "liq_density": 0.7562671409120073,
+                "slippage": 2.524649247904979,
+                "volume": 463.80239864164287
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.0002393025731180497,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.42673653383333504,
+                "liq_density": 0.7630174220881446,
+                "slippage": 2.501100073994171,
+                "volume": 466.3424919357135
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.00025118864315095795,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.4286977447157735,
+                "liq_density": 0.7670713354063233,
+                "slippage": 2.480408884085642,
+                "volume": 468.77802735100795
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.00026366508987303583,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.4310861299802728,
+                "liq_density": 0.7729477367277895,
+                "slippage": 2.4596067532031065,
+                "volume": 471.19549876591714
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.0002767612370754228,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.43281266828274695,
+                "liq_density": 0.7776355206240909,
+                "slippage": 2.444187638573349,
+                "volume": 473.42540821329595
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.0002905078650510861,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.4352146644519486,
+                "liq_density": 0.7824007274199981,
+                "slippage": 2.432775691677393,
+                "volume": 475.92890355192566
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.00030493728293872613,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.436900249761034,
+                "liq_density": 0.7867430582237861,
+                "slippage": 2.4166166558239643,
+                "volume": 478.3085523214683
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.00032008340465997646,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.43857436192173554,
+                "liq_density": 0.7922628230369702,
+                "slippage": 2.3977994974053876,
+                "volume": 480.5706959504252
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.0003359818286283781,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.44069942815575996,
+                "liq_density": 0.7973068575369051,
+                "slippage": 2.3837245853151368,
+                "volume": 482.7271681455913
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.00035266992141746593,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.44305508885246936,
+                "liq_density": 0.803476635577223,
+                "slippage": 2.361559942245935,
+                "volume": 485.28210843728004
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.0003701869055846206,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.445552998427447,
+                "liq_density": 0.8080456841596125,
+                "slippage": 2.3441420418645698,
+                "volume": 487.84562958157585
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.0003885739518570976,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.447415163899236,
+                "liq_density": 0.8127723008590322,
+                "slippage": 2.3286041799606663,
+                "volume": 489.69148599182677
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.0004078742758969022,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.4492208760451252,
+                "liq_density": 0.817770929112244,
+                "slippage": 2.311621208635,
+                "volume": 492.22870206584213
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.00042813323987193956,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.451239651519554,
+                "liq_density": 0.8224438629854611,
+                "slippage": 2.2949791638308588,
+                "volume": 494.2923333286554
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.00044939845907216705,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.45359779259528826,
+                "liq_density": 0.826841124552612,
+                "slippage": 2.282605612056867,
+                "volume": 496.6622711213152
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.0004717199138213296,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.45583324589567215,
+                "liq_density": 0.8325401609813118,
+                "slippage": 2.2631178452671095,
+                "volume": 498.6829769576841
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.0004951500669473131,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.45870723775369127,
+                "liq_density": 0.8370669715232556,
+                "slippage": 2.2461892977154054,
+                "volume": 501.1288928725261
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.000519743987087201,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.4604593530179917,
+                "liq_density": 0.8419843514458062,
+                "slippage": 2.2361811505825733,
+                "volume": 503.3642381442019
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.000545559478116852,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.46361592497449616,
+                "liq_density": 0.8457472560068691,
+                "slippage": 2.220021107824937,
+                "volume": 505.3862102911035
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.0005726572150091958,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.4655598590129149,
+                "liq_density": 0.8507891405900234,
+                "slippage": 2.2056089679731277,
+                "volume": 507.8131535906296
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.0006011008864405581,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.46790442794522535,
+                "liq_density": 0.8569866616688621,
+                "slippage": 2.186881830726357,
+                "volume": 509.7963607602096
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.000630957344480193,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.47062197489896035,
+                "liq_density": 0.8621774645219775,
+                "slippage": 2.168496929249836,
+                "volume": 512.2368541533156
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.0006622967617148325,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.47242564456703484,
+                "liq_density": 0.8653985883316229,
+                "slippage": 2.1575771238677146,
+                "volume": 514.0942141829925
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.0006951927961775605,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.47497759118218763,
+                "liq_density": 0.8707787104312668,
+                "slippage": 2.1446818043212694,
+                "volume": 516.0071135317447
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.0007297227644686392,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.4766150537788935,
+                "liq_density": 0.8736692707725566,
+                "slippage": 2.137669962993728,
+                "volume": 517.873764375041
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.0007659678234751839,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.47857562350062594,
+                "liq_density": 0.8783532395094481,
+                "slippage": 2.124338824137792,
+                "volume": 519.810377975861
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.0008040131611167858,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.4805085149095339,
+                "liq_density": 0.8830167993030368,
+                "slippage": 2.110931492636795,
+                "volume": 521.8677829228325
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.0008439481965654006,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.4826546171714434,
+                "liq_density": 0.8860795692647889,
+                "slippage": 2.100300425592837,
+                "volume": 523.3741782107919
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.0008858667904100823,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.48572088794215007,
+                "liq_density": 0.890930545594482,
+                "slippage": 2.083873288109567,
+                "volume": 525.6819533733094
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.0009298674652605263,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.48742535003335397,
+                "liq_density": 0.8953407491872861,
+                "slippage": 2.0758655724831625,
+                "volume": 527.5357318450812
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.0009760536373079001,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.4900042286501507,
+                "liq_density": 0.9000726070068648,
+                "slippage": 2.055044454332529,
+                "volume": 529.2301475918598
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.0010245338593872233,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.49160438407709633,
+                "liq_density": 0.9029244197394798,
+                "slippage": 2.0554370060498086,
+                "volume": 530.3070722016377
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.00107542207611256,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.4916128224855962,
+                "liq_density": 0.8942789420436048,
+                "slippage": 2.230143405984165,
+                "volume": 527.7522828053837
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.0011288378916846883,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.49683714416158475,
+                "liq_density": 0.9100048376413803,
+                "slippage": 2.0348234032651753,
+                "volume": 533.867440793056
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.001184906851000666,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.49638029187537497,
+                "liq_density": 0.8998561576718056,
+                "slippage": 2.2638256200964713,
+                "volume": 530.1209116058973
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.0012437607347260157,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.49798611171577406,
+                "liq_density": 0.9007144695117043,
+                "slippage": 2.3167301116321113,
+                "volume": 530.0196083717144
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.00130553786902303,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.5000770949003016,
+                "liq_density": 0.9033391781224909,
+                "slippage": 2.314566058273729,
+                "volume": 531.678578380046
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.001370383450663168,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.5031891217096323,
+                "liq_density": 0.9078778988716327,
+                "slippage": 2.3068208914027406,
+                "volume": 533.7737955312651
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.0014384498882876629,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.5035532909160869,
+                "liq_density": 0.906260439282393,
+                "slippage": 2.376998003498439,
+                "volume": 532.6861198313629
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.00150989716061842,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.5069916135976363,
+                "liq_density": 0.9088191926798794,
+                "slippage": 2.35014154961134,
+                "volume": 534.3531012569832
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.001584893192461114,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.5098014660498709,
+                "liq_density": 0.9106507273776778,
+                "slippage": 2.415234168076575,
+                "volume": 535.5628118036791
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.0016636142493842228,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.5092651106635572,
+                "liq_density": 0.9049311109108678,
+                "slippage": 2.525446632430025,
+                "volume": 533.1635401132826
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.001746245352001619,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.5115037674249897,
+                "liq_density": 0.905921829215479,
+                "slippage": 2.6049956236570657,
+                "volume": 534.4626020689493
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.0018329807108324356,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.5143117157409888,
+                "liq_density": 0.9117538845830798,
+                "slippage": 2.4793001790190585,
+                "volume": 536.5087861580447
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.001924024182760239,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.5124625899827758,
+                "liq_density": 0.9031645866515957,
+                "slippage": 2.8084433889030898,
+                "volume": 532.3795425607748
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.00201958975016438,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.5152907882620219,
+                "liq_density": 0.9052702626277507,
+                "slippage": 2.8184753526486443,
+                "volume": 533.015854022485
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.0021199020238496075,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.5181222610559325,
+                "liq_density": 0.9062731786970805,
+                "slippage": 2.7342869918484323,
+                "volume": 533.3909372742039
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.0022251967709560265,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.5128023494164855,
+                "liq_density": 0.8621836248301329,
+                "slippage": 4.36462524860297,
+                "volume": 520.8069450776791
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.002335721469090121,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.5200514639121627,
+                "liq_density": 0.9068637105610029,
+                "slippage": 2.8021786509535955,
+                "volume": 533.9948750714614
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.0024517358879792865,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.523896553821448,
+                "liq_density": 0.9121654465995267,
+                "slippage": 2.7640804889938657,
+                "volume": 536.8084361640992
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.00257351270001691,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.525497838150889,
+                "liq_density": 0.9114610035427556,
+                "slippage": 2.9150493646782856,
+                "volume": 536.8018122044848
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.002701338121133005,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.5259674949650868,
+                "liq_density": 0.9098916543067029,
+                "slippage": 2.8632879929977473,
+                "volume": 536.0906257785555
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.002835512583496652,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.5293110764870923,
+                "liq_density": 0.9134534156127101,
+                "slippage": 2.8443651546514195,
+                "volume": 537.8336080448075
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.002976351441631319,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.5326880491092422,
+                "liq_density": 0.9201675515829653,
+                "slippage": 2.903709924509911,
+                "volume": 540.7207960418795
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.0031241857136026677,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.5203547263197104,
+                "liq_density": 0.8403577379847769,
+                "slippage": 6.441021499346443,
+                "volume": 516.9663250099322
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.0032793628590208836,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.5269649998696573,
+                "liq_density": 0.8692202257384567,
+                "slippage": 4.123962521548712,
+                "volume": 523.7930012372753
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.003442247595686089,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.532751186007371,
+                "liq_density": 0.906683479917245,
+                "slippage": 2.9945337709981437,
+                "volume": 531.1440167052315
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.0036132227567962512,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.5271455724306319,
+                "liq_density": 0.8426883574963984,
+                "slippage": 6.329642863673602,
+                "volume": 519.2575681701584
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.00379269019073225,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.5296941045882062,
+                "liq_density": 0.842915044015576,
+                "slippage": 6.701797897400445,
+                "volume": 519.6042122919614
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.003981071705534969,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.5302188280683264,
+                "liq_density": 0.8293324332375309,
+                "slippage": 7.681594899615928,
+                "volume": 517.2646212652165
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.004178810060294219,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.5336562681403743,
+                "liq_density": 0.8952491994311109,
+                "slippage": 3.237022819616857,
+                "volume": 521.6236132059802
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.004386370005779536,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.5352388748866641,
+                "liq_density": 0.9015136618948874,
+                "slippage": 3.2821336135629493,
+                "volume": 520.4462484874957
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.004604239376758779,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.5336679559690507,
+                "liq_density": 0.8397385851396769,
+                "slippage": 6.766004977279219,
+                "volume": 514.3128478636885
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.004832930238571752,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.5342010426206105,
+                "liq_density": 0.8868902984348525,
+                "slippage": 3.579268306628213,
+                "volume": 514.5019995968278
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.005072980090653727,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.5377036637156861,
+                "liq_density": 0.84139280800601,
+                "slippage": 6.554026842377341,
+                "volume": 513.2713254605396
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.005324953129837532,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.5386956256219894,
+                "liq_density": 0.8859024879291344,
+                "slippage": 3.8362296213785902,
+                "volume": 514.2904707650296
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.005589441576403378,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.538783657860397,
+                "liq_density": 0.8326498054894785,
+                "slippage": 7.518816318668617,
+                "volume": 511.693386997935
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.0058670670659931035,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.5412661936415938,
+                "liq_density": 0.8396475648510284,
+                "slippage": 7.71813774619978,
+                "volume": 513.6640148945718
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.006158482110660267,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.5440848521812802,
+                "liq_density": 0.8382855230570876,
+                "slippage": 7.1442134546356195,
+                "volume": 513.0536279978757
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.006464371632490059,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.5449517745742071,
+                "liq_density": 0.8388978485400909,
+                "slippage": 6.905957470509625,
+                "volume": 512.6979657492982
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.0067854545733935755,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.515877353683607,
+                "liq_density": 0.8462822422197298,
+                "slippage": 5.158941307286184,
+                "volume": 484.0355849025477
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.007122485584859914,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.5408023032753289,
+                "liq_density": 0.827398982730602,
+                "slippage": 7.4371004851371945,
+                "volume": 501.46034388716686
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.007476256801637687,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.516910266952819,
+                "liq_density": 0.8331091346663614,
+                "slippage": 5.339454514122709,
+                "volume": 476.8989957805211
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.007847599703514606,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.5127264158130748,
+                "liq_density": 0.824162304631085,
+                "slippage": 5.745011027130934,
+                "volume": 470.5825806547205
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.008237387069571011,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.504663336867012,
+                "liq_density": 0.7546083121333435,
+                "slippage": 9.760876357486685,
+                "volume": 454.1169059933071
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.00864653502950036,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.4931252168137012,
+                "liq_density": 0.7442762774348504,
+                "slippage": 10.383193590124732,
+                "volume": 442.7461132894016
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.009076005216818141,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.501628181524507,
+                "liq_density": 0.7479348433726951,
+                "slippage": 9.642700765872807,
+                "volume": 448.4746596701023
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.009526807029019818,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        },
+        {
+            "A": 0.269,
+            "D": 300000000.0,
+            "Result": {
+                "APY": 0.5138754942011418,
+                "liq_density": 0.8175682556992279,
+                "slippage": 5.622779295196663,
+                "volume": 463.9542969446398
+            },
+            "adjustment_step": 0.0015,
+            "ext_fee": 0.0003,
+            "fee_gamma": 0.01,
+            "gamma": 0.01,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 0.00075,
+            "n": 3,
+            "out_fee": 0.03,
+            "price_threshold": 0.0028
+        }
+    ],
+    "datafile": [
+        "btcusdt",
+        "ethusdt",
+        "ethbtc"
+    ],
+    "debug": 0
+}

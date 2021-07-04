@@ -1,0 +1,2 @@
+find gamma for A=0.32
+gamma=4.428e-5
