@@ -5,24 +5,22 @@ import itertools
 from copy import copy
 
 
-# X = np.logspace(log10(0.25), log10(1.18), 16)
-X = np.logspace(log10(0.05), log10(0.63), 32)
-Xname = "A"
-# Y = np.logspace(log10(9e-6), log10(0.0003), 16)
-Y = np.logspace(log10(1e-5), log10(1.85e-2), 32)
-Yname = "gamma"
+X = np.logspace(log10(2e-4), log10(0.5e-2), 16)
+Xname = "mid_fee"
+Y = np.logspace(log10(1e-3), log10(3e-2), 16)
+Yname = "out_fee"
 
 other_params = dict(
     D=3e8,
     adjustment_step=0.0015,
     fee_gamma=1.25e-3,
     ma_half_time=600,
-    mid_fee=7.5e-4,
-    out_fee=5.6e-3,
+    mid_fee=4e-4,
+    out_fee=4e-3,
     n=3,
     log=0,
     price_threshold=0.0028,
-    gamma=0.002,
+    gamma=0.00104,
     ext_fee=3e-4,
     A=0.254)
 

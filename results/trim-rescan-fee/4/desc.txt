@@ -1,3 +1,6 @@
 APY:
 fee_gamma = 5.7e-3
 out_fee = 0.0183
+
+out_fee = 5.6e-3
+fee_gamma = 1.25e-3

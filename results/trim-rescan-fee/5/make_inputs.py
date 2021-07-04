@@ -6,25 +6,25 @@ from copy import copy
 
 
 # X = np.logspace(log10(0.25), log10(1.18), 16)
-X = np.logspace(log10(0.05), log10(0.63), 32)
+X = np.logspace(log10(0.217), log10(0.553), 16)
 Xname = "A"
 # Y = np.logspace(log10(9e-6), log10(0.0003), 16)
-Y = np.logspace(log10(1e-5), log10(1.85e-2), 32)
+Y = np.logspace(log10(1.64e-4), log10(4.44e-3), 16)
 Yname = "gamma"
 
 other_params = dict(
     D=3e8,
     adjustment_step=0.0015,
-    fee_gamma=1.25e-3,
+    fee_gamma=0.00125,
     ma_half_time=600,
     mid_fee=7.5e-4,
     out_fee=5.6e-3,
     n=3,
     log=0,
     price_threshold=0.0028,
-    gamma=0.002,
+    gamma=0.00117,
     ext_fee=3e-4,
-    A=0.254)
+    A=0.295)
 
 config = {
     'configuration': [],

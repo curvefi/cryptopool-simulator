@@ -28,8 +28,8 @@ for row in results['configuration']:
     # APY
     # liq_density
     # volume
-    print(row['Result']['slippage'])
-    Z[mid_fee.index(row['fee_gamma']), out_fee.index(row['out_fee'])] = log(row['Result']['slippage'])
+    # Z[mid_fee.index(row['fee_gamma']), out_fee.index(row['out_fee'])] = min(log(row['Result']['slippage']), 1)
+    Z[mid_fee.index(row['fee_gamma']), out_fee.index(row['out_fee'])] = row['Result']['APY']
 
 fig, ax = plt.subplots()
 plt.yscale('symlog')
