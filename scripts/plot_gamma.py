@@ -20,7 +20,7 @@ for row in results['configuration']:
     # APY
     # liq_density
     gammas.append(row['gamma'])
-    Z1.append(row['Result']['liq_density'])
+    # Z1.append(row['Result']['liq_density'])
     Z2.append(row['Result']['slippage'])
 
 # pylab.semilogx(gammas, Z1)

@@ -1,0 +1,1 @@
+ma_half_time=600 is ok

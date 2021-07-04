@@ -4,8 +4,8 @@ import json
 from copy import copy
 
 
-X = np.logspace(log10(1e-4), log10(1e-2), 200)
-param = 'fee_gamma'
+X = np.logspace(log10(1e-3), log10(5e-2), 200)
+param = 'out_fee'
 
 
 other_params = dict(
@@ -14,7 +14,7 @@ other_params = dict(
     fee_gamma=1.25e-3,
     ma_half_time=600,
     mid_fee=8e-4,
-    out_fee=7.6e-3,
+    out_fee=8.5e-3,
     n=3,
     log=0,
     price_threshold=0.0028,
