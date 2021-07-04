@@ -1,0 +1,2 @@
+mid_fee = 9e-4
+out_fee = 0.034
