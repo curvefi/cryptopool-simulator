@@ -1,0 +1,3 @@
+Optimum:
+step: 4.9bps
+threshold: 4.5bps and lower
