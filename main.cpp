@@ -1465,7 +1465,7 @@ int main(int argc, char **argv) {
     }
     int LAST_ELEMS = 0;
     if (argc > 1 && std::string(argv[1]).find("trim") != std::string::npos) {
-        if (argv[1][4] == 0) LAST_ELEMS = 500000;
+        if (argv[1][4] == 0) LAST_ELEMS = 1000000;
         else                 LAST_ELEMS = atoi(argv[1]+4);
         argc--; argv++;
     }
