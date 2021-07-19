@@ -190,9 +190,8 @@ vector<trade_data> get_data(std::string const &fname) {
     auto scan_double = [] (unsigned char *p, long double *d) {
         if (*p == '"') p++;
         *d = atof((char *)p);
-        while (*p != '"') p++;
-        p++; // skip '"';
-        while (*p == ',' || *p == ' ') p++;
+        while (*p != '"' && *p!= ' ' && *p != ',') p++;
+        while (*p == ',' || *p == ' ' || *p == '"') p++;
         return p;
     };
     auto scan_u64 = [] (unsigned char *p, u64 *d) {
@@ -210,7 +209,10 @@ vector<trade_data> get_data(std::string const &fname) {
         if (*p == '[') {
             trade_data d;
             p++;
-            p = scan_u64(p, &d.t); d.t /= 1000;
+            p = scan_u64(p, &d.t);
+            if (d.t > 10000000000) {
+                d.t /= 1000;
+            }
             p = scan_double(p, &d.open);
             p = scan_double(p, &d.high);
             p = scan_double(p, &d.low);
@@ -286,9 +288,11 @@ bool get_all(json const &jin, int last_elems, vector<money> & price_vector, mapp
     }
     u64 min_time = 1ull << 63;
     u64 max_time = 0;
-    for (auto const &t: all_trades) {
-        min_time = min(min_time, t.second.front().t);
-        max_time = max(max_time, t.second.back().t);
+    for (auto name: names) {
+        for (auto const &t: all_trades[name]) {
+            min_time = min(min_time, t.t);
+            max_time = max(max_time, t.t);
+        }
     }
     vector<trade_one> out;
 
