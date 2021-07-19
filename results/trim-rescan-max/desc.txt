@@ -1,10 +1,9 @@
 trim: 1M
 
 adj_step = price_threshold = 0.00049
-fee_gamma=2.02e-3
+fee_gamma=5e-4
 ma_half_time=600
-mid_fee=1.25e-3
-out_fee=8e-3
+mid_fee=1.2e-3
+out_fee=4.5e-3
 gamma=1.545e-4
 A=0.6561
-gamma=1.545e-4

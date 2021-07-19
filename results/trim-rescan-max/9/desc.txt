@@ -1,0 +1,4 @@
+rescan with fee_gamma=5e-4
+result:
+mid_fee=1.2e-3
+out_fee=4.5e-3
