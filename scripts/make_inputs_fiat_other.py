@@ -1,16 +1,12 @@
 import numpy as np
 from math import log10
 import json
-import itertools
 from copy import copy
 
 
-# X = np.logspace(log10(0.25), log10(1.18), 16)
-X = np.logspace(log10(0.05), log10(1000), 64)
-Xname = "A"
-# Y = np.logspace(log10(9e-6), log10(0.0003), 16)
-Y = np.logspace(log10(1e-7), log10(1e5), 64)
-Yname = "gamma"
+X = np.logspace(log10(1e-7), log10(1e5), 200)
+param = 'gamma'
+
 
 other_params = dict(
     D=10e6,
@@ -28,14 +24,12 @@ other_params = dict(
 
 config = {
     'configuration': [],
-    'datafile': [
-        'eurusd'],
+    'datafile': ['eurusd'],
     'debug': 0}
 
-for x, y in itertools.product(X, Y):
+for x in X:
     params = copy(other_params)
-    params[Xname] = x
-    params[Yname] = y
+    params[param] = x
     config['configuration'].append(params)
 
 with open('configuration.json', 'w') as f:

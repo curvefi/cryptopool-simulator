@@ -2,11 +2,11 @@
   "configuration": [
     {
       "A": 100,
-      "D": 100000000.0,
+      "D": 1000000.0,
       "adjustment_step": 0.0004,
       "ext_fee": 0.0,
       "fee_gamma": 0.01,
-      "gamma": 1.5e-04,
+      "gamma": 0.00001,
       "ma_half_time": 600,
       "mid_fee": 0.0004,
       "n": 2,
@@ -16,7 +16,7 @@
     }
   ],
   "datafile": [
-    "eurusd-sample"
+    "eurusd"
   ],
-  "debug": 1
+  "debug": 0
 }
