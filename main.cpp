@@ -794,9 +794,9 @@ struct Trader {
         int n = jconf["n"];
         mid_fee = jconf["mid_fee"];
         out_fee = jconf["out_fee"];
-        price_threshold = jconf["price_threshold"];
         fee_gamma = jconf["fee_gamma"];
         adjustment_step = jconf["adjustment_step"];
+        allowed_extra_profit = jconf["allowed_extra_profit"];
         ma_half_time = jconf["ma_half_time"];
         this->ext_fee = jconf["ext_fee"];
         log = jconf["log"];
@@ -1070,15 +1070,14 @@ struct Trader {
             S += t*t;
         }
         auto norm = S;
-        auto mxp = (max(price_threshold, adjustment_step));
         norm = sqrt(norm); // .root_to();
-        if (norm <= mxp) {
+        if (norm <= adjustment_step) {
             // Already close to the target price
             is_light = true;
             light_tx += 1;
             return norm;
         }
-        if (not not_adjusted and (xcp_profit_real - 1.L > (xcp_profit - 1.L) / 2.L + 1e-5L)) {
+        if (not not_adjusted and (xcp_profit_real - 1.L > (xcp_profit - 1.L) / 2.L + allowed_extra_profit)) {
             not_adjusted = true;
         }
         if (not not_adjusted) {
@@ -1134,15 +1133,14 @@ struct Trader {
             S += t*t;
         }
         auto norm = S;
-        auto mxp = (max(price_threshold, adjustment_step));
         norm = sqrt(norm); // .root_to();
-        if (norm <= mxp) {
+        if (norm <= adjustment_step) {
             // Already close to the target price
             is_light = true;
             light_tx += 1;
             return norm;
         }
-        if (not not_adjusted and (xcp_profit_real - 1.L > (xcp_profit - 1.L) / 2.L + 1e-5L)) {
+        if (not not_adjusted and (xcp_profit_real - 1.L > (xcp_profit - 1.L) / 2.L + allowed_extra_profit)) {
             not_adjusted = true;
         }
         if (not not_adjusted) {
@@ -1364,8 +1362,8 @@ struct Trader {
     money xcp, xcp_0;
     money xcp_profit;
     money xcp_profit_real;
-    money price_threshold;
     money adjustment_step;
+    money allowed_extra_profit;
     int log;
     money fee_gamma;
     money total_vol;
