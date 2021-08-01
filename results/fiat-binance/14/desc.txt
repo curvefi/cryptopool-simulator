@@ -1,0 +1,3 @@
+fee_gamma=1.73e-5
+A=210k
+gamma=4.3e-7

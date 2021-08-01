@@ -1,0 +1,3848 @@
+{
+    "configuration": [
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0008032126822658148,
+                "liq_density": 2.9370971917306585,
+                "slippage": 3.883526285110726,
+                "volume": 44.83324935547049
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.000800047921682715,
+                "liq_density": 3.0767081139709327,
+                "slippage": 3.936518629578101,
+                "volume": 43.48180670284155
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.036828213152251e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0008082451082012985,
+                "liq_density": 3.4003596937120015,
+                "slippage": 3.9958908422488335,
+                "volume": 42.6102073644105
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.0750127435884916e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0008109545597581239,
+                "liq_density": 3.5164912299140854,
+                "slippage": 3.9684184718038824,
+                "volume": 42.50647507861162
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.1146035420507545e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0008095374760023436,
+                "liq_density": 4.215792565822413,
+                "slippage": 3.95836969040939,
+                "volume": 41.44573776214489
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.155652398877656e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0008126953162446319,
+                "liq_density": 4.236120829649643,
+                "slippage": 3.96196645121083,
+                "volume": 40.913821024415704
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.1982130117534323e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0008186293574458879,
+                "liq_density": 4.542798888412424,
+                "slippage": 4.060642123545304,
+                "volume": 40.457347967871456
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.2423410559520883e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0008160635684407316,
+                "liq_density": 5.779091271610959,
+                "slippage": 4.098557073370641,
+                "volume": 39.0435491580779
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.2880942571684868e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0008322443109445731,
+                "liq_density": 7.039803189310325,
+                "slippage": 4.098129570006599,
+                "volume": 37.95374076104231
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.3355324670316781e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0008443790444928548,
+                "liq_density": 8.03020771738036,
+                "slippage": 4.109426976677219,
+                "volume": 37.971890012165936
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.3847177413992751e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0008483082129794943,
+                "liq_density": 8.208068073526022,
+                "slippage": 4.104025875975355,
+                "volume": 37.966907236629964
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.435714421535231e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0008630644232899955,
+                "liq_density": 7.786114003052092,
+                "slippage": 4.186609906485429,
+                "volume": 38.092664075803334
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.488589218277294e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0008632146449694022,
+                "liq_density": 7.363845763722086,
+                "slippage": 4.197042648428886,
+                "volume": 37.89024375063693
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.543411299304153e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0008695552588699522,
+                "liq_density": 7.687051922325329,
+                "slippage": 4.345608067979107,
+                "volume": 37.36870496301127
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.6002523796165186e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0008797425974192268,
+                "liq_density": 7.406013177299872,
+                "slippage": 4.259145605053264,
+                "volume": 37.64686827516815
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.6591868153504358e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0008884007761542817,
+                "liq_density": 7.259832688710399,
+                "slippage": 4.373366715974445,
+                "volume": 37.18632801675182
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.720291701045566e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0009004875331004748,
+                "liq_density": 7.350906664698494,
+                "slippage": 1.797693134862316e+308,
+                "volume": 38.140850578546804
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.783646970495724e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0009090211354964526,
+                "liq_density": 7.121834715530863,
+                "slippage": 1.797693134862316e+308,
+                "volume": 37.706715931800105
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.8493355013135072e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0009270556814995308,
+                "liq_density": 6.935459084799592,
+                "slippage": 1.797693134862316e+308,
+                "volume": 38.19986594528569
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.9174432233459097e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0009371876065411758,
+                "liq_density": 6.663126769847145,
+                "slippage": 1.797693134862316e+308,
+                "volume": 38.21031641929056
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.9880592310826317e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0009524299172825165,
+                "liq_density": 5.890261271966506,
+                "slippage": 1.797693134862316e+308,
+                "volume": 38.8314529355499
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 2.0612759002042428e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0009620857027242867,
+                "liq_density": 5.888425850909715,
+                "slippage": 1.797693134862316e+308,
+                "volume": 38.70854125693182
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 2.137189008422567e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0009746446223205988,
+                "liq_density": 5.273324735547163,
+                "slippage": 1.797693134862316e+308,
+                "volume": 39.18490842898006
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 2.215897860771401e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0009901758643703876,
+                "liq_density": 5.014632155848688,
+                "slippage": 1.797693134862316e+308,
+                "volume": 39.909111198208045
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 2.2975054195115118e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0009983728079688615,
+                "liq_density": 4.685050243237258,
+                "slippage": 1.797693134862316e+308,
+                "volume": 40.14501212136483
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 2.382118438819733e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0010023946682238315,
+                "liq_density": 4.117832121731021,
+                "slippage": 1.797693134862316e+308,
+                "volume": 40.003250069092495
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 2.4698476044384933e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.001025293046568977,
+                "liq_density": 3.865230639351237,
+                "slippage": 1.797693134862316e+308,
+                "volume": 41.20268571408104
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 2.5608076784683356e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0010438204950969495,
+                "liq_density": 3.8079395758420294,
+                "slippage": 1.797693134862316e+308,
+                "volume": 42.07410104487212
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 2.6551176494928882e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0010349342001322137,
+                "liq_density": 3.224531874062837,
+                "slippage": 1.797693134862316e+308,
+                "volume": 40.74202011880354
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 2.7529008882327212e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0010583511069749802,
+                "liq_density": 3.4197694428660204,
+                "slippage": 1.797693134862316e+308,
+                "volume": 42.0431965059183
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 2.854285308931577e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0010661499631715692,
+                "liq_density": 3.0792082031524246,
+                "slippage": 1.797693134862316e+308,
+                "volume": 41.67865598783899
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 2.959403536686253e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0010894273449423932,
+                "liq_density": 2.9996003660578467,
+                "slippage": 1.797693134862316e+308,
+                "volume": 42.62132301243109
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 3.0683930809388596e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0010869625871857737,
+                "liq_density": 2.7184207036709105,
+                "slippage": 1.797693134862316e+308,
+                "volume": 41.895671047145925
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 3.1813965153585677e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.001104921957033812,
+                "liq_density": 2.6953908952700156,
+                "slippage": 1.797693134862316e+308,
+                "volume": 42.742540991950975
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 3.298561664348028e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0011217249657636656,
+                "liq_density": 3.0240293081208756,
+                "slippage": 1.797693134862316e+308,
+                "volume": 42.9190373196194
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 3.420041796418481e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0011146084395897095,
+                "liq_density": 2.8052869936791516,
+                "slippage": 1.797693134862316e+308,
+                "volume": 41.557751865740435
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 3.545995824686595e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0011279817912646058,
+                "liq_density": 2.964936421188298,
+                "slippage": 1.797693134862316e+308,
+                "volume": 42.195371583676305
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 3.6765885147551445e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.001132985143802533,
+                "liq_density": 2.777598798326084,
+                "slippage": 1.797693134862316e+308,
+                "volume": 42.1913405973251
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 3.811990700249672e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0011404944016642818,
+                "liq_density": 2.8194334100882266,
+                "slippage": 1.797693134862316e+308,
+                "volume": 42.01108934498949
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 3.952379506292865e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0011454704037478667,
+                "liq_density": 2.8045554846183927,
+                "slippage": 1.797693134862316e+308,
+                "volume": 41.99306620867373
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 4.097938581209207e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0011566486383422316,
+                "liq_density": 2.989025798955229,
+                "slippage": 1.797693134862316e+308,
+                "volume": 42.47465965024819
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 4.248858336762821e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0011789086314239546,
+                "liq_density": 3.0613951419444265,
+                "slippage": 1.797693134862316e+308,
+                "volume": 43.214916723049235
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 4.40533619724284e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.001167010371952693,
+                "liq_density": 2.9817434663660056,
+                "slippage": 1.797693134862316e+308,
+                "volume": 40.63485455542088
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 4.567576857722235e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0011665699345364583,
+                "liq_density": 3.120756545640432,
+                "slippage": 1.797693134862316e+308,
+                "volume": 39.331640561033204
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 4.735792551827718e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0011932452525398023,
+                "liq_density": 3.1118658860459507,
+                "slippage": 1.797693134862316e+308,
+                "volume": 40.067053891702635
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 4.910203329371271e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0011916893214001213,
+                "liq_density": 3.568046214533572,
+                "slippage": 1.797693134862316e+308,
+                "volume": 39.07371292277682
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 5.0910373442062585e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0011974974767941437,
+                "liq_density": 3.9024434606655696,
+                "slippage": 1.797693134862316e+308,
+                "volume": 38.744615453750555
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 5.278531152684756e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0011740115545208947,
+                "liq_density": 3.6837084630559387,
+                "slippage": 1.797693134862316e+308,
+                "volume": 36.56097401448986
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 5.472930023106638e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0011979618973287538,
+                "liq_density": 4.171560764937254,
+                "slippage": 1.797693134862316e+308,
+                "volume": 37.00036152452844
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 5.6744882565649626e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0012434496254315652,
+                "liq_density": 4.529903416102274,
+                "slippage": 1.797693134862316e+308,
+                "volume": 38.66016568756299
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 5.8834695196076814e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0012434811404720752,
+                "liq_density": 5.862435783209998,
+                "slippage": 1.797693134862316e+308,
+                "volume": 37.47670612592867
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 6.100147189150577e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0012202905337395458,
+                "liq_density": 6.5064031915856155,
+                "slippage": 1.797693134862316e+308,
+                "volume": 35.442956394077044
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 6.324804710092719e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0012252141034314015,
+                "liq_density": 6.745806542655574,
+                "slippage": 1.797693134862316e+308,
+                "volume": 34.49524668963257
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 6.557735966102387e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0012221446415678452,
+                "liq_density": 6.758646422444844,
+                "slippage": 1.797693134862316e+308,
+                "volume": 33.873899662742396
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 6.799245664058188e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0012348911744241,
+                "liq_density": 7.113770270525562,
+                "slippage": 1.797693134862316e+308,
+                "volume": 33.47268873036966
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 7.049649732648655e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.001242253267286027,
+                "liq_density": 9.746121656384421,
+                "slippage": 1.797693134862316e+308,
+                "volume": 32.254238011779485
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 7.309275735651348e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0012162002018009342,
+                "liq_density": 12.083688760312672,
+                "slippage": 1.797693134862316e+308,
+                "volume": 29.339486356670648
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 7.57846330043249e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.001201911011156069,
+                "liq_density": 13.839415196553796,
+                "slippage": 1.797693134862316e+308,
+                "volume": 26.911783763366387
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 7.857564562227345e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0012283089575809716,
+                "liq_density": 13.105677495296828,
+                "slippage": 1.797693134862316e+308,
+                "volume": 27.344101770594634
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 8.146944624782627e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0012884289298581914,
+                "liq_density": 16.165768688508336,
+                "slippage": 1.797693134862316e+308,
+                "volume": 28.768516375202648
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 8.446982037963724e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0013369717826935074,
+                "liq_density": 15.269079686838408,
+                "slippage": 1.797693134862316e+308,
+                "volume": 29.846993053028815
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 8.758069292951086e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0013497296467392815,
+                "liq_density": 14.907565189172786,
+                "slippage": 1.797693134862316e+308,
+                "volume": 29.101815773898817
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 9.08061333567409e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0013661405256351932,
+                "liq_density": 14.747742038750081,
+                "slippage": 1.797693134862316e+308,
+                "volume": 29.037022285747927
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 9.415036099153468e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0013815718135801957,
+                "liq_density": 13.538558076597377,
+                "slippage": 1.797693134862316e+308,
+                "volume": 28.89950188059915
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 9.761775055449228e-08,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0013753390576550259,
+                "liq_density": 11.142399689066234,
+                "slippage": 1.797693134862316e+308,
+                "volume": 28.29728924951902
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.0121283787935658e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0013953423436985654,
+                "liq_density": 11.092067312527087,
+                "slippage": 1.797693134862316e+308,
+                "volume": 28.72273065273566
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.0494032584652174e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0014508265276532957,
+                "liq_density": 12.236395891082838,
+                "slippage": 1.797693134862316e+308,
+                "volume": 29.777582282898948
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.0880509053506433e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0014394685757249627,
+                "liq_density": 10.650851475712901,
+                "slippage": 1.797693134862316e+308,
+                "volume": 28.967495836647362
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.1281218760133964e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0014352227645091098,
+                "liq_density": 9.746213661528433,
+                "slippage": 1.797693134862316e+308,
+                "volume": 28.363840596866286
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.1696685889249349e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.001485727313485076,
+                "liq_density": 9.14486677998158,
+                "slippage": 1.797693134862316e+308,
+                "volume": 29.267492764294037
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.2127453930353574e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.001519041319829467,
+                "liq_density": 8.445752089637462,
+                "slippage": 1.797693134862316e+308,
+                "volume": 30.080298034281206
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.2574086388694738e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0015189043619943735,
+                "liq_density": 7.465929868602456,
+                "slippage": 1.797693134862316e+308,
+                "volume": 29.82440229503796
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.3037167522412432e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0015631843494278842,
+                "liq_density": 6.473614480102108,
+                "slippage": 1.797693134862316e+308,
+                "volume": 30.970122415259148
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.3517303106829438e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0015784188589933374,
+                "liq_density": 5.842154552056878,
+                "slippage": 1.797693134862316e+308,
+                "volume": 30.969523100338083
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.4015121226891337e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0015873509281076885,
+                "liq_density": 5.1334320502340445,
+                "slippage": 1.797693134862316e+308,
+                "volume": 31.288875448042745
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.4531273098789955e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0015736355212288495,
+                "liq_density": 4.450777840826335,
+                "slippage": 1.797693134862316e+308,
+                "volume": 30.67516116458998
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.5066433921845762e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0016108889843318701,
+                "liq_density": 4.241077818467658,
+                "slippage": 1.797693134862316e+308,
+                "volume": 31.332832964074658
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.5621303761763832e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.001641153372301537,
+                "liq_density": 3.939538938278935,
+                "slippage": 1.797693134862316e+308,
+                "volume": 32.08877448374901
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.619660846641813e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0016185776898523267,
+                "liq_density": 3.5319335870627335,
+                "slippage": 1.797693134862316e+308,
+                "volume": 31.0718288668621
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.6793100615362927e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0016462986844402658,
+                "liq_density": 3.000720469126659,
+                "slippage": 1.797693134862316e+308,
+                "volume": 31.65890429634682
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.7411560504312744e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0016811841549525279,
+                "liq_density": 2.9135661545797826,
+                "slippage": 1.797693134862316e+308,
+                "volume": 32.43622780532287
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.8052797165878923e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.001701829166345902,
+                "liq_density": 2.6780036262178104,
+                "slippage": 1.797693134862316e+308,
+                "volume": 32.47577894622448
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.8717649427898264e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.001709440666029448,
+                "liq_density": 2.454350506617466,
+                "slippage": 1.797693134862316e+308,
+                "volume": 32.439118886099614
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.9406987010738008e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0017201700219051366,
+                "liq_density": 2.234867421923481,
+                "slippage": 1.797693134862316e+308,
+                "volume": 32.36321101010488
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 2.0121711665012473e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.001707427718664097,
+                "liq_density": 2.1895481857125723,
+                "slippage": 1.797693134862316e+308,
+                "volume": 32.047684442458085
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 2.0862758351199685e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0016983059985766036,
+                "liq_density": 2.020891446905809,
+                "slippage": 1.797693134862316e+308,
+                "volume": 32.29099130911617
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 2.1631096462701612e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0017384074274455564,
+                "liq_density": 2.2383749322035422,
+                "slippage": 1.797693134862316e+308,
+                "volume": 33.549284947817924
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 2.242773109394689e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.001701387481596817,
+                "liq_density": 2.009036428815897,
+                "slippage": 1.797693134862316e+308,
+                "volume": 32.61121823579742
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 2.325370435519613e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0016960957852968968,
+                "liq_density": 1.9777754275786812,
+                "slippage": 1.797693134862316e+308,
+                "volume": 32.5999352625486
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 2.4110096735768764e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0016614114010316534,
+                "liq_density": 1.9943813822271788,
+                "slippage": 1.797693134862316e+308,
+                "volume": 31.770061586537608
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 2.4998028517475046e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0017497200292516278,
+                "liq_density": 2.328576794684267,
+                "slippage": 1.797693134862316e+308,
+                "volume": 33.09314710199124
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 2.5918661240102714e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0016864114495536821,
+                "liq_density": 2.2593246383570325,
+                "slippage": 1.797693134862316e+308,
+                "volume": 29.95049053196357
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 2.6873199220874203e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.00174258888729476,
+                "liq_density": 2.4992905714807403,
+                "slippage": 1.797693134862316e+308,
+                "volume": 31.02741934486639
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 2.786289112986346e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0017402975616760763,
+                "liq_density": 2.435027623191992,
+                "slippage": 1.797693134862316e+308,
+                "volume": 30.562679231377405
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 2.888903162343209e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0015975522040803818,
+                "liq_density": 2.673126103794169,
+                "slippage": 1.797693134862316e+308,
+                "volume": 26.854374249402014
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 2.9952963037821966e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0016150610067490836,
+                "liq_density": 2.9694390922111538,
+                "slippage": 1.797693134862316e+308,
+                "volume": 27.2244386088102
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 3.105607714512043e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.001642086522404134,
+                "liq_density": 3.3307835694974455,
+                "slippage": 1.797693134862316e+308,
+                "volume": 27.553282591647406
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 3.219981697389367e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0016395595229556277,
+                "liq_density": 4.13348734494431,
+                "slippage": 1.797693134862316e+308,
+                "volume": 27.382764772881842
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 3.338567869687169e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0016619894346225849,
+                "liq_density": 6.089109949290503,
+                "slippage": 1.797693134862316e+308,
+                "volume": 27.361705010644187
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 3.461521358815271e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0015969860216767464,
+                "liq_density": 4.536901803803754,
+                "slippage": 1.797693134862316e+308,
+                "volume": 25.741743653486118
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 3.589003005248797e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0016079076127067827,
+                "liq_density": 5.794154231310223,
+                "slippage": 1.797693134862316e+308,
+                "volume": 25.666342708406713
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 3.7211795729301683e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0016632389047906162,
+                "liq_density": 6.930357984035762,
+                "slippage": 1.797693134862316e+308,
+                "volume": 26.481789841890524
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 3.8582239674198424e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.001640992811722997,
+                "liq_density": 5.95188922242543,
+                "slippage": 1.797693134862316e+308,
+                "volume": 25.821488851807608
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 4.000315462081112e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0016802360014602185,
+                "liq_density": 9.106341676711608,
+                "slippage": 1.797693134862316e+308,
+                "volume": 26.204670346270493
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 4.14763993259488e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0015820093013359186,
+                "liq_density": 13.043900893991779,
+                "slippage": 1.797693134862316e+308,
+                "volume": 22.888730347987348
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 4.3003901001112807e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0014902048109494016,
+                "liq_density": 13.999331280238573,
+                "slippage": 1.797693134862316e+308,
+                "volume": 20.69063136811012
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 4.458765783356008e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.001529419006502524,
+                "liq_density": 12.540889528558337,
+                "slippage": 1.797693134862316e+308,
+                "volume": 21.245035313661646
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 4.622974160021406e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.001625743443158564,
+                "liq_density": 13.673759868395662,
+                "slippage": 1.797693134862316e+308,
+                "volume": 23.03278399567767
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 4.793230037784032e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0015522301247851145,
+                "liq_density": 12.354053514443388,
+                "slippage": 1.797693134862316e+308,
+                "volume": 21.297988945203837
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 4.969756135303315e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0015401005340453648,
+                "liq_density": 11.810971452763376,
+                "slippage": 1.797693134862316e+308,
+                "volume": 20.693435752895475
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 5.152783373568982e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0015018579858917963,
+                "liq_density": 11.832867625843013,
+                "slippage": 1.797693134862316e+308,
+                "volume": 19.771112113311524
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 5.342551177978155e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0015184525436867735,
+                "liq_density": 11.872414713208588,
+                "slippage": 1.797693134862316e+308,
+                "volume": 19.77918591729644
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 5.539307791537543e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0015435997074761594,
+                "liq_density": 11.183363486451778,
+                "slippage": 1.797693134862316e+308,
+                "volume": 20.288351836351538
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 5.743310599600223e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0015743808591553352,
+                "liq_density": 10.280003578482486,
+                "slippage": 1.797693134862316e+308,
+                "volume": 20.577379046465328
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 5.954826466561883e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0016592048283598543,
+                "liq_density": 10.997016437279978,
+                "slippage": 1.797693134862316e+308,
+                "volume": 21.833226632891833
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 6.174132084957101e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0017391142298392457,
+                "liq_density": 11.405225077890883,
+                "slippage": 1.797693134862316e+308,
+                "volume": 22.972301560227102
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 6.401514337412052e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0017216620626749305,
+                "liq_density": 9.613320250686323,
+                "slippage": 1.797693134862316e+308,
+                "volume": 22.415456927653423
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 6.637270671927453e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0017425022865688886,
+                "liq_density": 8.032884173750482,
+                "slippage": 1.797693134862316e+308,
+                "volume": 22.73446308640197
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 6.881709490982395e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0017659385570002817,
+                "liq_density": 7.20794046257748,
+                "slippage": 1.797693134862316e+308,
+                "volume": 22.988313215044332
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 7.135150554968163e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0017951490979000045,
+                "liq_density": 6.559334227198333,
+                "slippage": 1.797693134862316e+308,
+                "volume": 23.267890753593385
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 7.397925400479947e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0018602499752705,
+                "liq_density": 5.044701147147918,
+                "slippage": 1.797693134862316e+308,
+                "volume": 24.1652929531418
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 7.670377774013273e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0018201600674354187,
+                "liq_density": 3.8786167442067723,
+                "slippage": 1.797693134862316e+308,
+                "volume": 23.58749115927577
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 7.952864081632921e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0018084204571941602,
+                "liq_density": 3.5611017041185224,
+                "slippage": 1.797693134862316e+308,
+                "volume": 23.31130106671133
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 8.245753855202196e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0018412620926535265,
+                "liq_density": 2.769583300121262,
+                "slippage": 1.797693134862316e+308,
+                "volume": 23.719527348074713
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 8.549430235782594e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0017671844121219813,
+                "liq_density": 2.518877648990306,
+                "slippage": 1.797693134862316e+308,
+                "volume": 22.501979301036368
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 8.864290474836294e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0018212726824486628,
+                "liq_density": 2.014038709529612,
+                "slippage": 1.797693134862316e+308,
+                "volume": 23.225045491510546
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 9.190746453887033e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0018360517459103558,
+                "liq_density": 1.6890796088508784,
+                "slippage": 1.797693134862316e+308,
+                "volume": 23.374481001150897
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 9.529225223319097e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0018588380611975221,
+                "liq_density": 1.761837932924346,
+                "slippage": 1.797693134862316e+308,
+                "volume": 23.83916870829929
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 9.880169561019298e-07,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0018471090643336244,
+                "liq_density": 1.3794428937869545,
+                "slippage": 1.797693134862316e+308,
+                "volume": 23.368074940962398
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.024403855159292e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0018434642046134455,
+                "liq_density": 1.2950210350903932,
+                "slippage": 1.797693134862316e+308,
+                "volume": 23.1061497447489
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.0621308186910859e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.001780616242730279,
+                "liq_density": 1.0657495038317777,
+                "slippage": 1.797693134862316e+308,
+                "volume": 22.181374327796796
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.1012471988774159e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0017912224799558959,
+                "liq_density": 1.1011682963499738,
+                "slippage": 1.797693134862316e+308,
+                "volume": 22.30901886781173
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.141804165450995e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0016946782438811354,
+                "liq_density": 0.8987455766725209,
+                "slippage": 1.797693134862316e+308,
+                "volume": 20.832263519905275
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.1838547726343521e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0016854772897304262,
+                "liq_density": 0.857455197630449,
+                "slippage": 1.797693134862316e+308,
+                "volume": 20.785262685187416
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.2274540285422421e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0016795830885824418,
+                "liq_density": 0.8104026886471599,
+                "slippage": 1.797693134862316e+308,
+                "volume": 20.79869497397287
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.2726589671399847e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0016999415588803087,
+                "liq_density": 0.753627852074108,
+                "slippage": 1.797693134862316e+308,
+                "volume": 21.070655500555407
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.3195287228519396e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0017043258953821825,
+                "liq_density": 0.7665287549701743,
+                "slippage": 1.797693134862316e+308,
+                "volume": 21.023078926773717
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.368124607917651e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0016385032179903453,
+                "liq_density": 0.6471015479080954,
+                "slippage": 1.797693134862316e+308,
+                "volume": 19.984424344208545
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.4185101925968848e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0014498615184769573,
+                "liq_density": 0.6242733183099631,
+                "slippage": 1.797693134862316e+308,
+                "volume": 17.128003909014303
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.4707513883284834e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0016075378610601906,
+                "liq_density": 0.8228604620321177,
+                "slippage": 1.797693134862316e+308,
+                "volume": 19.310329879786707
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.5249165339518136e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.001592860030450669,
+                "liq_density": 0.7965666038279062,
+                "slippage": 1.797693134862316e+308,
+                "volume": 18.965018419649656
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.5810764851035827e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0014938676473041188,
+                "liq_density": 0.8171736373932383,
+                "slippage": 1.797693134862316e+308,
+                "volume": 17.533102555093627
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.6393047069069923e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0015760598648464773,
+                "liq_density": 0.831976831860413,
+                "slippage": 1.797693134862316e+308,
+                "volume": 18.607283850962876
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.6996773700744547e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0016612802134080265,
+                "liq_density": 0.9938644025190847,
+                "slippage": 1.797693134862316e+308,
+                "volume": 19.79436104951945
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.762273450549614e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0016500473227483352,
+                "liq_density": 0.7983486856586129,
+                "slippage": 1.797693134862316e+308,
+                "volume": 19.600493702874797
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.8271748328190078e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.001512540661410794,
+                "liq_density": 0.9485485156138921,
+                "slippage": 1.797693134862316e+308,
+                "volume": 17.732173008490594
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.8944664170284947e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0016133599560583826,
+                "liq_density": 1.0896613761967404,
+                "slippage": 1.797693134862316e+308,
+                "volume": 19.04828870881417
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1.964236230044605e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.001639425355943967,
+                "liq_density": 1.3268886967301028,
+                "slippage": 1.797693134862316e+308,
+                "volume": 19.335476918044495
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 2.0365755406060655e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.001580275690108724,
+                "liq_density": 2.6194288614076813,
+                "slippage": 1.797693134862316e+308,
+                "volume": 18.44966630002701
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 2.1115789787161664e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0016295567901430234,
+                "liq_density": 1.4644853618332847,
+                "slippage": 1.797693134862316e+308,
+                "volume": 19.04035432895664
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 2.1893446594321374e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.001551011257014422,
+                "liq_density": 1.3889149734279582,
+                "slippage": 1.797693134862316e+308,
+                "volume": 17.823710078380554
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 2.2699743112134463e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0015388166917315075,
+                "liq_density": 3.265124860119223,
+                "slippage": 1.797693134862316e+308,
+                "volume": 17.6270125409398
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 2.353573408996954e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0014561461679009373,
+                "liq_density": 2.9169454704563686,
+                "slippage": 1.797693134862316e+308,
+                "volume": 16.412937060552537
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 2.4402513121729685e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0014455859147364477,
+                "liq_density": 3.8486659521068747,
+                "slippage": 1.797693134862316e+308,
+                "volume": 16.15883825061255
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 2.5301214076427345e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.001457542186216183,
+                "liq_density": 4.521149113444933,
+                "slippage": 1.797693134862316e+308,
+                "volume": 16.282663330106747
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 2.6233012581444742e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0014510431263003699,
+                "liq_density": 5.259250137975012,
+                "slippage": 1.797693134862316e+308,
+                "volume": 16.135297860747755
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 2.719912756041992e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.001384078871153177,
+                "liq_density": 2.9914296024827505,
+                "slippage": 1.797693134862316e+308,
+                "volume": 15.231876805345749
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 2.820082282777033e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0014017247222643642,
+                "liq_density": 3.2684148703619376,
+                "slippage": 1.797693134862316e+308,
+                "volume": 15.41898904888668
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 2.9239408741940378e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0014899308673915349,
+                "liq_density": 4.474754896525037,
+                "slippage": 1.797693134862316e+308,
+                "volume": 16.48756220654162
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 3.0316243919534347e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0012401838257064535,
+                "liq_density": 1.8446573289967008,
+                "slippage": 1.797693134862316e+308,
+                "volume": 13.376508745440042
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 3.1432737012578587e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0012400990584689577,
+                "liq_density": 4.787189126161236,
+                "slippage": 1.797693134862316e+308,
+                "volume": 13.355110933983426
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 3.2590348551236545e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0011962970022924018,
+                "liq_density": 2.041553592104436,
+                "slippage": 1.797693134862316e+308,
+                "volume": 12.79632212433968
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 3.3790592854387702e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.001211715842141405,
+                "liq_density": 3.9214399760724707,
+                "slippage": 1.797693134862316e+308,
+                "volume": 13.019232487889424
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 3.503504001057002e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.001192703401975308,
+                "liq_density": 3.480620091568512,
+                "slippage": 1.797693134862316e+308,
+                "volume": 12.747977446262336
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 3.632531793187693e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0010674675700758985,
+                "liq_density": 0.5256224941304644,
+                "slippage": 1.797693134862316e+308,
+                "volume": 11.234475622754518
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 3.7663114483495373e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0011127096885593791,
+                "liq_density": 1.266116337689603,
+                "slippage": 1.797693134862316e+308,
+                "volume": 11.797876770628513
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 3.905017969167125e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0010749131756379185,
+                "liq_density": 0.3339749334861054,
+                "slippage": 1.797693134862316e+308,
+                "volume": 11.28777308265202
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 4.04883280329899e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.00111387719885095,
+                "liq_density": 1.4128753508596723,
+                "slippage": 1.797693134862316e+308,
+                "volume": 11.776989544572439
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 4.197944080796711e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0010183897165126775,
+                "liq_density": 0.2824354103012756,
+                "slippage": 1.797693134862316e+308,
+                "volume": 10.588348964517886
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 4.352546860205522e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0011646106057048686,
+                "liq_density": 1.7905460473171249,
+                "slippage": 1.797693134862316e+308,
+                "volume": 12.393220795102053
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 4.512843383728331e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0011397363194969958,
+                "liq_density": 0.6365475248719075,
+                "slippage": 1.797693134862316e+308,
+                "volume": 12.070985151526202
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 4.679043341787013e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0011411215691208496,
+                "liq_density": 0.8908445380147573,
+                "slippage": 1.797693134862316e+308,
+                "volume": 12.061183346791246
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 4.851364147326975e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0011269908489504256,
+                "liq_density": 0.3190187773584605,
+                "slippage": 1.797693134862316e+308,
+                "volume": 11.886846903043741
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 5.030031220223921e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0011434261661308653,
+                "liq_density": 0.26173664543410885,
+                "slippage": 1.797693134862316e+308,
+                "volume": 12.04423565392811
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 5.215278282164804e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0011541114767096429,
+                "liq_density": 0.28961728427690686,
+                "slippage": 1.797693134862316e+308,
+                "volume": 12.18638425626516
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 5.407347662388674e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0012080453930716079,
+                "liq_density": 0.27316272872872066,
+                "slippage": 1.797693134862316e+308,
+                "volume": 12.780169692066139
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 5.606490614687461e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0012117753773348192,
+                "liq_density": 0.2481340614724177,
+                "slippage": 1.797693134862316e+308,
+                "volume": 12.776193060447966
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 5.812967646081277e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0012366347857995555,
+                "liq_density": 0.2955297487686625,
+                "slippage": 1.797693134862316e+308,
+                "volume": 13.06465489340394
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 6.027048857598296e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.001223821784061016,
+                "liq_density": 0.26040336899779637,
+                "slippage": 1.797693134862316e+308,
+                "volume": 12.894710620266522
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 6.249014297604956e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.001248757471196329,
+                "liq_density": 0.26973241114211494,
+                "slippage": 1.797693134862316e+308,
+                "volume": 13.148634900434333
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 6.479154328148629e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0012346650192251135,
+                "liq_density": 0.2543500813329877,
+                "slippage": 1.797693134862316e+308,
+                "volume": 12.988149490550342
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 6.717770004792015e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0012033000579272644,
+                "liq_density": 0.25487918113237473,
+                "slippage": 1.797693134862316e+308,
+                "volume": 12.631621499741886
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 6.965173470436307e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0012241174123291663,
+                "liq_density": 0.23692209010135912,
+                "slippage": 1.797693134862316e+308,
+                "volume": 12.84256504895662
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 7.221688363647939e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0012097100585413047,
+                "liq_density": 0.2270302900411673,
+                "slippage": 1.797693134862316e+308,
+                "volume": 12.690270369785457
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 7.487650242023495e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0012115642249386901,
+                "liq_density": 0.267485144699082,
+                "slippage": 1.797693134862316e+308,
+                "volume": 12.62800313004081
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 7.763407021146256e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.00125301904456998,
+                "liq_density": 0.251402993303742,
+                "slippage": 1.797693134862316e+308,
+                "volume": 13.150344896874424
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 8.049319429708726e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.001253446123711581,
+                "liq_density": 0.2571041670606289,
+                "slippage": 1.797693134862316e+308,
+                "volume": 13.22761537458807
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 8.345761481396594e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0012051761042843317,
+                "liq_density": 0.23211030172202912,
+                "slippage": 1.797693134862316e+308,
+                "volume": 12.636440943530783
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 8.653120964151314e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0012553785575514973,
+                "liq_density": 0.25781776765511194,
+                "slippage": 1.797693134862316e+308,
+                "volume": 13.188604685459884
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 8.971799947451288e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0012359760667823455,
+                "liq_density": 0.24971826879889197,
+                "slippage": 1.797693134862316e+308,
+                "volume": 12.945269732068917
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 9.302215308275396e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.001176665894564538,
+                "liq_density": 0.23599902873284623,
+                "slippage": 1.797693134862316e+308,
+                "volume": 12.24582886937965
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 9.644799276436714e-06,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        },
+        {
+            "A": 210000.0,
+            "D": 200000000.0,
+            "Result": {
+                "APY": 0.0012413463289919742,
+                "liq_density": 0.24197706621046652,
+                "slippage": 1.797693134862316e+308,
+                "volume": 12.98195319907119
+            },
+            "adjustment_step": 5.5e-06,
+            "allowed_extra_profit": 2e-06,
+            "ext_fee": 0.0,
+            "fee_gamma": 1.73e-05,
+            "gamma": 1e-05,
+            "log": 0,
+            "ma_half_time": 600,
+            "mid_fee": 8.3e-06,
+            "n": 2,
+            "out_fee": 0.0006
+        }
+    ],
+    "datafile": [
+        "eurusdt"
+    ],
+    "debug": 0
+}

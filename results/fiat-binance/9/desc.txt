@@ -1,0 +1,4 @@
+gamma=5.8e-7
+
+no fee:
+gamma=5.2e-7

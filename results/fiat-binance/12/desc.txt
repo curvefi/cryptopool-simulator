@@ -1,0 +1,7 @@
+A=10000
+gamma=2.4e-6
+peak=5.6
+
+A=5000
+gamma=3.9e-6
+peak=5.2

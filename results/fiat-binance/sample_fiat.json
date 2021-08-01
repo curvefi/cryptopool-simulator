@@ -1,0 +1,22 @@
+{
+  "configuration": [
+    {
+      "A": 210e3,
+      "D": 1e7,
+      "adjustment_step": 4.15e-6,
+      "ext_fee": 0.0,
+      "fee_gamma": 1.73e-5,
+      "gamma": 4.3e-7,
+      "ma_half_time": 600,
+      "mid_fee": 8.3e-6,
+      "n": 2,
+      "log" : 1,
+      "out_fee": 6e-4,
+      "price_threshold": 4.15e-6
+    }
+  ],
+  "datafile": [
+    "eurusdt"
+  ],
+  "debug": 0
+}

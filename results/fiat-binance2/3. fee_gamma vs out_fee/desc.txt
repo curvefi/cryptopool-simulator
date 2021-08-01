@@ -1,0 +1,2 @@
+out_fee=1.3e-3
+fee_gamma=1.35e-2

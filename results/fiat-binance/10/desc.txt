@@ -1,0 +1,5 @@
+no ext fee:
+fee_gamma=7e-6
+
+ext fee:
+fee_gamma=6e-6
