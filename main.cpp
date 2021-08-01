@@ -1183,7 +1183,7 @@ struct Trader {
 
     void simulate(mapped_file const *in, simulation_data *simdata, extra_data *extdata) {
         // vector<trade_data> const &mdata
-        const money CANDLE_VARIATIVES = 50;
+        const money CANDLE_VARIATIVES = 20;
         map<pair<int, int>, money> lasts;
         size_t N = price_oracle.size();
         u64 start_t = 0;
@@ -1219,11 +1219,12 @@ struct Trader {
             //  Dynamic step
             //  f = reduction_coefficient(self.curve.xp(), self.curve.gamma)
             auto candle = min(mabs((d.high - d.low) / d.high), 0.1L);
-            candle = max(0.001L, candle);
+            candle = max(0.000001L, candle);
             auto step1 = N == 3 ? step_for_price_3(candle / CANDLE_VARIATIVES, d.pair1, 1) : step_for_price_2(candle / CANDLE_VARIATIVES, d.pair1, 1);
             auto step2 = N == 3 ? step_for_price_3(candle / CANDLE_VARIATIVES, d.pair1, -1) : step_for_price_2(candle / CANDLE_VARIATIVES, d.pair1, -1);
             auto step = min(step1, step2);
             auto max_price = d.high;
+            auto min_price = d.low;
             money _dx = 0;
             auto p_before = N == 3 ? price_3(a, b) : price_2(a, b);
             while (last < (max_price * (1 - ext_fee)) and vol < ext_vol / 2.L) {
@@ -1233,7 +1234,7 @@ struct Trader {
                 }
                 vol += dy * price_oracle[b];
                 _dx += dy;
-                last = step / dy; 
+                last = step / dy;
                 max_price = d.high;
                 ctr += 1;
             }
@@ -1252,7 +1253,6 @@ struct Trader {
             }
 
             _high = last;
-            auto min_price = d.low;
             _dx = 0;
             p_before = p_after;
             money prev_vol = vol;
