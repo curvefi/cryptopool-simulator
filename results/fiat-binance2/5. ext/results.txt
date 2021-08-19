@@ -1,1 +1,4 @@
 gamma=7e-4 -> gamma=2.8e-4
+mid_fee -> 3bps
+gamma -> 6e-4
+5e-4 for safety
