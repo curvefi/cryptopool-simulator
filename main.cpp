@@ -1220,14 +1220,14 @@ struct Trader {
             //  f = reduction_coefficient(self.curve.xp(), self.curve.gamma)
             auto candle = min(mabs((d.high - d.low) / d.high), 0.1L);
             candle = max(0.000001L, candle);
-            auto step1 = N == 3 ? step_for_price_3(candle / CANDLE_VARIATIVES, d.pair1, 1) : step_for_price_2(candle / CANDLE_VARIATIVES, d.pair1, 1);
-            auto step2 = N == 3 ? step_for_price_3(candle / CANDLE_VARIATIVES, d.pair1, -1) : step_for_price_2(candle / CANDLE_VARIATIVES, d.pair1, -1);
-            auto step = min(step1, step2);
-            // XXX step should be different?
+            auto step0 = dx / curve.p[d.pair1.first];
+            auto step = step0;
             auto max_price = d.high * (1 - ext_fee);
             auto min_price = d.low * (1 + ext_fee);
             money _dx = 0;
             auto p_before = N == 3 ? price_3(a, b) : price_2(a, b);
+
+            // Increase step
             while (last < max_price and vol < ext_vol / 2.L) {
                 auto dy = N == 3 ? buy_3(step, a, b, max_price) : buy_2(step, a, b, max_price);
                 if (dy == 0) {
@@ -1237,7 +1237,23 @@ struct Trader {
                 _dx += dy;
                 last = step / dy;
                 ctr += 1;
+                step *= 2;
             }
+            // Decrease step
+            while (last < max_price and vol < ext_vol / 2.L) {
+                step /= 2;
+                if (step < step0) {
+                    break;
+                }
+                auto dy = N == 3 ? buy_3(step, a, b, max_price) : buy_2(step, a, b, max_price);
+                if (dy > 0) {
+                    vol += dy * price_oracle[b];
+                    _dx += dy;
+                    last = step / dy;
+                    ctr += 1;
+                }
+            }
+
             auto p_after = N == 3 ? price_3(a, b) : price_2(a, b);
             auto _fee = N == 3 ? fee_3() : fee_2();
 
@@ -1256,6 +1272,9 @@ struct Trader {
             _dx = 0;
             p_before = p_after;
             money prev_vol = vol;
+            step = step0;
+
+            // Increase step
             while (last > min_price and vol < ext_vol / 2.L) {
                 auto dx = step / last;
                 auto dy = N == 3 ? sell_3(dx, a, b, min_price) : sell_2(dx, a, b, min_price);
@@ -1266,7 +1285,24 @@ struct Trader {
                 vol += dx * price_oracle[b];
                 last = dy / dx;
                 ctr += 1;
+                step *= 2;
             }
+            // Decrease step
+            while (last > min_price and vol < ext_vol / 2.L) {
+                step /= 2;
+                if (step < step0) {
+                    break;
+                }
+                auto dx = step / last;
+                auto dy = N == 3 ? sell_3(dx, a, b, min_price) : sell_2(dx, a, b, min_price);
+                if (dy > 0) {
+                    _dx += dx;
+                    vol += dx * price_oracle[b];
+                    last = dy / dx;
+                    ctr += 1;
+                }
+            }
+
             p_after = N == 3 ? price_3(a, b) : price_2(a, b);
             _fee = N == 3 ? fee_3() : fee_2();
 
