@@ -876,14 +876,29 @@ struct Trader {
         return ret;
     }
 
-    auto step_for_price_3(money dp, pair<int, int> p, int sign) {
-        auto p0 = price_3(p.first, p.second);
-        dp = p0 * dp;
+    auto step_for_price_3(money p_min, money p_max, pair<int, int> p) {
         money x0[3];
         copy_money_3(x0, &curve.x[0]);
-        auto step = dx / curve.p[p.first];
+        auto step0 = dx / curve.p[p.first];
+        auto step = step0;
+        money _dx = 0;
+        money _dy = 0;
+        money x = 0;
+        money y = 0;
+        // +
         while (true) {
-            curve.x[p.first] = x0[p.first] + sign * step;
+            _dx += step;
+            if (p_max > 0) {
+                x = x0[p.first] + _dx;
+                y = curve.y_3(x, p.first, p.second);
+                _dy = x0[p.second] - y;
+            else {
+                x = x0[p.first] - _dx;
+                y = curve.y_3(x, p.first, p.second);
+                _dy = y - x0[p.second];
+            }
+            copy_money_3(&curve.x[0], x0);
+
             auto dp_ = mabs(p0 - price_3(p.first, p.second));
             if (dp_ >= dp or step >= curve.x[p.first] / 10.L) {
                 copy_money_3(&curve.x[0], x0);
@@ -891,6 +906,7 @@ struct Trader {
             }
             step += step;
         }
+        // -
     }
 
     auto step_for_price_2(money dp, pair<int, int> p, int sign) {
