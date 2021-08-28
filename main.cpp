@@ -1282,7 +1282,7 @@ struct Trader {
                     break;
                 }
                 _dx += dx;
-                vol += dx * price_oracle[b];
+                vol += dx * price_oracle[a];
                 last = dy / dx;
                 ctr += 1;
                 step *= 2;
@@ -1297,7 +1297,7 @@ struct Trader {
                 auto dy = N == 3 ? sell_3(dx, a, b, min_price) : sell_2(dx, a, b, min_price);
                 if (dy > 0) {
                     _dx += dx;
-                    vol += dx * price_oracle[b];
+                    vol += dx * price_oracle[a];
                     last = dy / dx;
                     ctr += 1;
                 }
