@@ -879,7 +879,7 @@ struct Trader {
     auto step_for_price_3(money p_min, money p_max, pair<int, int> p, money vol, money ext_vol) {
         money x0[3];
         copy_money_3(x0, &curve.x[0]);
-        auto step0 = dx / curve.p[p.first];
+        auto step0 = dx / curve.p[p.first];  // step in units of 1st currency
         auto step = step0;
         money _dx = 0;
         money _dy = 0;
@@ -887,6 +887,7 @@ struct Trader {
         money y = 0;
 
         auto fee = this->fee_3();
+        // printf("---\n");
 
         // +
         while (true) {
@@ -898,33 +899,39 @@ struct Trader {
             if (p_max > 0) {
                 x = x0[p.first] + _dx;
                 y = curve.y_3(x, p.first, p.second);
-                _dy = x0[p.second] - y;}
+                _dy = x0[p.second] - y;
+                _dy = _dy * (1.L - fee);  // insert gas fee here TODO
+                curve.x[p.first] += _dx;
+                curve.x[p.second] -= _dy;
+            }
             else {
                 x = x0[p.first] - _dx;
                 y = curve.y_3(x, p.first, p.second);
                 _dy = y - x0[p.second];
-            }
-            copy_money_3(&curve.x[0], x0);
-
-            if (p_max > 0) {
-                _dy = _dy * (1.L - fee);  // insert gas fee here TODO
-            }
-            else {
                 _dy = _dy * (1.L + fee);  // insert gas fee here TODO
+                curve.x[p.first] -= _dx;
+                curve.x[p.second] += _dy;
             }
+
             auto price = _dx / _dy;
             auto v = vol + _dy * curve.p[p.second];
 
-            if ((p_min > 0 and price < p_min) or v > ext_vol / 2.L) {
+            // Needed to prevent resonant trading which doesn't happen in reality
+            auto inst_price = price_3(p.first, p.second);
+            copy_money_3(&curve.x[0], x0);
+            // printf("::: %Lf %Lf %Lf %Lf\n", price, inst_price, p_min, p_max);
+
+            if ((p_min > 0 and (price < p_min or inst_price < p_min)) or v > ext_vol / 2.L) {
                 _dx = _dx_prev;
                 _dy = _dy_prev;
                 break;
             }
-            if ((p_max > 0 and price > p_max) or v > ext_vol / 2.L) {
+            if ((p_max > 0 and (price > p_max or inst_price > p_max)) or v > ext_vol / 2.L) {
                 _dx = _dx_prev;
                 _dy = _dy_prev;
                 break;
             }
+            // printf("*** price=%Lf, min=%Lf, max=%Lf, _dx=%Lf\n", price, p_min, p_max, _dx);
 
             step += step;
         }
@@ -944,30 +951,41 @@ struct Trader {
             if (p_max > 0) {
                 x = x0[p.first] + _dx;
                 y = curve.y_3(x, p.first, p.second);
-                _dy = x0[p.second] - y;}
+                _dy = x0[p.second] - y;
+                _dy = _dy * (1.L - fee);  // insert gas fee here TODO
+                curve.x[p.first] += _dx;
+                curve.x[p.second] -= _dy;
+            }
             else {
                 x = x0[p.first] - _dx;
                 y = curve.y_3(x, p.first, p.second);
                 _dy = y - x0[p.second];
-            }
-            copy_money_3(&curve.x[0], x0);
-
-            if (p_max > 0) {
-                _dy = _dy * (1.L - fee);  // insert gas fee here TODO
-            }
-            else {
                 _dy = _dy * (1.L + fee);  // insert gas fee here TODO
+                curve.x[p.first] -= _dx;
+                curve.x[p.second] += _dy;
             }
+
             auto price = _dx / _dy;
             auto v = vol + _dy * curve.p[p.second];
 
-            if ((p_min > 0 and price < p_min) or (p_max > 0 and price > p_max) or (v > ext_vol / 2.L)) {
+            // Needed to prevent resonant trading which doesn't happen in reality
+            auto inst_price = price_3(p.first, p.second);
+            copy_money_3(&curve.x[0], x0);
+            // printf("::: %Lf %Lf %Lf %Lf\n", price, inst_price, p_min, p_max);
+
+            if ((p_min > 0 and (price < p_min or inst_price < p_min)) or (p_max > 0 and (price > p_max or inst_price > p_max)) or (v > ext_vol / 2.L)) {
                 _dx = _dx_prev;
                 _dy = _dy_prev;
+            } else {
+                // printf("*** price=%Lf, min=%Lf, max=%Lf, _dx=%Lf\n", price, p_min, p_max, _dx);
             }
         }
 
-        return _dx;
+        if (p_max > 0) {
+            return _dx;
+        } else {
+            return _dy;
+        }
     }
 
     auto step_for_price_2(money dp, pair<int, int> p, int sign) {
@@ -1301,8 +1319,10 @@ struct Trader {
 
             auto step = step_for_price_3(0, max_price, d.pair1, vol, ext_vol);  // XXX handle 2 coins
             if (step > 0) {
+                // printf("+++ %Lf %Lf %d %d\n", curve.x[a], curve.x[b], a, b);
                 auto dy = buy_3(step, a, b);
-                vol += dy * price_oracle[b];
+                // printf("+++ %Lf %Lf\n", curve.x[a], curve.x[b]);
+                vol += step * price_oracle[a];
                 _dx += dy;
                 last = step / dy;
                 ctr += 1;
@@ -1310,6 +1330,8 @@ struct Trader {
 
             auto p_after = N == 3 ? price_3(a, b) : price_2(a, b);
             auto _fee = N == 3 ? fee_3() : fee_2();
+            // printf("!!! %d %d\n", a, b);
+            // printf("!!!1 %Lf %Lf\n", p_after, last);
 
             if (p_before != p_after) {
                 auto v = _dx / curve.x[b];
@@ -1328,15 +1350,19 @@ struct Trader {
 
             step = step_for_price_3(min_price, 0, d.pair1, vol, ext_vol);  // XXX handle 2 coins
             if (step > 0) {
+                // printf("=== %Lf %Lf %d %d\n", curve.x[a], curve.x[b], a, b);
                 auto dy = sell_3(step, a, b);
-                vol += dx * price_oracle[a];
-                _dx += dy;
-                last = step / dy;
+                // printf("=== %Lf %Lf %d %d\n", curve.x[a], curve.x[b], a, b);
+                // printf("!===! %Lf %Lf\n", step, dy);
+                vol += dy * price_oracle[a];
+                _dx += step;
+                last = dy / step;
                 ctr += 1;
             }
 
             p_after = N == 3 ? price_3(a, b) : price_2(a, b);
             _fee = N == 3 ? fee_3() : fee_2();
+            // printf("!!!2 %Lf %Lf\n", p_after, last);
 
             if (p_before != p_after) {
                 auto v = _dx / curve.x[b];
