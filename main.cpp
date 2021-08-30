@@ -799,6 +799,7 @@ struct Trader {
         allowed_extra_profit = jconf["allowed_extra_profit"];
         ma_half_time = jconf["ma_half_time"];
         this->ext_fee = jconf["ext_fee"];
+        this->gas_fee = jconf["gas_fee"];
         log = jconf["log"];
         this->p0 = p0;
         this->price_oracle = this->p0;
@@ -885,6 +886,13 @@ struct Trader {
         money _dy = 0;
         money x = 0;
         money y = 0;
+        money price = 0;
+        money gas = gas_fee / curve.p[p.first];
+        bool good_with_gas = false;
+        money trade_sign = 1;
+        if (p_min > 0) {
+            trade_sign = -1;
+        }
 
         auto fee = this->fee_3();
         // printf("---\n");
@@ -896,24 +904,15 @@ struct Trader {
 
             _dx += step;
 
-            if (p_max > 0) {
-                x = x0[p.first] + _dx;
-                y = curve.y_3(x, p.first, p.second);
-                _dy = x0[p.second] - y;
-                _dy = _dy * (1.L - fee);  // insert gas fee here TODO
-                curve.x[p.first] += _dx;
-                curve.x[p.second] -= _dy;
-            }
-            else {
-                x = x0[p.first] - _dx;
-                y = curve.y_3(x, p.first, p.second);
-                _dy = y - x0[p.second];
-                _dy = _dy * (1.L + fee);  // insert gas fee here TODO
-                curve.x[p.first] -= _dx;
-                curve.x[p.second] += _dy;
-            }
+            x = x0[p.first] + trade_sign * _dx;
+            y = curve.y_3(x, p.first, p.second);
+            _dy = (x0[p.second] - y) * trade_sign;
+            _dy = _dy * (1.L - fee * trade_sign);
+            curve.x[p.first] += _dx * trade_sign;
+            curve.x[p.second] -= _dy * trade_sign;
 
-            auto price = _dx / _dy;
+            price = _dx / _dy;
+            auto price_with_gas = (_dx + trade_sign*gas) / _dy;
             auto v = vol + _dy * curve.p[p.second];
 
             // Needed to prevent resonant trading which doesn't happen in reality
@@ -921,12 +920,17 @@ struct Trader {
             copy_money_3(&curve.x[0], x0);
             // printf("::: %Lf %Lf %Lf %Lf\n", price, inst_price, p_min, p_max);
 
-            if ((p_min > 0 and (price < p_min or inst_price < p_min)) or v > ext_vol / 2.L) {
-                _dx = _dx_prev;
-                _dy = _dy_prev;
-                break;
+            if ((p_min > 0 and (price_with_gas >= p_min) and inst_price >= p_min) or (p_max > 0 and (price_with_gas <= p_max) and inst_price <= p_max)) {
+                good_with_gas = true;
+            } else {
+                if (good_with_gas) {
+                    _dx = _dx_prev;
+                    _dy = _dy_prev;
+                    break;
+                }
             }
-            if ((p_max > 0 and (price > p_max or inst_price > p_max)) or v > ext_vol / 2.L) {
+
+            if ((p_min > 0 and (price < p_min or inst_price < p_min)) or (p_max > 0 and (price > p_max or inst_price > p_max)) or (v > ext_vol / 2.L)) {
                 _dx = _dx_prev;
                 _dy = _dy_prev;
                 break;
@@ -948,24 +952,15 @@ struct Trader {
 
             _dx += step;
 
-            if (p_max > 0) {
-                x = x0[p.first] + _dx;
-                y = curve.y_3(x, p.first, p.second);
-                _dy = x0[p.second] - y;
-                _dy = _dy * (1.L - fee);  // insert gas fee here TODO
-                curve.x[p.first] += _dx;
-                curve.x[p.second] -= _dy;
-            }
-            else {
-                x = x0[p.first] - _dx;
-                y = curve.y_3(x, p.first, p.second);
-                _dy = y - x0[p.second];
-                _dy = _dy * (1.L + fee);  // insert gas fee here TODO
-                curve.x[p.first] -= _dx;
-                curve.x[p.second] += _dy;
-            }
+            x = x0[p.first] + _dx * trade_sign;
+            y = curve.y_3(x, p.first, p.second);
+            _dy = (x0[p.second] - y) * trade_sign;
+            _dy = _dy * (1.L - fee * trade_sign);
+            curve.x[p.first] += _dx * trade_sign;
+            curve.x[p.second] -= _dy * trade_sign;
 
-            auto price = _dx / _dy;
+            price = _dx / _dy;
+            auto price_with_gas = (_dx + trade_sign*gas) / _dy;
             auto v = vol + _dy * curve.p[p.second];
 
             // Needed to prevent resonant trading which doesn't happen in reality
@@ -973,12 +968,22 @@ struct Trader {
             copy_money_3(&curve.x[0], x0);
             // printf("::: %Lf %Lf %Lf %Lf\n", price, inst_price, p_min, p_max);
 
-            if ((p_min > 0 and (price < p_min or inst_price < p_min)) or (p_max > 0 and (price > p_max or inst_price > p_max)) or (v > ext_vol / 2.L)) {
+            if ((p_min > 0 and (price_with_gas >= p_min) and inst_price >= p_min) or (p_max > 0 and (price_with_gas <= p_max) and inst_price <= p_max)) {
+                good_with_gas = true;
+            } else {
                 _dx = _dx_prev;
                 _dy = _dy_prev;
-            } else {
-                // printf("*** price=%Lf, min=%Lf, max=%Lf, _dx=%Lf\n", price, p_min, p_max, _dx);
             }
+            if (v > ext_vol / 2.L) {
+                 _dx = _dx_prev;
+                 _dy = _dy_prev;
+            }
+            // printf("*** price=%Lf, min=%Lf, max=%Lf, _dx=%Lf\n", price, p_min, p_max, _dx);
+        }
+
+        if (!good_with_gas) {
+            _dx = 0;
+            return _dx;
         }
 
         if (p_max > 0) {
@@ -1462,6 +1467,7 @@ struct Trader {
     money total_vol;
     int ma_half_time;
     money ext_fee;
+    money gas_fee;
     money volume;
     money slippage;
     money antislippage;
