@@ -1,0 +1,2 @@
+In efficient market (not yet) - 5e-6
+In inefficient market - 2.5e-4
