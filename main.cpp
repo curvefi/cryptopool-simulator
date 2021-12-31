@@ -1270,6 +1270,7 @@ struct Trader {
         }
         auto norm = S;
         norm = sqrt(norm); // .root_to();
+        adjustment_step = max(adjustment_step, norm / 10);
         if (norm <= adjustment_step) {
             // Already close to the target price
             is_light = true;
