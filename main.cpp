@@ -177,7 +177,7 @@ struct mapped_file {
 // c++ returns vector of struct datum
 vector<trade_data> get_data(std::string const &fname) {
     auto start_time = get_thread_time();
-    auto name_to_open = "download/" + fname + "-1m.json";
+    auto name_to_open = "download/" + fname + ".json";
     printf("parsing %s\n", name_to_open.c_str());
     mapped_file mf;
     if (!mf.map(name_to_open)) {
@@ -190,7 +190,7 @@ vector<trade_data> get_data(std::string const &fname) {
     auto scan_double = [] (unsigned char *p, long double *d) {
         if (*p == '"') p++;
         *d = atof((char *)p);
-        while (*p != '"' && *p!= ' ' && *p != ',') p++;
+        while (*p != '"' && *p!= ' ' && *p != ',' && *p != ']') p++;
         while (*p == ',' || *p == ' ' || *p == '"') p++;
         return p;
     };
@@ -391,7 +391,7 @@ money geometric_mean_3(money const *x) {
         money D_prev = D;
         D = (D + D + prod / D / D) *0.333333333333333333333333L;
         auto diff = mabs(D - D_prev);
-        if (diff <= 1E-18 or diff * 1E18L < D) {
+        if (diff <= 1E-12 or diff * 1E12L < D) {
             return D;
         }
     }
@@ -799,6 +799,7 @@ struct Trader {
         allowed_extra_profit = jconf["allowed_extra_profit"];
         ma_half_time = jconf["ma_half_time"];
         this->ext_fee = jconf["ext_fee"];
+        this->gas_fee = jconf["gas_fee"];
         log = jconf["log"];
         this->p0 = p0;
         this->price_oracle = this->p0;
@@ -876,37 +877,235 @@ struct Trader {
         return ret;
     }
 
-    auto step_for_price_3(money dp, pair<int, int> p, int sign) {
-        auto p0 = price_3(p.first, p.second);
-        dp = p0 * dp;
+    auto step_for_price_3(money p_min, money p_max, pair<int, int> p, money vol, money ext_vol) {
         money x0[3];
         copy_money_3(x0, &curve.x[0]);
-        auto step = dx / curve.p[p.first];
+        auto step0 = dx / curve.p[p.first];  // step in units of 1st currency
+        auto step = step0;
+        money _dx = 0;
+        money _dy = 0;
+        money x = 0;
+        money y = 0;
+        money price = 0;
+        money gas = gas_fee / curve.p[p.first];
+        bool good_with_gas = false;
+        money trade_sign = 1;
+        if (p_min > 0) {
+            trade_sign = -1;
+        }
+
+        auto fee = this->fee_3();
+        // printf("---\n");
+
+        // +
         while (true) {
-            curve.x[p.first] = x0[p.first] + sign * step;
-            auto dp_ = mabs(p0 - price_3(p.first, p.second));
-            if (dp_ >= dp or step >= curve.x[p.first] / 10.L) {
-                copy_money_3(&curve.x[0], x0);
-                return step;
+            auto _dx_prev = _dx;
+            auto _dy_prev = _dy;
+
+            _dx += step;
+
+            x = x0[p.first] + trade_sign * _dx;
+            y = curve.y_3(x, p.first, p.second);
+            _dy = (x0[p.second] - y) * trade_sign;
+            _dy = _dy * (1.L - fee * trade_sign);
+            curve.x[p.first] += _dx * trade_sign;
+            curve.x[p.second] -= _dy * trade_sign;
+
+            price = _dx / _dy;
+            auto price_with_gas = (_dx + trade_sign*gas) / _dy;
+            auto v = vol + _dy * curve.p[p.second];
+
+            // Needed to prevent resonant trading which doesn't happen in reality
+            auto inst_price = price_3(p.first, p.second);
+            copy_money_3(&curve.x[0], x0);
+            // printf("::: %Lf %Lf %Lf %Lf\n", price, inst_price, p_min, p_max);
+
+            if ((p_min > 0 and (price_with_gas >= p_min) and inst_price >= p_min) or (p_max > 0 and (price_with_gas <= p_max) and inst_price <= p_max)) {
+                good_with_gas = true;
+            } else {
+                if (good_with_gas) {
+                    _dx = _dx_prev;
+                    _dy = _dy_prev;
+                    break;
+                }
             }
+
+            if ((p_min > 0 and (price < p_min or inst_price < p_min)) or (p_max > 0 and (price > p_max or inst_price > p_max)) or (v > ext_vol / 2.L)) {
+                _dx = _dx_prev;
+                _dy = _dy_prev;
+                break;
+            }
+            // printf("*** price=%Lf, min=%Lf, max=%Lf, _dx=%Lf\n", price, p_min, p_max, _dx);
+
             step += step;
+        }
+
+        // -
+        while (true) {
+            auto _dx_prev = _dx;
+            auto _dy_prev = _dy;
+            step /= 2;
+
+            if (step < step0) {
+                break;
+            }
+
+            _dx += step;
+
+            x = x0[p.first] + _dx * trade_sign;
+            y = curve.y_3(x, p.first, p.second);
+            _dy = (x0[p.second] - y) * trade_sign;
+            _dy = _dy * (1.L - fee * trade_sign);
+            curve.x[p.first] += _dx * trade_sign;
+            curve.x[p.second] -= _dy * trade_sign;
+
+            price = _dx / _dy;
+            auto price_with_gas = (_dx + trade_sign*gas) / _dy;
+            auto v = vol + _dy * curve.p[p.second];
+
+            // Needed to prevent resonant trading which doesn't happen in reality
+            auto inst_price = price_3(p.first, p.second);
+            copy_money_3(&curve.x[0], x0);
+            // printf("::: %Lf %Lf %Lf %Lf\n", price, inst_price, p_min, p_max);
+
+            if ((p_min > 0 and (price_with_gas >= p_min) and inst_price >= p_min) or (p_max > 0 and (price_with_gas <= p_max) and inst_price <= p_max)) {
+                good_with_gas = true;
+            } else {
+                _dx = _dx_prev;
+                _dy = _dy_prev;
+            }
+            if (v > ext_vol / 2.L) {
+                 _dx = _dx_prev;
+                 _dy = _dy_prev;
+            }
+            // printf("*** price=%Lf, min=%Lf, max=%Lf, _dx=%Lf\n", price, p_min, p_max, _dx);
+        }
+
+        if (!good_with_gas) {
+            _dx = 0;
+            return _dx;
+        }
+
+        if (p_max > 0) {
+            return _dx;
+        } else {
+            return _dy;
         }
     }
 
-    auto step_for_price_2(money dp, pair<int, int> p, int sign) {
-        auto p0 = price_2(p.first, p.second);
-        dp = p0 * dp;
+    auto step_for_price_2(money p_min, money p_max, pair<int, int> p, money vol, money ext_vol) {
         money x0[2];
         copy_money_2(x0, &curve.x[0]);
-        auto step = dx / curve.p[p.first];
+        auto step0 = dx / curve.p[p.first];  // step in units of 1st currency
+        auto step = step0;
+        money _dx = 0;
+        money _dy = 0;
+        money x = 0;
+        money y = 0;
+        money price = 0;
+        money gas = gas_fee / curve.p[p.first];
+        bool good_with_gas = false;
+        money trade_sign = 1;
+        if (p_min > 0) {
+            trade_sign = -1;
+        }
+
+        auto fee = this->fee_2();
+        // printf("---\n");
+
+        // +
         while (true) {
-            curve.x[p.first] = x0[p.first] + sign * step;
-            auto dp_ = mabs(p0 - price_2(p.first, p.second));
-            if (dp_ >= dp or step >= curve.x[p.first] / 10.L) {
-                copy_money_2(&curve.x[0], x0);
-                return step;
+            auto _dx_prev = _dx;
+            auto _dy_prev = _dy;
+
+            _dx += step;
+
+            x = x0[p.first] + trade_sign * _dx;
+            y = curve.y_2(x, p.first, p.second);
+            _dy = (x0[p.second] - y) * trade_sign;
+            _dy = _dy * (1.L - fee * trade_sign);
+            curve.x[p.first] += _dx * trade_sign;
+            curve.x[p.second] -= _dy * trade_sign;
+
+            price = _dx / _dy;
+            auto price_with_gas = (_dx + trade_sign*gas) / _dy;
+            auto v = vol + _dy * curve.p[p.second];
+
+            // Needed to prevent resonant trading which doesn't happen in reality
+            auto inst_price = price_2(p.first, p.second);
+            copy_money_2(&curve.x[0], x0);
+            // printf("::: %Lf %Lf %Lf %Lf\n", price, inst_price, p_min, p_max);
+
+            if ((p_min > 0 and (price_with_gas >= p_min) and inst_price >= p_min) or (p_max > 0 and (price_with_gas <= p_max) and inst_price <= p_max)) {
+                good_with_gas = true;
+            } else {
+                if (good_with_gas) {
+                    _dx = _dx_prev;
+                    _dy = _dy_prev;
+                    break;
+                }
             }
+
+            if ((p_min > 0 and (price < p_min or inst_price < p_min)) or (p_max > 0 and (price > p_max or inst_price > p_max)) or (v > ext_vol / 2.L)) {
+                _dx = _dx_prev;
+                _dy = _dy_prev;
+                break;
+            }
+            // printf("*** price=%Lf, min=%Lf, max=%Lf, _dx=%Lf\n", price, p_min, p_max, _dx);
+
             step += step;
+        }
+
+        // -
+        while (true) {
+            auto _dx_prev = _dx;
+            auto _dy_prev = _dy;
+            step /= 2;
+
+            if (step < step0) {
+                break;
+            }
+
+            _dx += step;
+
+            x = x0[p.first] + _dx * trade_sign;
+            y = curve.y_2(x, p.first, p.second);
+            _dy = (x0[p.second] - y) * trade_sign;
+            _dy = _dy * (1.L - fee * trade_sign);
+            curve.x[p.first] += _dx * trade_sign;
+            curve.x[p.second] -= _dy * trade_sign;
+
+            price = _dx / _dy;
+            auto price_with_gas = (_dx + trade_sign*gas) / _dy;
+            auto v = vol + _dy * curve.p[p.second];
+
+            // Needed to prevent resonant trading which doesn't happen in reality
+            auto inst_price = price_2(p.first, p.second);
+            copy_money_2(&curve.x[0], x0);
+            // printf("::: %Lf %Lf %Lf %Lf\n", price, inst_price, p_min, p_max);
+
+            if ((p_min > 0 and (price_with_gas >= p_min) and inst_price >= p_min) or (p_max > 0 and (price_with_gas <= p_max) and inst_price <= p_max)) {
+                good_with_gas = true;
+            } else {
+                _dx = _dx_prev;
+                _dy = _dy_prev;
+            }
+            if (v > ext_vol / 2.L) {
+                 _dx = _dx_prev;
+                 _dy = _dy_prev;
+            }
+            // printf("*** price=%Lf, min=%Lf, max=%Lf, _dx=%Lf\n", price, p_min, p_max, _dx);
+        }
+
+        if (!good_with_gas) {
+            _dx = 0;
+            return _dx;
+        }
+
+        if (p_max > 0) {
+            return _dx;
+        } else {
+            return _dy;
         }
     }
 
@@ -1071,6 +1270,7 @@ struct Trader {
         }
         auto norm = S;
         norm = sqrt(norm); // .root_to();
+        adjustment_step = max(adjustment_step, norm / 10);
         if (norm <= adjustment_step) {
             // Already close to the target price
             is_light = true;
@@ -1216,50 +1416,30 @@ struct Trader {
             auto _high = last;
             auto _low = last;
 
-            //  Dynamic step
-            //  f = reduction_coefficient(self.curve.xp(), self.curve.gamma)
-            auto candle = min(mabs((d.high - d.low) / d.high), 0.1L);
-            candle = max(0.000001L, candle);
-            auto step0 = dx / curve.p[d.pair1.first];
-            auto step = step0;
             auto max_price = d.high * (1 - ext_fee);
             auto min_price = d.low * (1 + ext_fee);
             money _dx = 0;
             auto p_before = N == 3 ? price_3(a, b) : price_2(a, b);
 
-            // Increase step
-            while (last < max_price and vol < ext_vol / 2.L) {
-                auto dy = N == 3 ? buy_3(step, a, b, max_price) : buy_2(step, a, b, max_price);
-                if (dy == 0) {
-                    break;
-                }
-                vol += dy * price_oracle[b];
+            auto step = N == 3 ? step_for_price_3(0, max_price, d.pair1, vol, ext_vol) : step_for_price_2(0, max_price, d.pair1, vol, ext_vol);
+            if (step > 0) {
+                // printf("+++ %Lf %Lf %d %d\n", curve.x[a], curve.x[b], a, b);
+                auto dy = N == 3 ? buy_3(step, a, b) : buy_2(step, a, b);
+                // printf("+++ %Lf %Lf\n", curve.x[a], curve.x[b]);
+                vol += step * price_oracle[a];
                 _dx += dy;
                 last = step / dy;
                 ctr += 1;
-                step *= 2;
-            }
-            // Decrease step
-            while (last < max_price and vol < ext_vol / 2.L) {
-                step /= 2;
-                if (step < step0) {
-                    break;
-                }
-                auto dy = N == 3 ? buy_3(step, a, b, max_price) : buy_2(step, a, b, max_price);
-                if (dy > 0) {
-                    vol += dy * price_oracle[b];
-                    _dx += dy;
-                    last = step / dy;
-                    ctr += 1;
-                }
             }
 
             auto p_after = N == 3 ? price_3(a, b) : price_2(a, b);
-            auto _fee = N == 3 ? fee_3() : fee_2();
+            // auto _fee = N == 3 ? fee_3() : fee_2();
+            // printf("!!! %d %d\n", a, b);
+            // printf("!!!1 %Lf %Lf\n", p_after, last);
 
             if (p_before != p_after) {
                 auto v = _dx / curve.x[b];
-                _slippage = (_dx * (p_before + p_after)) / (2.L * (mabs(p_before - p_after) + _fee * p_after) * curve.x[b]);
+                _slippage = (_dx * (p_before + p_after)) / (2.L * (mabs(p_before - p_after)) * curve.x[b]);
                 volume += v;
             }
             if (_slippage > 0) {
@@ -1271,44 +1451,26 @@ struct Trader {
             _high = last;
             _dx = 0;
             p_before = p_after;
-            money prev_vol = vol;
-            step = step0;
 
-            // Increase step
-            while (last > min_price and vol < ext_vol / 2.L) {
-                auto dx = step / last;
-                auto dy = N == 3 ? sell_3(dx, a, b, min_price) : sell_2(dx, a, b, min_price);
-                if (dy == 0) {
-                    break;
-                }
-                _dx += dx;
-                vol += dx * price_oracle[a];
-                last = dy / dx;
+            step = N == 3 ? step_for_price_3(min_price, 0, d.pair1, vol, ext_vol) : step_for_price_2(min_price, 0, d.pair1, vol, ext_vol);
+            if (step > 0) {
+                // printf("=== %Lf %Lf %d %d\n", curve.x[a], curve.x[b], a, b);
+                auto dy = N == 3 ? sell_3(step, a, b) : sell_2(step, a, b);
+                // printf("=== %Lf %Lf %d %d\n", curve.x[a], curve.x[b], a, b);
+                // printf("!===! %Lf %Lf\n", step, dy);
+                vol += dy * price_oracle[a];
+                _dx += step;
+                last = dy / step;
                 ctr += 1;
-                step *= 2;
-            }
-            // Decrease step
-            while (last > min_price and vol < ext_vol / 2.L) {
-                step /= 2;
-                if (step < step0) {
-                    break;
-                }
-                auto dx = step / last;
-                auto dy = N == 3 ? sell_3(dx, a, b, min_price) : sell_2(dx, a, b, min_price);
-                if (dy > 0) {
-                    _dx += dx;
-                    vol += dx * price_oracle[a];
-                    last = dy / dx;
-                    ctr += 1;
-                }
             }
 
             p_after = N == 3 ? price_3(a, b) : price_2(a, b);
-            _fee = N == 3 ? fee_3() : fee_2();
+            // _fee = N == 3 ? fee_3() : fee_2();
+            // printf("!!!2 %Lf %Lf\n", p_after, last);
 
             if (p_before != p_after) {
                 auto v = _dx / curve.x[b];
-                _slippage = (_dx * (p_before + p_after)) / (2.L * (mabs(p_before - p_after) + _fee * p_after) * curve.x[b]);
+                _slippage = (_dx * (p_before + p_after)) / (2.L * (mabs(p_before - p_after)) * curve.x[b]);
                 volume += v;
             }
             if (_slippage > 0) {
@@ -1361,17 +1523,17 @@ struct Trader {
                                is_light ? '*' : '.');
                     } else if (N == 2) {
                         printf("t=%llu %.1Lf%%\ttrades: %d\tAMM: %.5Lf\tTarget: %.5Lf\tVol: %.4Lf\tPR:%.2Lf\txCP-growth: {%.5Lf}\tAPY:%.1Lf%%\tfee:%.3Lf%% %c\n",
-                                   d.t,
-                                        100.L * i / total_elements,
-                                                        ctr,
-                                                                 last01,
-                                                                                curve.p[1],
-                                                                                           total_vol,
-                                                                                                    (xcp_profit_real - 1.) / (xcp_profit - 1.L),
-                                                                                                                        xcp_profit_real,
-                                                                                                                                    APY * 100.L,
-                                                                                                                                            fee_2() * 100.L,
-                                                                                                                                                        is_light ? '*' : '.');
+                                d.t,
+                                100.L * i / total_elements,
+                                ctr,
+                                last01,
+                                curve.p[1],
+                                total_vol,
+                                (xcp_profit_real - 1.) / (xcp_profit - 1.L),
+                                xcp_profit_real,
+                                APY * 100.L,
+                                fee_2() * 100.L,
+                                is_light ? '*' : '.');
 
                     }
                 } catch (std::exception const &e) {
@@ -1404,6 +1566,7 @@ struct Trader {
     money total_vol;
     int ma_half_time;
     money ext_fee;
+    money gas_fee;
     money volume;
     money slippage;
     money antislippage;
