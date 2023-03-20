@@ -177,7 +177,7 @@ struct mapped_file {
 // c++ returns vector of struct datum
 vector<trade_data> get_data(std::string const &fname) {
     auto start_time = get_thread_time();
-    auto name_to_open = "download/" + fname + "-1m.json";
+    auto name_to_open = "download/" + fname + ".json";
     printf("parsing %s\n", name_to_open.c_str());
     mapped_file mf;
     if (!mf.map(name_to_open)) {
@@ -190,7 +190,7 @@ vector<trade_data> get_data(std::string const &fname) {
     auto scan_double = [] (unsigned char *p, long double *d) {
         if (*p == '"') p++;
         *d = atof((char *)p);
-        while (*p != '"' && *p!= ' ' && *p != ',') p++;
+        while (*p != '"' && *p!= ' ' && *p != ',' && *p != ']') p++;
         while (*p == ',' || *p == ' ' || *p == '"') p++;
         return p;
     };
@@ -391,7 +391,7 @@ money geometric_mean_3(money const *x) {
         money D_prev = D;
         D = (D + D + prod / D / D) *0.333333333333333333333333L;
         auto diff = mabs(D - D_prev);
-        if (diff <= 1E-18 or diff * 1E18L < D) {
+        if (diff <= 1E-12 or diff * 1E12L < D) {
             return D;
         }
     }
