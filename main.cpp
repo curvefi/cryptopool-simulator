@@ -1270,8 +1270,8 @@ struct Trader {
         }
         auto norm = S;
         norm = sqrt(norm); // .root_to();
-        adjustment_step = max(adjustment_step, norm / 10);
-        if (norm <= adjustment_step) {
+        auto _adjustment_step = max(adjustment_step, norm / 10);
+        if (norm <= _adjustment_step) {
             // Already close to the target price
             is_light = true;
             light_tx += 1;
@@ -1293,7 +1293,7 @@ struct Trader {
         for (size_t i = 1; i < price_oracle.size(); i++) {
             auto p_target = curve.p[i];
             auto p_real = price_oracle[i];
-            p_new[i] = p_target + adjustment_step * (p_real - p_target) / norm;
+            p_new[i] = p_target + _adjustment_step * (p_real - p_target) / norm;
         }
         money old_p[MAX_ARRAY];
         copy_money_2(old_p, &curve.p[0]);
@@ -1334,7 +1334,8 @@ struct Trader {
         }
         auto norm = S;
         norm = sqrt(norm); // .root_to();
-        if (norm <= adjustment_step) {
+        auto _adjustment_step = max(adjustment_step, norm / 10);
+        if (norm <= _adjustment_step) {
             // Already close to the target price
             is_light = true;
             light_tx += 1;
@@ -1356,7 +1357,7 @@ struct Trader {
         for (size_t i = 1; i < price_oracle.size(); i++) {
             auto p_target = curve.p[i];
             auto p_real = price_oracle[i];
-            p_new[i] = p_target + adjustment_step * (p_real - p_target) / norm;
+            p_new[i] = p_target + _adjustment_step * (p_real - p_target) / norm;
         }
         money old_p[MAX_ARRAY];
         copy_money_3(old_p, &curve.p[0]);
@@ -1508,7 +1509,7 @@ struct Trader {
                     }
                     if (N == 3) {
                         printf("t=%llu %.1Lf%%\ttrades: %d\t"
-                               "AMM: %.5Lf, %0.5Lf\tTarget: %.0Lf, %.0Lf\t"
+                               "AMM: %.3Lf, %0.3Lf\tTarget: %.3Lf, %.3Lf\t"
                                "Vol: %.4Lf\tPR:%.2Lf\txCP-growth: {%.5Lf}\t"
                                "APY:%.1Lf%%\tfee:%.3Lf%% %c\n",
                                d.t,
