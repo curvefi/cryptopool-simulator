@@ -5,9 +5,9 @@ import itertools
 from copy import copy
 
 
-X = np.logspace(log10(1e-7), log10(2e-3), 32)
+X = np.logspace(log10(1e-5), log10(5e-4), 32)
 Xname = "fee_gamma"
-Y = np.logspace(log10(1e-6), log10(3e-5), 32)
+Y = np.logspace(log10(5e-6), log10(1e-3), 32)
 Yname = "gamma"
 
 other_params = dict(
@@ -16,7 +16,7 @@ other_params = dict(
     fee_gamma=0.006,
     ma_half_time=600,
     mid_fee=0.0003,
-    out_fee=0.008,
+    out_fee=0.05,
     gas_fee=10,
     n=3,
     log=0,
