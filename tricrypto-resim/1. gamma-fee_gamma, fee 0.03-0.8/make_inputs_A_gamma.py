@@ -5,9 +5,9 @@ import itertools
 from copy import copy
 
 
-X = np.logspace(log10(1e-6), log10(0.5), 32)
+X = np.logspace(log10(1e-7), log10(2e-3), 32)
 Xname = "fee_gamma"
-Y = np.logspace(log10(2e-7), log10(5e-5), 32)
+Y = np.logspace(log10(1e-6), log10(3e-5), 32)
 Yname = "gamma"
 
 other_params = dict(
