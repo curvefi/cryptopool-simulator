@@ -301,7 +301,36 @@ bool get_all(json const &jin, int last_elems, vector<money> & price_vector, mapp
         for (auto &trade: trades) {
             if (trade.t >= min_time && trade.t <= max_time) {
                 trade.pair1 = pairs[i];
-                out.push_back({trade.t + (trade.pair1.first + trade.pair1.second) * 15, trade});
+
+                trade_data trade_min;
+                trade_data trade_max;
+                // t, open, high, low, close, volume, pair1
+
+                // (1, 2) min
+                // (0, 2) min
+                // (0, 1) min
+                // (0, 1) max
+                // (0, 2) max
+                // (1, 2) max
+
+                trade_min.t = trade.t;
+                trade_min.open = trade.open;
+                trade_min.high = 0;
+                trade_min.low = trade.low;
+                trade_min.close = trade.close;
+                trade_min.volume = trade.volume / 2;
+                trade_min.pair1 = trade.pair1;
+
+                trade_max.t = trade.t;
+                trade_max.open = trade.open;
+                trade_max.high = trade.high;
+                trade_max.low = 0;
+                trade_max.close = trade.close;
+                trade_max.volume = trade.volume / 2;
+                trade_max.pair1 = trade.pair1;
+
+                out.push_back({trade.t - (trade.pair1.first + trade.pair1.second) * 10 + 5, trade_min});
+                out.push_back({trade.t + (trade.pair1.first + trade.pair1.second) * 10 - 5, trade_max});
             }
         }
     }
@@ -1422,15 +1451,17 @@ struct Trader {
             money _dx = 0;
             auto p_before = N == 3 ? price_3(a, b) : price_2(a, b);
 
-            auto step = N == 3 ? step_for_price_3(0, max_price, d.pair1, vol, ext_vol) : step_for_price_2(0, max_price, d.pair1, vol, ext_vol);
-            if (step > 0) {
-                // printf("+++ %Lf %Lf %d %d\n", curve.x[a], curve.x[b], a, b);
-                auto dy = N == 3 ? buy_3(step, a, b) : buy_2(step, a, b);
-                // printf("+++ %Lf %Lf\n", curve.x[a], curve.x[b]);
-                vol += step * price_oracle[a];
-                _dx += dy;
-                last = step / dy;
-                ctr += 1;
+            if ((max_price != 0) & (max_price > p_before)) {
+                auto step = N == 3 ? step_for_price_3(0, max_price, d.pair1, vol, ext_vol) : step_for_price_2(0, max_price, d.pair1, vol, ext_vol);
+                if (step > 0) {
+                    // printf("+++ %Lf %Lf %d %d\n", curve.x[a], curve.x[b], a, b);
+                    auto dy = N == 3 ? buy_3(step, a, b) : buy_2(step, a, b);
+                    // printf("+++ %Lf %Lf\n", curve.x[a], curve.x[b]);
+                    vol += step * price_oracle[a];
+                    _dx += dy;
+                    last = step / dy;
+                    ctr += 1;
+                }
             }
 
             auto p_after = N == 3 ? price_3(a, b) : price_2(a, b);
@@ -1453,16 +1484,18 @@ struct Trader {
             _dx = 0;
             p_before = p_after;
 
-            step = N == 3 ? step_for_price_3(min_price, 0, d.pair1, vol, ext_vol) : step_for_price_2(min_price, 0, d.pair1, vol, ext_vol);
-            if (step > 0) {
-                // printf("=== %Lf %Lf %d %d\n", curve.x[a], curve.x[b], a, b);
-                auto dy = N == 3 ? sell_3(step, a, b) : sell_2(step, a, b);
-                // printf("=== %Lf %Lf %d %d\n", curve.x[a], curve.x[b], a, b);
-                // printf("!===! %Lf %Lf\n", step, dy);
-                vol += dy * price_oracle[a];
-                _dx += step;
-                last = dy / step;
-                ctr += 1;
+            if ((min_price != 0) & (min_price < p_before)) {
+                auto step = N == 3 ? step_for_price_3(min_price, 0, d.pair1, vol, ext_vol) : step_for_price_2(min_price, 0, d.pair1, vol, ext_vol);
+                if (step > 0) {
+                    // printf("=== %Lf %Lf %d %d\n", curve.x[a], curve.x[b], a, b);
+                    auto dy = N == 3 ? sell_3(step, a, b) : sell_2(step, a, b);
+                    // printf("=== %Lf %Lf %d %d\n", curve.x[a], curve.x[b], a, b);
+                    // printf("!===! %Lf %Lf\n", step, dy);
+                    vol += dy * price_oracle[a];
+                    _dx += step;
+                    last = dy / step;
+                    ctr += 1;
+                }
             }
 
             p_after = N == 3 ? price_3(a, b) : price_2(a, b);
@@ -1510,7 +1543,7 @@ struct Trader {
                     if (N == 3) {
                         printf("t=%llu %.1Lf%%\ttrades: %d\t"
                                "AMM: %.3Lf, %0.3Lf\tTarget: %.3Lf, %.3Lf\t"
-                               "Vol: %.4Lf\tPR:%.2Lf\txCP-growth: {%.5Lf}\t"
+                               "Vol: %.4Lf\tPR:%.2Lf\txCP-growth: {%.10Lf}\t"
                                "APY:%.1Lf%%\tfee:%.3Lf%% %c\n",
                                d.t,
                                100.L * i / total_elements, ctr, last01, last02,
@@ -1523,7 +1556,7 @@ struct Trader {
                                (curve.p.size() == 3 ? fee_3() : fee_2()) * 100.L,
                                is_light ? '*' : '.');
                     } else if (N == 2) {
-                        printf("t=%llu %.1Lf%%\ttrades: %d\tAMM: %.5Lf\tTarget: %.5Lf\tVol: %.4Lf\tPR:%.2Lf\txCP-growth: {%.5Lf}\tAPY:%.1Lf%%\tfee:%.3Lf%% %c\n",
+                        printf("t=%llu %.1Lf%%\ttrades: %d\tAMM: %.5Lf\tTarget: %.5Lf\tVol: %.4Lf\tPR:%.2Lf\txCP-growth: {%.10Lf}\tAPY:%.1Lf%%\tfee:%.3Lf%% %c\n",
                                 d.t,
                                 100.L * i / total_elements,
                                 ctr,
