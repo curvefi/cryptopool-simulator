@@ -1,36 +1,25 @@
 {
     "configuration": [
         {
-            "A": 135,
-            "D": 100000000.0,
-            "adjustment_step": 0.0015,
-            "fee_gamma": 0.01,
-            "gamma": 7e-05,
+            "A": 6.32,
+            "D": 40000000.0,
+            "adjustment_step": 0.00049,
+            "fee_gamma": 0.0005,
+            "gamma": 1.1809e-05,
             "ma_half_time": 600,
-            "mid_fee": 0.0004,
+            "mid_fee": 0.0003,
             "n": 3,
-            "log" : 0,
-            "out_fee": 0.004,
-            "price_threshold": 0.0028
-        },
-        {
-            "A": 135,
-            "D": 100000000.0,
-            "adjustment_step": 0.0013,
-            "fee_gamma": 0.01,
-            "gamma": 8e-05,
-            "ma_half_time": 600,
-            "mid_fee": 0.0005,
-            "n": 3,
-            "log" : 0,
-            "out_fee": 0.005,
-            "price_threshold": 0.0030
+            "log" : 1,
+            "out_fee": 0.003,
+            "allowed_extra_profit": 2e-6,
+            "ext_fee": 6e-4,
+            "gas_fee": 10
         }
     ],
     "datafile": [
-        "btcusdt",
-        "ethusdt",
-        "ethbtc"
+        "btcusdt-1m",
+        "ethusdt-1m",
+        "ethbtc-1m"
     ],
     "debug": 0
 }
