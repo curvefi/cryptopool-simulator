@@ -1,0 +1,25 @@
+{
+    "configuration": [
+        {
+            "A": 6.32,
+            "D": 40000000.0,
+            "adjustment_step": 0.00049,
+            "fee_gamma": 0.0005,
+            "gamma": 1.1809e-05,
+            "ma_half_time": 600,
+            "mid_fee": 0.0003,
+            "n": 3,
+            "log" : 1,
+            "out_fee": 0.003,
+            "allowed_extra_profit": 2e-6,
+            "ext_fee": 6e-4,
+            "gas_fee": 10
+        }
+    ],
+    "datafile": [
+        "btcusdt-1m",
+        "ethusdt-1m",
+        "ethbtc-1m"
+    ],
+    "debug": 0
+}

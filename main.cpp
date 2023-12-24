@@ -51,6 +51,7 @@ using std::vector, std::string, std::pair, std::sort, std::map, std::min, std::m
 using u64 = unsigned long long;
 using money = long double;
 static const int MAX_ARRAY = 3;
+static const double MOVE_REDUCTION_3 = 0.333;
 
 #ifdef __MACH__
 #include <mach/mach_init.h>
@@ -313,21 +314,30 @@ bool get_all(json const &jin, int last_elems, vector<money> & price_vector, mapp
                 // (0, 2) max
                 // (1, 2) max
 
-                trade_min.t = trade.t;
+                trade_min.t = trade.t - (trade.pair1.first + trade.pair1.second) * 10 + 5;
+                trade_max.t = trade.t + (trade.pair1.first + trade.pair1.second) * 10 - 5;
                 trade_min.open = trade.open;
-                trade_min.high = 0;
-                trade_min.low = trade.low;
-                trade_min.close = trade.close;
-                trade_min.volume = trade.volume / 2;
-                trade_min.pair1 = trade.pair1;
-
-                trade_max.t = trade.t;
-                trade_max.open = trade.open;
-                trade_max.high = trade.high;
-                trade_max.low = 0;
                 trade_max.close = trade.close;
-                trade_max.volume = trade.volume / 2;
+                trade_min.pair1 = trade.pair1;
                 trade_max.pair1 = trade.pair1;
+                trade_min.volume = trade.volume / 2;
+                trade_max.volume = trade.volume / 2;
+
+                if (mabs(trade.open - trade.low) + mabs(trade.close - trade.high) < mabs(trade.open - trade.high) + mabs(trade.close - trade.low)) {
+                    trade_min.high = trade.low;
+                    trade_min.low = trade.low;
+                    trade_min.close = trade.low;
+                    trade_max.open = trade.high;
+                    trade_max.high = trade.high;
+                    trade_max.low = trade.high;
+                } else {
+                    trade_min.high = trade.high;
+                    trade_min.low = trade.high;
+                    trade_min.close = trade.high;
+                    trade_max.open = trade.low;
+                    trade_max.high = trade.low;
+                    trade_max.low = trade.low;
+                }
 
                 out.push_back({trade.t - (trade.pair1.first + trade.pair1.second) * 10 + 5, trade_min});
                 out.push_back({trade.t + (trade.pair1.first + trade.pair1.second) * 10 - 5, trade_max});
@@ -1452,7 +1462,7 @@ struct Trader {
             auto p_before = N == 3 ? price_3(a, b) : price_2(a, b);
 
             if ((max_price != 0) & (max_price > p_before)) {
-                auto step = N == 3 ? step_for_price_3(0, max_price, d.pair1, vol, ext_vol) : step_for_price_2(0, max_price, d.pair1, vol, ext_vol);
+                auto step = N == 3 ? step_for_price_3(0, max_price, d.pair1, vol, ext_vol) * MOVE_REDUCTION_3 : step_for_price_2(0, max_price, d.pair1, vol, ext_vol);
                 if (step > 0) {
                     // printf("+++ %Lf %Lf %d %d\n", curve.x[a], curve.x[b], a, b);
                     auto dy = N == 3 ? buy_3(step, a, b) : buy_2(step, a, b);
@@ -1485,7 +1495,7 @@ struct Trader {
             p_before = p_after;
 
             if ((min_price != 0) & (min_price < p_before)) {
-                auto step = N == 3 ? step_for_price_3(min_price, 0, d.pair1, vol, ext_vol) : step_for_price_2(min_price, 0, d.pair1, vol, ext_vol);
+                auto step = N == 3 ? step_for_price_3(min_price, 0, d.pair1, vol, ext_vol) * MOVE_REDUCTION_3 : step_for_price_2(min_price, 0, d.pair1, vol, ext_vol);
                 if (step > 0) {
                     // printf("=== %Lf %Lf %d %d\n", curve.x[a], curve.x[b], a, b);
                     auto dy = N == 3 ? sell_3(step, a, b) : sell_2(step, a, b);
