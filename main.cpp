@@ -51,7 +51,6 @@ using std::vector, std::string, std::pair, std::sort, std::map, std::min, std::m
 using u64 = unsigned long long;
 using money = long double;
 static const int MAX_ARRAY = 3;
-static const double MOVE_REDUCTION_3 = 0.333;
 
 #ifdef __MACH__
 #include <mach/mach_init.h>
@@ -1462,7 +1461,7 @@ struct Trader {
             auto p_before = N == 3 ? price_3(a, b) : price_2(a, b);
 
             if ((max_price != 0) & (max_price > p_before)) {
-                auto step = N == 3 ? step_for_price_3(0, max_price, d.pair1, vol, ext_vol) * MOVE_REDUCTION_3 : step_for_price_2(0, max_price, d.pair1, vol, ext_vol);
+                auto step = N == 3 ? step_for_price_3(0, max_price, d.pair1, vol, ext_vol) : step_for_price_2(0, max_price, d.pair1, vol, ext_vol);
                 if (step > 0) {
                     // printf("+++ %Lf %Lf %d %d\n", curve.x[a], curve.x[b], a, b);
                     auto dy = N == 3 ? buy_3(step, a, b) : buy_2(step, a, b);
@@ -1495,7 +1494,7 @@ struct Trader {
             p_before = p_after;
 
             if ((min_price != 0) & (min_price < p_before)) {
-                auto step = N == 3 ? step_for_price_3(min_price, 0, d.pair1, vol, ext_vol) * MOVE_REDUCTION_3 : step_for_price_2(min_price, 0, d.pair1, vol, ext_vol);
+                auto step = N == 3 ? step_for_price_3(min_price, 0, d.pair1, vol, ext_vol) : step_for_price_2(min_price, 0, d.pair1, vol, ext_vol);
                 if (step > 0) {
                     // printf("=== %Lf %Lf %d %d\n", curve.x[a], curve.x[b], a, b);
                     auto dy = N == 3 ? sell_3(step, a, b) : sell_2(step, a, b);
