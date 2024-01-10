@@ -5,9 +5,9 @@ import itertools
 from copy import copy
 
 
-X = np.logspace(log10(1e-7), log10(2e-3), 32)
+X = np.logspace(log10(2e-8), log10(6e-5), 32)
 Xname = "fee_gamma"
-Y = np.logspace(log10(1e-6), log10(3e-4), 32)
+Y = np.logspace(log10(1e-6), log10(4e-5), 32)
 Yname = "gamma"
 
 other_params = dict(
@@ -15,7 +15,7 @@ other_params = dict(
     adjustment_step=1e-7,
     fee_gamma=0.006,
     ma_half_time=600,
-    mid_fee=0.0003,
+    mid_fee=0.0007,
     out_fee=0.008,
     gas_fee=10,
     n=3,
@@ -28,9 +28,9 @@ other_params = dict(
 config = {
     'configuration': [],
     'datafile': [
-        "ng-btcusdt-1m",
-        "ng-ethusdt-1m",
-        "ng-ethbtc-1m"],
+        "btcusdt-1m",
+        "ethusdt-1m",
+        "ethbtc-1m"],
     'debug': 0}
 
 for x, y in itertools.product(X, Y):
