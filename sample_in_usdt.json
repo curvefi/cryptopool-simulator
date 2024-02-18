@@ -13,7 +13,8 @@
             "log" : 1,
             "allowed_extra_profit": 1e-10,
             "ext_fee": 6e-4,
-            "gas_fee": 10
+            "gas_fee": 10,
+            "boost_rate": 0.05
         }
     ],
     "datafile": [

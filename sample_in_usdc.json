@@ -13,7 +13,8 @@
             "out_fee": 0.003,
             "allowed_extra_profit": 2e-6,
             "ext_fee": 6e-4,
-            "gas_fee": 10
+            "gas_fee": 10,
+            "boost_rate": 0.00
         }
     ],
     "datafile": [

@@ -838,6 +838,8 @@ struct Trader {
         ma_half_time = jconf["ma_half_time"];
         this->ext_fee = jconf["ext_fee"];
         this->gas_fee = jconf["gas_fee"];
+        this->boost_rate = jconf["boost_rate"];
+        this->boost_rate = this->boost_rate / (86400L * 365L);
         log = jconf["log"];
         this->p0 = p0;
         this->price_oracle = this->p0;
@@ -1440,6 +1442,18 @@ struct Trader {
             if (last_time > 0) {
                 last_time = d.t - last_time;
             }
+
+            // Boost with special donations to the pool
+            if (this->boost_rate > 0) {
+                auto boost_coefficient = (1.L + last_time * this->boost_rate);
+                curve.x[0] = curve.x[0] * boost_coefficient;
+                curve.x[1] = curve.x[1] * boost_coefficient;
+                if (N == 3) {
+                    curve.x[2] = curve.x[2] * boost_coefficient;
+                }
+                xcp_profit = xcp_profit / boost_coefficient;
+            }
+
             auto a = d.pair1.first;
             auto b = d.pair1.second;
             money vol{0.L};
@@ -1610,6 +1624,7 @@ struct Trader {
     int ma_half_time;
     money ext_fee;
     money gas_fee;
+    money boost_rate;
     money volume;
     money slippage;
     money antislippage;
