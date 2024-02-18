@@ -850,6 +850,7 @@ struct Trader {
         this->xcp_0 = n == 3 ? this->get_xcp_3() : this->get_xcp_2();
         this->xcp_profit = 1.L;
         this->xcp_profit_real = 1.L;
+        this->boost_coefficient = 1.L;
         this->xcp = this->xcp_0;
         this->total_vol = 0.0;
         this->slippage = 0;
@@ -1153,7 +1154,8 @@ struct Trader {
         auto xcp = get_xcp_3();
         xcp_profit_real = xcp_profit_real * xcp / this->xcp;
         if (not only_real) {
-            xcp_profit = xcp_profit * xcp / this->xcp;
+            xcp_profit = xcp_profit * xcp / this->xcp / boost_coefficient;
+            boost_coefficient = 1L;
         }
         this->xcp = xcp;
     }
@@ -1162,7 +1164,8 @@ struct Trader {
         auto xcp = get_xcp_2();
         xcp_profit_real = xcp_profit_real * xcp / this->xcp;
         if (not only_real) {
-            xcp_profit = xcp_profit * xcp / this->xcp;
+            xcp_profit = xcp_profit * xcp / this->xcp / boost_coefficient;
+            boost_coefficient = 1L;
         }
         this->xcp = xcp;
     }
@@ -1445,13 +1448,13 @@ struct Trader {
 
             // Boost with special donations to the pool
             if (this->boost_rate > 0) {
-                auto boost_coefficient = (1.L + last_time * this->boost_rate);
-                curve.x[0] = curve.x[0] * boost_coefficient;
-                curve.x[1] = curve.x[1] * boost_coefficient;
+                auto _boost = (1.L + last_time * this->boost_rate);
+                curve.x[0] = curve.x[0] * _boost;
+                curve.x[1] = curve.x[1] * _boost;
                 if (N == 3) {
-                    curve.x[2] = curve.x[2] * boost_coefficient;
+                    curve.x[2] = curve.x[2] * _boost;
                 }
-                xcp_profit = xcp_profit / boost_coefficient;
+                boost_coefficient = boost_coefficient * _boost;
             }
 
             auto a = d.pair1.first;
@@ -1616,6 +1619,7 @@ struct Trader {
     money xcp, xcp_0;
     money xcp_profit;
     money xcp_profit_real;
+    money boost_coefficient;
     money adjustment_step;
     money allowed_extra_profit;
     int log;
