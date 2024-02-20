@@ -850,7 +850,6 @@ struct Trader {
         this->xcp_0 = n == 3 ? this->get_xcp_3() : this->get_xcp_2();
         this->xcp_profit = 1.L;
         this->xcp_profit_real = 1.L;
-        this->boost_coefficient = 1.L;
         this->xcp = this->xcp_0;
         this->total_vol = 0.0;
         this->slippage = 0;
@@ -1151,23 +1150,21 @@ struct Trader {
     }
 
     void update_xcp_3(bool only_real=false) {
-        auto xcp = get_xcp_3();
-        xcp_profit_real = xcp_profit_real * xcp / this->xcp;
+        auto _xcp = get_xcp_3();
+        xcp_profit_real = xcp_profit_real * _xcp / xcp;
         if (not only_real) {
-            xcp_profit = xcp_profit * xcp / this->xcp / boost_coefficient;
-            boost_coefficient = 1L;
+            xcp_profit = xcp_profit * _xcp / xcp;
         }
-        this->xcp = xcp;
+        xcp = _xcp;
     }
 
     void update_xcp_2(bool only_real=false) {
-        auto xcp = get_xcp_2();
-        xcp_profit_real = xcp_profit_real * xcp / this->xcp;
+        auto _xcp = get_xcp_2();
+        xcp_profit_real = xcp_profit_real * _xcp / xcp;
         if (not only_real) {
-            xcp_profit = xcp_profit * xcp / this->xcp / boost_coefficient;
-            boost_coefficient = 1L;
+            xcp_profit = xcp_profit * _xcp / xcp;
         }
-        this->xcp = xcp;
+        xcp = _xcp;
     }
 
     inline void static copy_money_3(money *to, money const *from) {
@@ -1446,17 +1443,6 @@ struct Trader {
                 last_time = d.t - last_time;
             }
 
-            // Boost with special donations to the pool
-            if (this->boost_rate > 0) {
-                auto _boost = (1.L + last_time * this->boost_rate);
-                curve.x[0] = curve.x[0] * _boost;
-                curve.x[1] = curve.x[1] * _boost;
-                if (N == 3) {
-                    curve.x[2] = curve.x[2] * _boost;
-                }
-                boost_coefficient = boost_coefficient * _boost;
-            }
-
             auto a = d.pair1.first;
             auto b = d.pair1.second;
             money vol{0.L};
@@ -1542,6 +1528,18 @@ struct Trader {
             _low = last;
             lasts[d.pair1] = last;
 
+            // Boost with special donations to the pool
+            if (this->boost_rate > 0) {
+                auto _boost = (1.L + last_time * this->boost_rate);
+                curve.x[0] = curve.x[0] * _boost;
+                curve.x[1] = curve.x[1] * _boost;
+                if (N == 3) {
+                    curve.x[2] = curve.x[2] * _boost;
+                }
+                xcp_profit_real *= _boost;
+                xcp *= _boost;
+            }
+
             if (N == 2) tweak_price_2(d.t, a, b, (_high + _low) / 2.L);
             else        tweak_price_3(d.t, a, b, (_high + _low) / 2.L);
             total_vol += vol;
@@ -1619,7 +1617,6 @@ struct Trader {
     money xcp, xcp_0;
     money xcp_profit;
     money xcp_profit_real;
-    money boost_coefficient;
     money adjustment_step;
     money allowed_extra_profit;
     int log;
