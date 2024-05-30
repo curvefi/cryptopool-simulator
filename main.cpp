@@ -869,11 +869,15 @@ struct Trader {
         return (mid_fee * f + out_fee * (1.L - f));
     }
 
-    auto fee_2() {
-        money xp[2];
-        curve.xp_2(xp);
-        auto f = reduction_coefficient_2(xp, fee_gamma);
-        return (mid_fee * f + out_fee * (1.L - f));
+    auto fee_2(money x, money y) {
+        money dx = x / 1e7;
+        money dy = y - curve.y_2(x + dx, 0, 1);  // smaller y for bigger x!
+        auto p = dx / dy;
+        auto f = price_oracle[1] - p;
+        if (f < 0) {
+            f = -f;
+        }
+        return f * fee_gamma / (p > price_oracle[1]? p : price_oracle[1]);
     }
 
     money get_xcp_3() const {
@@ -1048,10 +1052,6 @@ struct Trader {
             trade_sign = -1;
         }
 
-        auto fee = this->fee_2();
-        // printf("---\n");
-
-        // +
         while (true) {
             auto _dx_prev = _dx;
             auto _dy_prev = _dy;
@@ -1060,6 +1060,9 @@ struct Trader {
 
             x = x0[p.first] + trade_sign * _dx;
             y = curve.y_2(x, p.first, p.second);
+
+            auto fee = this->fee_2(x, y);
+
             _dy = (x0[p.second] - y) * trade_sign;
             _dy = _dy * (1.L - fee * trade_sign);
             curve.x[p.first] += _dx * trade_sign;
@@ -1108,6 +1111,9 @@ struct Trader {
 
             x = x0[p.first] + _dx * trade_sign;
             y = curve.y_2(x, p.first, p.second);
+
+            auto fee = this->fee_2(x, y);
+
             _dy = (x0[p.second] - y) * trade_sign;
             _dy = _dy * (1.L - fee * trade_sign);
             curve.x[p.first] += _dx * trade_sign;
@@ -1188,7 +1194,7 @@ struct Trader {
             auto dy = curve.x[j] - y;
             curve.x[i] = x;
             curve.x[j] = y;
-            auto fee = curve.x.size() == 3 ? this->fee_3() : this->fee_2();;
+            auto fee = this->fee_3();
             curve.x[j] += dy * fee;
             dy = dy * (1.L - fee);
             if ((dx / dy) > max_price or dy < 0) {
@@ -1214,7 +1220,7 @@ struct Trader {
             auto dy = curve.x[j] - y;
             curve.x[i] = x;
             curve.x[j] = y;
-            auto fee = this->fee_2();
+            auto fee = this->fee_2(x, y);
             curve.x[j] += dy * fee;
             dy = dy * (1.L - fee);
             if ((dx / dy) > max_price or dy < 0) {
@@ -1266,7 +1272,7 @@ struct Trader {
             auto dx = curve.x[i] - x;
             curve.x[i] = x;
             curve.x[j] = y;
-            auto fee = this->fee_2();
+            auto fee = this->fee_2(x, y);
             curve.x[i] += dx * fee;
             dx = dx * (1.L - fee);
             if ((dx / dy) < min_price or dx < 0) {
@@ -1562,7 +1568,7 @@ struct Trader {
                                (xcp_profit_real - 1.) / (xcp_profit - 1.L),
                                xcp_profit_real,
                                APY * 100.L,
-                               (curve.p.size() == 3 ? fee_3() : fee_2()) * 100.L,
+                               fee_3() * 100.L,
                                is_light ? '*' : '.');
                     } else if (N == 2) {
                         printf("t=%llu %.1Lf%%\ttrades: %d\tAMM: %.5Lf\tTarget: %.5Lf\tVol: %.4Lf\tPR:%.2Lf\txCP-growth: {%.10Lf}\tAPY:%.1Lf%%\tfee:%.3Lf%% %c\n",
@@ -1575,7 +1581,7 @@ struct Trader {
                                 (xcp_profit_real - 1.) / (xcp_profit - 1.L),
                                 xcp_profit_real,
                                 APY * 100.L,
-                                fee_2() * 100.L,
+                                fee_2(curve.x[0], curve.x[1]) * 100.L,
                                 is_light ? '*' : '.');
 
                     }
