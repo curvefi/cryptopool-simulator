@@ -7,15 +7,15 @@ import itertools
 from copy import copy
 
 
-X = np.logspace(log10(1), log10(50), 32)
+X = np.logspace(log10(1), log10(60), 128)
 Xname = "A"
-Y = np.logspace(log10(1e-2), log10(0.35), 32)
+Y = np.logspace(log10(1e-2), log10(0.199), 128)
 Yname = "gamma"
 
 other_params = dict(
     D=40e3,
     adjustment_step=1e-7,
-    fee_gamma=2e-3,
+    fee_gamma=1e-2,
     ma_half_time=600,
     mid_fee=0.0002,
     out_fee=0.003,
@@ -30,7 +30,7 @@ other_params = dict(
 
 config = {
     'configuration': [],
-    'datafile': ["xignite-eurusd-1m"],
+    'datafile': ["eurusd-1m"],
     'debug': 0}
 
 for x, y in itertools.product(X, Y):

@@ -1,0 +1,2 @@
+1. A=47, gamma=0.199 (max) - optimal set of values (see blue minimum on slippage plot)
+2. fee_gamma=0.01 for mid_fee = 0.02% (see minimum on slippage plot)

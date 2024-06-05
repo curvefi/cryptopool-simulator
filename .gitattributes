@@ -2,3 +2,4 @@ tricrypto-resim/price-feeds/_ethbtc-1m.json filter=lfs diff=lfs merge=lfs -text
 tricrypto-resim/price-feeds/ng-btcusdt-1m.json filter=lfs diff=lfs merge=lfs -text
 tricrypto-resim/price-feeds/ng-ethbtc-1m.json filter=lfs diff=lfs merge=lfs -text
 tricrypto-resim/price-feeds/ng-ethusdt-1m.json filter=lfs diff=lfs merge=lfs -text
+download/eurusd-1m.json filter=lfs diff=lfs merge=lfs -text
