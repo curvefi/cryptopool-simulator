@@ -37,7 +37,10 @@ for row in results['configuration']:
     liq_density[gammas.index(row['gamma']), As.index(row['A'])] = row['Result']['liq_density']
 
 gamma_ix = slippage.argmin(axis=0)
-result = [APY[g, a] for (g, a) in zip(gamma_ix, range(len(As)))]
+result = np.array([APY[g, a] for (g, a) in zip(gamma_ix, range(len(As)))])
+
+Amax_arg = result.argmax()
+print(f'A = {As[Amax_arg]}, gamma={gammas[gamma_ix[Amax_arg]]}')
 
 pylab.semilogx(As, result)
 
