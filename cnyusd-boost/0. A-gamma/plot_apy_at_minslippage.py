@@ -40,4 +40,12 @@ gamma_ix = slippage.argmin(axis=0)
 result = [APY[g, a] for (g, a) in zip(gamma_ix, range(len(As)))]
 
 pylab.semilogx(As, result)
+
+pylab.xlabel("A")
+pylab.ylabel("Slippage")
+
+pylab.xticks([10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 200],
+             labels=[10, 20, None, None, 50, None, None, None, None, 100, 200])
+
+pylab.tight_layout()
 pylab.show()

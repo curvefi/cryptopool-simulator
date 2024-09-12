@@ -10,7 +10,7 @@ pair = 'ETHUSDT'
 URI_TEMPLATE = 'https://api.binance.com/api/v1/klines?symbol=%s&interval=1m&limit=500&startTime={start}&endTime={end}' % pair
 data = []
 
-begin = datetime.datetime(year=2017, month=9, day=1)
+begin = datetime.datetime(year=2023, month=1, day=1)
 start = datetime.datetime.utcnow()
 dt = (start - begin)
 for i in range(-dt.days * 5, 0):
@@ -19,7 +19,7 @@ for i in range(-dt.days * 5, 0):
     resp = requests.get(uri).json()
     print(pair, datetime.datetime.fromtimestamp(d // 1000), len(resp))
     data += resp
-    time.sleep(0.1)
+    time.sleep(0.2)
 
 with open(pair.lower() + '.json', 'w') as f:
     json.dump(data, f)
