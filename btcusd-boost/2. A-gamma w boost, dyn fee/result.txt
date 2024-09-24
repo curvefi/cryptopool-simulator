@@ -1,0 +1,6 @@
+0. A/gamma scan
+
+Select A, gamma for min slippage
+
+A = 3.62548
+gamma = 0.0278

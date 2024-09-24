@@ -17,9 +17,12 @@ with open(fname) as f:
 As = set()
 gammas = set()
 
+x_axis = 'mid_fee'
+y_axis = 'fee_gamma'
+
 for row in results['configuration']:
-    As.add(row['A'])
-    gammas.add(row['gamma'])
+    As.add(row[x_axis])
+    gammas.add(row[y_axis])
 
 As = sorted(list(As))
 gammas = sorted(list(gammas))
@@ -30,26 +33,13 @@ for row in results['configuration']:
     # APY
     # liq_density
     # volume
-    Z[gammas.index(row['gamma']), As.index(row['A'])] = row['Result']['slippage']
+    Z[gammas.index(row[y_axis]), As.index(row[x_axis])] = row['Result']['APY']
     # Z[gammas.index(row['gamma']), As.index(row['A'])] = row['Result']['APY']
 
 fig, ax = plt.subplots()
-plt.xscale('log')
 plt.yscale('log')
+plt.xscale('log')
 im = ax.pcolormesh(As, gammas, Z, cmap=plt.get_cmap('jet'))
-im.set_edgecolor('face')
-cbar = fig.colorbar(im, ax=ax)
+fig.colorbar(im, ax=ax)
 
-ax.set_xlabel("A")
-ax.set_ylabel("gamma")
-
-ax.set_xticks([10, 20, 30, 40, 50, 60, 70, 80, 90, 100])
-ax.set_xticklabels([10, 20, None, None, 50, None, None, None, None, 100])
-
-ax.set_yticks([2e-4, 5e-4, 1e-3, 2e-3, 5e-3, 1e-2, 2e-2, 5e-2])
-ax.set_yticklabels(["0.0002", "0.0005", "0.001", "0.002", "0.005", "0.01", "0.02", "0.05"])
-
-cbar.set_label("Slipage", rotation=270, labelpad=15)
-
-plt.tight_layout()
 plt.show()
