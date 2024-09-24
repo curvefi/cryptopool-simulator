@@ -1069,7 +1069,7 @@ struct Trader {
             y = curve.y_2(x, _from, _to);
             _dy = (x0[_to] - y) * fee_mul;
             curve.x[_from] = x0[_from] + _dx;
-            curve.x[p.second] = x0[_to] - _dy;
+            curve.x[_to] = x0[_to] - _dy;
 
             if (_from == p.first) {
                 price = _dx / _dy;
@@ -1122,7 +1122,7 @@ struct Trader {
             y = curve.y_2(x, _from, _to);
             _dy = (x0[_to] - y) * fee_mul;
             curve.x[_from] = x0[_from] + _dx;
-            curve.x[p.second] = x0[_to] - _dy;
+            curve.x[_to] = x0[_to] - _dy;
 
             if (_from == p.first) {
                 price = _dx / _dy;
