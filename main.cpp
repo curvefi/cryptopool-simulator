@@ -1068,8 +1068,8 @@ struct Trader {
             x = x0[_from] + _dx;
             y = curve.y_2(x, _from, _to);
             _dy = (x0[_to] - y) * fee_mul;
-            curve.x[_from] = x0[_from] + _dx;
-            curve.x[_to] = x0[_to] - _dy;
+            curve.x[_from] += _dx;
+            curve.x[_to] -= - _dy;
 
             if (_from == p.first) {
                 price = _dx / _dy;
@@ -1121,8 +1121,8 @@ struct Trader {
             x = x0[_from] + _dx;
             y = curve.y_2(x, _from, _to);
             _dy = (x0[_to] - y) * fee_mul;
-            curve.x[_from] = x0[_from] + _dx;
-            curve.x[_to] = x0[_to] - _dy;
+            curve.x[_from] += _dx;
+            curve.x[_to] -= _dy;
 
             if (_from == p.first) {
                 price = _dx / _dy;
@@ -1152,9 +1152,12 @@ struct Trader {
             // printf("*** price=%Lf, min=%Lf, max=%Lf, _dx=%Lf\n", price, p_min, p_max, _dx);
         }
 
-        if (!good_with_gas) _dy = 0;
+        if (!good_with_gas) {
+            _dx = 0;
+        }
 
-        return _dy;
+        // printf("*** p_min=%Lf, p_max=%Lf, _dy=%Lf, y=%Lf\n", p_min, p_max, _dy, curve.x[_to]);
+        return _dx;
     }
 
     void update_xcp_3(bool only_real=false) {
