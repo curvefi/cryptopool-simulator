@@ -9,3 +9,4 @@ download/xauusd-1m.json filter=lfs diff=lfs merge=lfs -text
 download/btcusdt-2023-2024-processed.json filter=lfs diff=lfs merge=lfs -text
 btcusd-boost/filtering/btcusdt-2023-2024.json filter=lfs diff=lfs merge=lfs -text
 btcusd-boost/filtering/btcusdt-2023-2024-processed.json filter=lfs diff=lfs merge=lfs -text
+download/btcusdt-2023-2024.json filter=lfs diff=lfs merge=lfs -text
