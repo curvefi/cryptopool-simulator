@@ -8,3 +8,4 @@
 /httpRequests/
 /download/
 *.pyc
+/simu
