@@ -1053,8 +1053,6 @@ struct Trader {
         auto step = step0;
         money gas = gas_fee / curve.p[_from];
 
-        auto fee_mul = 1.L - this->fee_2();
-
         // + (step increases)
         while (true) {
             auto _dx_prev = _dx;
@@ -1067,9 +1065,13 @@ struct Trader {
 
             x = x0[_from] + _dx;
             y = curve.y_2(x, _from, _to);
+
+            curve.x[_from] = x;
+            curve.x[_to] = y;
+            auto fee_mul = 1.L - this->fee_2();
+
             _dy = (x0[_to] - y) * fee_mul;
-            curve.x[_from] += _dx;
-            curve.x[_to] -= - _dy;
+            curve.x[_to] = x0[_to] - _dy;
 
             if (_from == p.first) {
                 price = _dx / _dy;
@@ -1120,9 +1122,13 @@ struct Trader {
 
             x = x0[_from] + _dx;
             y = curve.y_2(x, _from, _to);
+
+            curve.x[_from] = x;
+            curve.x[_to] = y;
+            auto fee_mul = 1.L - this->fee_2();
+
             _dy = (x0[_to] - y) * fee_mul;
-            curve.x[_from] += _dx;
-            curve.x[_to] -= _dy;
+            curve.x[_to] = x0[_to] - _dy;
 
             if (_from == p.first) {
                 price = _dx / _dy;
@@ -1220,14 +1226,17 @@ struct Trader {
         //Buy y for x
         //"""
         try {
-            auto fee_mul = 1.L - this->fee_2();
             money x_old[2];
             copy_money_2(x_old, &curve.x[0]);
             auto x = curve.x[i] + dx;
             auto y = curve.y_2(x, i, j);
-            auto dy = (curve.x[j] - y) * fee_mul;
+
             curve.x[i] = x;
-            curve.x[j] -= dy;
+            curve.x[j] = y;
+            auto fee_mul = 1.L - this->fee_2();
+            auto dy = (x_old[j] - y) * fee_mul;
+
+            curve.x[j] = x_old[j] - dy;
             if ((dx / dy) > max_price or dy < 0) {
                 copy_money_2(&curve.x[0], x_old);
                 return 0;
@@ -1270,14 +1279,17 @@ struct Trader {
         // Sell y for x
         // """
         try {
-            auto fee_mul = 1.L - this->fee_2();
             money x_old[2];
             copy_money_2(x_old, &curve.x[0]);
             auto y = curve.x[j] + dy;
             auto x = curve.y_2(y, j, i);
-            auto dx = curve.x[i] - x;
-            curve.x[i] -= dx * fee_mul;
+            auto dx = x_old[i] - x;
+
+            curve.x[i] = x;
             curve.x[j] = y;
+            auto fee_mul = 1.L - this->fee_2();
+
+            curve.x[i] = x_old[i] - dx * fee_mul;
             if ((dx / dy) < min_price or dx < 0) {
                 copy_money_2(&curve.x[0], x_old);
                 return 0;
