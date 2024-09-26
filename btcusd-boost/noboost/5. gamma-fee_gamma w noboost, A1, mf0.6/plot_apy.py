@@ -17,7 +17,7 @@ with open(fname) as f:
 As = set()
 gammas = set()
 
-x_axis = 'mid_fee'
+x_axis = 'gamma'
 y_axis = 'fee_gamma'
 
 for row in results['configuration']:

@@ -17,7 +17,7 @@ other_params = dict(
     adjustment_step=1e-7,
     fee_gamma=0.003,
     ma_half_time=600,
-    mid_fee=0.003,
+    mid_fee=0.006,
     out_fee=0.03,
     gas_fee=5,
     n=2,
@@ -26,7 +26,7 @@ other_params = dict(
     ext_fee=0.0003,
     gamma=0.24,
     boost_rate=0.0,
-    A=8.7)
+    A=1)
 
 config = {
     'configuration': [],

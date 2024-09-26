@@ -1234,9 +1234,9 @@ struct Trader {
             curve.x[i] = x;
             curve.x[j] = y;
             auto fee_mul = 1.L - this->fee_2();
-            auto dy = (x_old[j] - y) * fee_mul;
+            auto dy = x_old[j] - y;
 
-            curve.x[j] = x_old[j] - dy;
+            curve.x[j] = x_old[j] - dy * fee_mul;
             if ((dx / dy) > max_price or dy < 0) {
                 copy_money_2(&curve.x[0], x_old);
                 return 0;
@@ -1274,23 +1274,23 @@ struct Trader {
         }
     }
 
-    money sell_2(money dy, int i, int j, money min_price=0) {
+    money sell_2(money dy, int i, int j) {
         // """
         // Sell y for x
         // """
         try {
             money x_old[2];
             copy_money_2(x_old, &curve.x[0]);
-            auto y = curve.x[j] + dy;
-            auto x = curve.y_2(y, j, i);
-            auto dx = x_old[i] - x;
+            money y = curve.x[j] + dy;
+            money x = curve.y_2(y, j, i);
 
             curve.x[i] = x;
             curve.x[j] = y;
-            auto fee_mul = 1.L - this->fee_2();
+            money fee_mul = 1.L - this->fee_2();
+            money dx = (x_old[i] - x);
 
-            curve.x[i] = x_old[i] - dx * fee_mul;
-            if ((dx / dy) < min_price or dx < 0) {
+            curve.x[i] = x_old[i] - (dx * fee_mul);
+            if (dx < 0) {
                 copy_money_2(&curve.x[0], x_old);
                 return 0;
             }
@@ -1490,7 +1490,7 @@ struct Trader {
                     // printf("+++ %Lf %Lf\n", curve.x[a], curve.x[b]);
                     vol += step * price_oracle[a];
                     _dx += dy;
-                    last = step / dy;
+                    last = price_2(a, b);
                     ctr += 1;
                 }
             }
@@ -1524,7 +1524,7 @@ struct Trader {
                     // printf("!===! %Lf %Lf\n", step, dy);
                     vol += dy * price_oracle[a];
                     _dx += step;
-                    last = dy / step;
+                    last = price_2(a, b);
                     ctr += 1;
                 }
             }

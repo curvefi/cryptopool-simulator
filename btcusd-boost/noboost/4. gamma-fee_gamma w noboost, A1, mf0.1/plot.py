@@ -14,7 +14,7 @@ else:
 with open(fname) as f:
     results = json.load(f)
 
-x_axis = 'mid_fee'
+x_axis = 'gamma'
 y_axis = 'fee_gamma'
 
 As = set()
