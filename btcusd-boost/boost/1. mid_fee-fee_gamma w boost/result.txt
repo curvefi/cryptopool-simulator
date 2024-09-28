@@ -1,4 +1,0 @@
-min slippage:
-
-mid_fee = 0.007
-fee_gamma = 0.01

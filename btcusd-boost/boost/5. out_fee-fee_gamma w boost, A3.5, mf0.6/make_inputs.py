@@ -7,26 +7,26 @@ import itertools
 from copy import copy
 
 
-X = np.logspace(log10(0.5), log10(40), 32)
-Xname = "A"
-Y = np.logspace(log10(1e-6), log10(1.99e-1), 32)
-Yname = "gamma"
+X = np.logspace(log10(0.003), log10(0.1), 64)
+Xname = "out_fee"
+Y = np.logspace(log10(1e-5), log10(0.5), 64)
+Yname = "fee_gamma"
 
 other_params = dict(
     D=40e6,
     adjustment_step=1e-7,
     fee_gamma=0.003,
     ma_half_time=600,
-    mid_fee=0.003,
-    out_fee=0.003,
+    mid_fee=0.006,
+    out_fee=0.03,
     gas_fee=5,
     n=2,
     log=0,
     allowed_extra_profit=1e-10,
     ext_fee=0.0003,
-    gamma=1e-5,
+    gamma=0.4,
     boost_rate=0.05,
-    A=10)
+    A=3.5)
 
 config = {
     'configuration': [],
