@@ -7,8 +7,8 @@ import itertools
 from copy import copy
 
 
-X = np.logspace(log10(1e-4), log10(0.002), 32)
-Xname = "mid_fee"
+X = np.logspace(log10(1e-5), log10(0.2), 32)
+Xname = "gamma"
 Y = np.logspace(log10(1e-5), log10(0.5), 32)
 Yname = "fee_gamma"
 
@@ -17,7 +17,7 @@ other_params = dict(
     adjustment_step=1e-7,
     fee_gamma=0.00022,
     ma_half_time=600,
-    mid_fee=0.0004,
+    mid_fee=0.0003,
     out_fee=0.002,
     gas_fee=0,
     n=2,
@@ -26,7 +26,7 @@ other_params = dict(
     ext_fee=0.0001,
     gamma=0.00375,
     boost_rate=0.1,
-    A=24)
+    A=40)
 
 config = {
     'configuration': [],

@@ -21,9 +21,9 @@ other_params = dict(
     log=0,
     allowed_extra_profit=1e-10,
     ext_fee=0.0001,
-    gamma=0.00375,
+    gamma=0.0022,
     boost_rate=0.1,
-    A=24)
+    A=40)
 
 config = {
     'configuration': [],

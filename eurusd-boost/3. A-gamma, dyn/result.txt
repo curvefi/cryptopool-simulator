@@ -1,4 +1,0 @@
-Max volume:
-A = 81
-gamma = 0.0011
-fee_gamma = 0.0112

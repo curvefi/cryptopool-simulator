@@ -14,11 +14,11 @@ else:
 with open(fname) as f:
     results = json.load(f)
 
+x_axis = 'gamma'
+y_axis = 'fee_gamma'
+
 As = set()
 gammas = set()
-
-x_axis = 'mid_fee'
-y_axis = 'fee_gamma'
 
 for row in results['configuration']:
     As.add(row[x_axis])
@@ -33,12 +33,18 @@ for row in results['configuration']:
     # APY
     # liq_density
     # volume
-    Z[gammas.index(row[y_axis]), As.index(row[x_axis])] = row['Result']['volume']
+    Z[gammas.index(row[y_axis]), As.index(row[x_axis])] = row['Result']['slippage']
 
 fig, ax = plt.subplots()
-plt.yscale('log')
 plt.xscale('log')
+plt.yscale('log')
 im = ax.pcolormesh(As, gammas, Z, cmap=plt.get_cmap('jet'))
-fig.colorbar(im, ax=ax)
+cbar = fig.colorbar(im, ax=ax)
 
+ax.set_xlabel(x_axis)
+ax.set_ylabel(y_axis)
+
+cbar.set_label("Slipage", rotation=270, labelpad=15)
+
+plt.tight_layout()
 plt.show()

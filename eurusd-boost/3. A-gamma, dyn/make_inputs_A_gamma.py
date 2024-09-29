@@ -6,11 +6,11 @@ import json
 import itertools
 from copy import copy
 
-A_0 = 24
-gamma_0 = 0.00375
-fee_gamma_0 = 0.011
+A_0 = 40
+gamma_0 = 0.0032
+fee_gamma_0 = 9.3e-4
 
-X = np.logspace(log10(5), log10(300), 32)
+X = np.logspace(log10(5), log10(500), 32)
 Xname = "A"
 Y = np.logspace(log10(1e-4), log10(2e-2), 32)
 Yname = "gamma"
@@ -18,9 +18,9 @@ Yname = "gamma"
 other_params = dict(
     D=40e3,
     adjustment_step=1e-7,
-    fee_gamma=0.011,
+    fee_gamma=9.3e-4,
     ma_half_time=600,
-    mid_fee=0.000155,
+    mid_fee=0.0003,
     out_fee=0.002,
     gas_fee=0,
     n=2,
