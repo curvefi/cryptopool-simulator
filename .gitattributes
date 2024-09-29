@@ -19,3 +19,8 @@ download/ethbtc-1m-processed.json filter=lfs diff=lfs merge=lfs -text
 download/tricrv-crveth-1m.json filter=lfs diff=lfs merge=lfs -text
 download/tricrv-crvusd-1m.json filter=lfs diff=lfs merge=lfs -text
 download/tricrv-ethusd-1m.json filter=lfs diff=lfs merge=lfs -text
+download/tricrv-crveth-b.json filter=lfs diff=lfs merge=lfs -text
+download/tricrv-crveth-b-processed.json filter=lfs diff=lfs merge=lfs -text
+download/tricrv-crvusd-b.json filter=lfs diff=lfs merge=lfs -text
+download/tricrv-crvusd-b-processed.json filter=lfs diff=lfs merge=lfs -text
+download/tricrv-ethusd-b.json filter=lfs diff=lfs merge=lfs -text
