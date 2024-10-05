@@ -18,7 +18,7 @@ Yname = "gamma"
 other_params = dict(
     D=40e3,
     adjustment_step=1e-7,
-    fee_gamma=9.3e-4,
+    fee_gamma=fee_gamma_0,
     ma_half_time=600,
     mid_fee=0.0003,
     out_fee=0.002,
@@ -40,7 +40,8 @@ for x, y in itertools.product(X, Y):
     params = copy(other_params)
     params[Xname] = x
     params[Yname] = y
-    params['fee_gamma'] = fee_gamma_0 * (A_0 * gamma_0)**2 / (params['A'] * params['gamma'])**2
+    # params['fee_gamma'] = fee_gamma_0 * (params['A'] * params['gamma'])**2 / (A_0 * gamma_0)**2
+    # params['fee_gamma'] = fee_gamma_0 * (A_0 * gamma_0)**2 / (params['A'] * params['gamma'])**2
     config['configuration'].append(params)
 
 with open('configuration.json', 'w') as f:
