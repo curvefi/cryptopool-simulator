@@ -10,9 +10,9 @@ A_0 = 40
 gamma_0 = 0.0032
 fee_gamma_0 = 9.3e-4
 
-X = np.logspace(log10(5), log10(500), 32)
+X = np.logspace(log10(5), log10(500), 64)
 Xname = "A"
-Y = np.logspace(log10(1e-4), log10(2e-2), 32)
+Y = np.logspace(log10(1e-4), log10(2e-2), 64)
 Yname = "gamma"
 
 other_params = dict(

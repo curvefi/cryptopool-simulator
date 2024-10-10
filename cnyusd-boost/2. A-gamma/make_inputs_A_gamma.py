@@ -7,9 +7,9 @@ import itertools
 from copy import copy
 
 
-X = np.logspace(log10(10), log10(500), 64)
+X = np.logspace(log10(10), log10(1000), 64)
 Xname = "A"
-Y = np.logspace(log10(2e-4), log10(0.1), 64)
+Y = np.logspace(log10(2e-4), log10(0.05), 64)
 Yname = "gamma"
 
 other_params = dict(
