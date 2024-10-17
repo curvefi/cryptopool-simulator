@@ -37,6 +37,13 @@ fig, ax = plt.subplots()
 plt.yscale('log')
 plt.xscale('log')
 im = ax.pcolormesh(As, gammas, Z, cmap=plt.get_cmap('jet'))
-fig.colorbar(im, ax=ax)
+cbar = fig.colorbar(im, ax=ax)
+
+ax.set_xlabel("A")
+ax.set_ylabel("gamma")
+
+cbar.set_label("Trading volume", rotation=270, labelpad=15)
+
+plt.tight_layout()
 
 plt.show()

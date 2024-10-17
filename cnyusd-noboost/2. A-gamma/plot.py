@@ -43,7 +43,7 @@ cbar = fig.colorbar(im, ax=ax)
 ax.set_xlabel("A")
 ax.set_ylabel("gamma")
 
-cbar.set_label("Slipage", rotation=270, labelpad=15)
+cbar.set_label("Price impact", rotation=270, labelpad=15)
 
 plt.tight_layout()
 plt.show()
