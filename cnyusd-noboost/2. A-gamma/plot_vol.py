@@ -37,6 +37,7 @@ fig, ax = plt.subplots()
 plt.yscale('log')
 plt.xscale('log')
 im = ax.pcolormesh(As, gammas, Z, cmap=plt.get_cmap('jet'))
+im.set_edgecolor('face')
 cbar = fig.colorbar(im, ax=ax)
 
 ax.set_xlabel("A")
