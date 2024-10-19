@@ -5,3 +5,7 @@ simu:	main.cpp
 
 simud:	main.cpp
 	c++ -g -o simud  -fsanitize=address main.cpp -std=c++17 -lpthread
+
+simus:	main-stableswap.cpp
+	c++ -O3 -funroll-loops -fomit-frame-pointer -ffast-math -march=native -o simus  main-stableswap.cpp -std=c++17 -lpthread
+
