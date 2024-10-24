@@ -1526,12 +1526,13 @@ struct Trader {
             }
 
             if (log) {
-                fprintf(out_file, "{\"t\": %llu, \"token0\": %.6Le, \"token1\": %.6Le, \"price_oracle\": %.6Le, \"price_scale\": %.6Le}",
+                fprintf(out_file, "{\"t\": %llu, \"token0\": %.6Le, \"token1\": %.6Le, \"price_oracle\": %.6Le, \"price_scale\": %.6Le, \"profit\": %.6Le}",
                         d.t,
                         curve.x[0],
                         curve.x[1],
                         price_oracle[b] / price_oracle[a],
-                        curve.p[1]);
+                        curve.p[1],
+                        xcp_profit_real - 1.0);
                 if (i < total_elements - 1) {
                     fprintf(out_file, ",\n");
                 }
