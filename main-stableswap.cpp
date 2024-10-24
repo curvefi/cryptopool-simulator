@@ -1353,6 +1353,13 @@ struct Trader {
         money antislippage = 0;
         money slippage_count = 0;
         money _slippage;
+
+        FILE *out_file;
+        if (log) {
+            out_file = fopen("detailed-output.json", "w");
+            fprintf(out_file, "[");
+        }
+
         for (size_t i = 0; i < total_elements; i++) {
             simdata->current = i;
             // if (i > 10) abort();
@@ -1517,6 +1524,19 @@ struct Trader {
                     printf("caught '%s'\n", e.what());
                 }
             }
+
+            if (log) {
+                fprintf(out_file, "{\"t\": %llu, \"token0\": %.6Le, \"token1\": %.6Le, \"price_oracle\": %.6Le, \"price_scale\": %.6Le}",
+                        d.t,
+                        curve.x[0],
+                        curve.x[1],
+                        price_oracle[b] / price_oracle[a],
+                        curve.p[1]);
+                if (i < total_elements - 1) {
+                    fprintf(out_file, ",\n");
+                }
+            }
+
             if (slippage > 1e20) {
                 printf("*** Slippage is too high %.5Lf\n", slippage);
             }
@@ -1526,6 +1546,9 @@ struct Trader {
         extdata->APY = APY;
         extdata->volume = volume;
 
+        if (log) {
+            fprintf(out_file, "]");
+        }
     }
 
 
