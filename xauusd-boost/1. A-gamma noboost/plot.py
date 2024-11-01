@@ -30,13 +30,16 @@ for row in results['configuration']:
     # APY
     # liq_density
     # volume
-    Z[gammas.index(row['gamma']), As.index(row['A'])] = row['Result']['APY']
+    Z[gammas.index(row['gamma']), As.index(row['A'])] = row['Result']['slippage']
     # Z[gammas.index(row['gamma']), As.index(row['A'])] = row['Result']['APY']
 
+print(Z)
+
 fig, ax = plt.subplots()
-plt.yscale('symlog')
-plt.xscale('symlog')
+plt.yscale('log')
+plt.xscale('log')
 im = ax.pcolormesh(As, gammas, Z, cmap=plt.get_cmap('jet'))
 fig.colorbar(im, ax=ax)
 
+plt.tight_layout()
 plt.show()
