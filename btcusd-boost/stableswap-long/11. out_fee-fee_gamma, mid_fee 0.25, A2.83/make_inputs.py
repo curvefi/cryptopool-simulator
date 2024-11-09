@@ -7,7 +7,7 @@ import itertools
 from copy import copy
 
 
-X = np.logspace(log10(0.003), log10(0.1), 64)
+X = np.logspace(log10(0.0025), log10(0.1), 64)
 Xname = "out_fee"
 Y = np.logspace(log10(1e-5), log10(2), 64)
 Yname = "fee_gamma"
@@ -17,7 +17,7 @@ other_params = dict(
     adjustment_step=1e-7,
     fee_gamma=0.003,
     ma_half_time=600,
-    mid_fee=0.003,
+    mid_fee=0.0025,
     out_fee=0.01,
     gas_fee=5,
     n=2,
@@ -26,11 +26,11 @@ other_params = dict(
     ext_fee=0.0003,
     gamma=0,
     boost_rate=0.05,
-    A=7)
+    A=2.83)
 
 config = {
     'configuration': [],
-    'datafile': ["btcusdt-2023-2024"],
+    'datafile': ["btcusdt-2020-2024"],
     'debug': 0}
 
 for x, y in itertools.product(X, Y):
