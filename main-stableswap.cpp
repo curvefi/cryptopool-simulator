@@ -1233,7 +1233,8 @@ struct Trader {
             light_tx += 1;
             return norm;
         }
-        if (not not_adjusted and (xcp_profit_real - 1.L > (xcp_profit - 1.L) / 2.L + allowed_extra_profit)) {
+        // if (not not_adjusted and (xcp_profit_real - 1.L > (xcp_profit - 1.L) / 2.L + allowed_extra_profit)) {
+        if (not not_adjusted and (xcp_profit_real > sqrt(xcp_profit) * (1.L + allowed_extra_profit))) {
             not_adjusted = true;
         }
         if (not not_adjusted) {
@@ -1260,13 +1261,13 @@ struct Trader {
         copy_money_2(&curve.p[0],p_new);
         update_xcp_2(true);
 
-        if (2.L * (xcp_profit_real - 1.L) <= (xcp_profit - 1.L)) {
+        if (xcp_profit_real <= sqrt(xcp_profit)) {
             //  If real profit is less than half of maximum - revert params back
             copy_money_2(&curve.p[0], old_p);
             xcp_profit_real = old_profit;
             xcp = old_xcp;
             not_adjusted = false;
-            auto val = ((xcp_profit_real - 1.L - (xcp_profit - 1.L) / 2.L));
+            // auto val = ((xcp_profit_real - 1.L - (xcp_profit - 1.L) / 2.L));
             // printf("%.10Lf\n", val);
         }
         return norm;
@@ -1297,7 +1298,7 @@ struct Trader {
             light_tx += 1;
             return norm;
         }
-        if (not not_adjusted and (xcp_profit_real - 1.L > (xcp_profit - 1.L) / 2.L + allowed_extra_profit)) {
+        if (not not_adjusted and (xcp_profit_real > sqrt(xcp_profit) * (1.L + allowed_extra_profit))) {
             not_adjusted = true;
         }
         if (not not_adjusted) {
@@ -1325,13 +1326,13 @@ struct Trader {
         if (N == 3) update_xcp_3(true);
         else        update_xcp_2(true);
 
-        if (2.L * (xcp_profit_real - 1.L) <= (xcp_profit - 1.L)) {
+        if (xcp_profit_real <= sqrt(xcp_profit)) {
             //  If real profit is less than half of maximum - revert params back
             copy_money_3(&curve.p[0], old_p);
             xcp_profit_real = old_profit;
             xcp = old_xcp;
             not_adjusted = false;
-            auto val = ((xcp_profit_real - 1.L - (xcp_profit - 1.L) / 2.L));
+            // auto val = ((xcp_profit_real - 1.L - (xcp_profit - 1.L) / 2.L));
             // printf("%.10Lf\n", val);
         }
         return norm;
