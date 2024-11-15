@@ -30,7 +30,7 @@ other_params = dict(
 
 config = {
     'configuration': [],
-    'datafile': ["btcusdt-2020-2024"],
+    'datafile': ["btcusdt-2019-2024"],
     'debug': 0}
 
 for x, y in itertools.product(X, Y):
