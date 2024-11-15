@@ -31,3 +31,6 @@ btcusd-boost/stableswap-long/9.[[:space:]]out_fee-fee_gamma,[[:space:]]mid_fee[[
 btcusd-boost/stableswap-long/8.[[:space:]]out_fee-fee_gamma,[[:space:]]mid_fee[[:space:]]0.3,[[:space:]]A2.83/detailed-output-A2.83-fee0.3.json.xz filter=lfs diff=lfs merge=lfs -text
 btcusd-boost/stableswap-long/6.[[:space:]]A/detailed-output-A2.83.json.xz filter=lfs diff=lfs merge=lfs -text
 btcusd-boost/stableswap-long/6.[[:space:]]A/detailed-output-A4.json.xz filter=lfs diff=lfs merge=lfs -text
+download/btcusdt-2019-2024.json filter=lfs diff=lfs merge=lfs -text
+download/fetch-btcusd.py filter=lfs diff=lfs merge=lfs -text
+download/btcusdt-2020-2024.json filter=lfs diff=lfs merge=lfs -text
