@@ -34,3 +34,9 @@ btcusd-boost/stableswap-long/6.[[:space:]]A/detailed-output-A4.json.xz filter=lf
 download/btcusdt-2019-2024.json filter=lfs diff=lfs merge=lfs -text
 download/fetch-btcusd.py filter=lfs diff=lfs merge=lfs -text
 download/btcusdt-2020-2024.json filter=lfs diff=lfs merge=lfs -text
+download/cryptogold-eth_btc_1min.json filter=lfs diff=lfs merge=lfs -text
+download/cryptogold-xau_btc_1min.json filter=lfs diff=lfs merge=lfs -text
+download/cryptogold-xau_eth_1min.json filter=lfs diff=lfs merge=lfs -text
+download/cryptogold/xau_btc_1min.csv.xz filter=lfs diff=lfs merge=lfs -text
+download/cryptogold/xau_eth_1min.csv.xz filter=lfs diff=lfs merge=lfs -text
+download/cryptogold/eth_btc_1min.csv.xz filter=lfs diff=lfs merge=lfs -text
