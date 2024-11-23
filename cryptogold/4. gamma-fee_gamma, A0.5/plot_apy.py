@@ -17,9 +17,12 @@ with open(fname) as f:
 As = set()
 gammas = set()
 
+x_axis = 'gamma'
+y_axis = 'fee_gamma'
+
 for row in results['configuration']:
-    As.add(row['A'])
-    gammas.add(row['gamma'])
+    As.add(row[x_axis])
+    gammas.add(row[y_axis])
 
 As = sorted(list(As))
 gammas = sorted(list(gammas))
@@ -30,18 +33,13 @@ for row in results['configuration']:
     # APY
     # liq_density
     # volume
-    Z[gammas.index(row['gamma']), As.index(row['A'])] = row['Result']['APY']
+    Z[gammas.index(row[y_axis]), As.index(row[x_axis])] = row['Result']['APY']
     # Z[gammas.index(row['gamma']), As.index(row['A'])] = row['Result']['APY']
 
 fig, ax = plt.subplots()
 plt.yscale('log')
 plt.xscale('log')
 im = ax.pcolormesh(As, gammas, Z, cmap=plt.get_cmap('jet'))
-cbar = fig.colorbar(im, ax=ax)
+fig.colorbar(im, ax=ax)
 
-plt.xlabel("A")
-plt.ylabel("gamma")
-cbar.set_label("APY", rotation=270, labelpad=15)
-
-plt.tight_layout()
 plt.show()
