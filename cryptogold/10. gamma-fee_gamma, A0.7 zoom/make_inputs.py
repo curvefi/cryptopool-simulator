@@ -15,7 +15,7 @@ Yname = "gamma"
 other_params = dict(
     D=1,
     adjustment_step=1e-7,
-    fee_gamma=0.006,
+    fee_gamma=0.021,
     ma_half_time=600,
     mid_fee=0.002,
     out_fee=0.01,
@@ -24,7 +24,7 @@ other_params = dict(
     log=0,
     allowed_extra_profit=1e-10,
     ext_fee=0.0003,
-    gamma=1e-5,
+    gamma=0.077,
     boost_rate=0.0,
     A=0.7)
 
