@@ -42,3 +42,4 @@ download/cryptogold/xau_eth_1min.csv.xz filter=lfs diff=lfs merge=lfs -text
 download/cryptogold/eth_btc_1min.csv.xz filter=lfs diff=lfs merge=lfs -text
 download/ethusdt-2021-2024.json filter=lfs diff=lfs merge=lfs -text
 download/bnbusdt-2021-2024.json filter=lfs diff=lfs merge=lfs -text
+download/bnbusdt-2022-2024.json filter=lfs diff=lfs merge=lfs -text
