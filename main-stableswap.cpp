@@ -1117,18 +1117,20 @@ struct Trader {
 
     void update_xcp_3(bool only_real=false) {
         auto _xcp = get_xcp_3();
+        auto old_xcp_profit_real = xcp_profit_real;
         xcp_profit_real = xcp_profit_real * _xcp / xcp;
         if (not only_real) {
-            xcp_profit = xcp_profit * _xcp / xcp;
+            xcp_profit += xcp_profit_real - old_xcp_profit_real;
         }
         xcp = _xcp;
     }
 
     void update_xcp_2(bool only_real=false) {
         auto _xcp = get_xcp_2();
+        auto old_xcp_profit_real = xcp_profit_real;
         xcp_profit_real = xcp_profit_real * _xcp / xcp;
         if (not only_real) {
-            xcp_profit = xcp_profit * _xcp / xcp;
+            xcp_profit += xcp_profit_real - old_xcp_profit_real;
         }
         xcp = _xcp;
     }
@@ -1233,8 +1235,8 @@ struct Trader {
             light_tx += 1;
             return norm;
         }
-        // if (not not_adjusted and (xcp_profit_real - 1.L > (xcp_profit - 1.L) / 2.L + allowed_extra_profit)) {
-        if (not not_adjusted and (xcp_profit_real > sqrt(xcp_profit) * (1.L + allowed_extra_profit))) {
+        // if (not not_adjusted and (xcp_profit_real > sqrt(xcp_profit) * (1.L + allowed_extra_profit))) {
+        if (not not_adjusted and (2 * xcp_profit_real - 1.L > xcp_profit + 2 * allowed_extra_profit)) {
             not_adjusted = true;
         }
         if (not not_adjusted) {
@@ -1261,7 +1263,7 @@ struct Trader {
         copy_money_2(&curve.p[0],p_new);
         update_xcp_2(true);
 
-        if (xcp_profit_real <= sqrt(xcp_profit)) {
+        if (2 * xcp_profit_real - 1.0 <= xcp_profit ) {
             //  If real profit is less than half of maximum - revert params back
             copy_money_2(&curve.p[0], old_p);
             xcp_profit_real = old_profit;
@@ -1298,7 +1300,8 @@ struct Trader {
             light_tx += 1;
             return norm;
         }
-        if (not not_adjusted and (xcp_profit_real > sqrt(xcp_profit) * (1.L + allowed_extra_profit))) {
+        // if (not not_adjusted and (xcp_profit_real > sqrt(xcp_profit) * (1.L + allowed_extra_profit))) {
+        if (not not_adjusted and (xcp_profit_real - 1.L > (xcp_profit - 1.L) / 2.L + allowed_extra_profit * xcp_profit_real)) {
             not_adjusted = true;
         }
         if (not not_adjusted) {
@@ -1326,7 +1329,7 @@ struct Trader {
         if (N == 3) update_xcp_3(true);
         else        update_xcp_2(true);
 
-        if (xcp_profit_real <= sqrt(xcp_profit)) {
+        if (xcp_profit_real - 1.0 <= (xcp_profit - 1.0) / 2) {
             //  If real profit is less than half of maximum - revert params back
             copy_money_3(&curve.p[0], old_p);
             xcp_profit_real = old_profit;
