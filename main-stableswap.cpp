@@ -444,7 +444,7 @@ auto reduction_coefficient_3(money const *x, money gamma) {
         K *= x[i] / S;
     }
     if (gamma > 0) {
-        K = gamma / (gamma + 1.L - K);
+        K = gamma * K / (gamma * K + 1.L - K);
     }
     return K;
 }
@@ -457,7 +457,7 @@ auto reduction_coefficient_2(money const *x, money gamma) {
         K *= 2 * x[i] / S;
     }
     if (gamma > 0) {
-        K = gamma / (gamma + 1.L - K);
+        K = gamma * K / (gamma * K + 1.L - K);
     }
     return K;
 }
