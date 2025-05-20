@@ -812,6 +812,18 @@ struct Trader {
         return (mid_fee * f + out_fee * (1.L - f));
     }
 
+    auto reduction_coefficient(int N) {
+        if (N == 2) {
+            money xp[2];
+            curve.xp_2(xp);
+            return reduction_coefficient_2(xp, fee_gamma);
+        } else {
+            money xp[3];
+            curve.xp_3(xp);
+            return reduction_coefficient_3(xp, fee_gamma);
+        }
+    }
+
     money get_xcp_3() const {
         // First calculate the ideal balance
         //  Then calculate, what the constant-product would be
@@ -1460,9 +1472,11 @@ struct Trader {
             _low = last;
             lasts[d.pair1] = last;
 
+            auto local_boost_rate = this->boost_rate * (1.L - reduction_coefficient(N));
+
             // Boost with special donations to the pool
             if (this->boost_rate > 0) {
-                auto _boost = (1.L + last_time * this->boost_rate);
+                auto _boost = (1.L + last_time * local_boost_rate);
                 curve.x[0] = curve.x[0] * _boost;
                 curve.x[1] = curve.x[1] * _boost;
                 if (N == 3) {
@@ -1534,14 +1548,15 @@ struct Trader {
             }
 
             if (log) {
-                fprintf(out_file, "{\"t\": %llu, \"token0\": %.6Le, \"token1\": %.6Le, \"price_oracle\": %.6Le, \"price_scale\": %.6Le, \"profit\": %.6Le, \"open\": %.6Le, \"high\": %.6Le, \"low\": %.6Le, \"close\": %.6Le}",
+                fprintf(out_file, "{\"t\": %llu, \"token0\": %.6Le, \"token1\": %.6Le, \"price_oracle\": %.6Le, \"price_scale\": %.6Le, \"profit\": %.6Le, \"open\": %.6Le, \"high\": %.6Le, \"low\": %.6Le, \"close\": %.6Le, \"boost_rate\": %.6Le}",
                         d.t,
                         curve.x[0],
                         curve.x[1],
                         price_oracle[b] / price_oracle[a],
                         curve.p[1],
                         xcp_profit_real - 1.0,
-                        d.open, d.high, d.low, d.close);
+                        d.open, d.high, d.low, d.close,
+                        local_boost_rate);
                 if (i < total_elements - 1) {
                     fprintf(out_file, ",\n");
                 }
@@ -1634,7 +1649,7 @@ bool simulation(simulation_data *data) {
     //money liq_density = jout["liq_density"];
     //money APY = jout["APY"];
     printf("Liquidity density vs that of xyz=k: %Lf\n", extdata.liq_density);
-    printf("APY-boost: %Lf%%\n", extdata.APY_boost * 100.L);
+    printf("APY-boost: %Lf\n", extdata.APY_boost);
     printf("APY: %Lf%%\n", extdata.APY * 100.L);
 //    json_save(out_json_name, jout);
     auto end = get_thread_time();

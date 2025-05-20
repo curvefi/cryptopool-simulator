@@ -9,3 +9,6 @@ simud:	main.cpp
 simus:	main-stableswap.cpp
 	c++ -O3 -funroll-loops -fomit-frame-pointer -ffast-math -march=native -o simus  main-stableswap.cpp -std=c++17 -lpthread
 
+simudyn:	main-stableswap-dynrate.cpp
+	c++ -O3 -funroll-loops -fomit-frame-pointer -ffast-math -march=native -o simudyn  main-stableswap-dynrate.cpp -std=c++17 -lpthread
+
