@@ -216,6 +216,11 @@ vector<trade_data> get_data(std::string const &fname) {
             p = scan_double(p, &d.open);
             p = scan_double(p, &d.high);
             p = scan_double(p, &d.low);
+            if (d.high < d.low) {
+                auto _high = d.low;
+                d.low = d.high;
+                d.high = _high;
+            }
             p = scan_double(p, &d.close);
             p = scan_double(p, &d.volume);
             ret.push_back(d);
