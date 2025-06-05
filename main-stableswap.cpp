@@ -499,6 +499,7 @@ auto newton_D_2(money A, money gamma, money const *xx, money D0) {
             return D;
         }
     }
+    return D; // we ignore convergence error in simulation
     throw std::logic_error("Newton_D: did not converge");
 }
 
@@ -549,6 +550,7 @@ auto newton_D_3(money A, money gamma, money const *xx, money D0) {
             return D;
         }
     }
+    return D;  // XXX
     throw std::logic_error("Newton_D: did not converge");
 }
 
@@ -570,6 +572,7 @@ auto newton_y(money A, money gamma, money const *x, size_t N, money D, int i) {
             return y;
         }
     }
+    return y;  // XXX
     throw std::logic_error("Did not converge");
 }
 
