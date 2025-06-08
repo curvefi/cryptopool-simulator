@@ -1,0 +1,32 @@
+{
+    "configuration": [
+        {
+            "A": 6.32455,
+            "D": 20000000.0,
+            "Result": {
+                "APY": 0.022259565396360387,
+                "liq_density": 1.4735264009975801,
+                "slippage": 0.8264221561099676,
+                "volume": 71.99252073948323
+            },
+            "adjustment_step": 0.00049,
+            "allowed_extra_profit": 2e-06,
+            "boost_rate": 0,
+            "ext_fee": 0.0004,
+            "fee_gamma": 0.0005,
+            "gamma": 1.1809167828997e-05,
+            "gas_fee": 1,
+            "log": 1,
+            "ma_half_time": 600,
+            "mid_fee": 0.0003,
+            "n": 3,
+            "out_fee": 0.003
+        }
+    ],
+    "datafile": [
+        "uni-short-btcusdc-1m",
+        "uni-short-ethusdc-1m",
+        "uni-short-ethbtc-1m"
+    ],
+    "debug": 0
+}

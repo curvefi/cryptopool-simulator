@@ -1,0 +1,26 @@
+{
+    "configuration": [
+        {
+            "D": 20000000.0,
+            "adjustment_step": 1e-07,
+            "fee_gamma": 0.0004,
+            "ma_half_time": 600,
+            "mid_fee": 0.0001,
+            "out_fee": 0.014,
+            "gas_fee": 1,
+            "n": 3,
+            "log": 1,
+            "boost_rate": 0,
+            "allowed_extra_profit": 1e-10,
+            "ext_fee": 0.0007,
+            "gamma": 8.05e-5,
+            "A": 2
+        }
+    ],
+    "datafile": [
+        "uni-short-btcusdc-1m",
+        "uni-short-ethusdc-1m",
+        "uni-short-ethbtc-1m"
+    ],
+    "debug": 0
+}

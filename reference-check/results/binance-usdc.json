@@ -1,0 +1,32 @@
+{
+    "configuration": [
+        {
+            "A": 6.32455,
+            "D": 20000000.0,
+            "Result": {
+                "APY": 0.03067461688885612,
+                "liq_density": 1.611748242777048,
+                "slippage": 0.7944085586940988,
+                "volume": 117.00236100733171
+            },
+            "adjustment_step": 0.00049,
+            "allowed_extra_profit": 2e-06,
+            "boost_rate": 0,
+            "ext_fee": 0.0004,
+            "fee_gamma": 0.0005,
+            "gamma": 1.1809167828997e-05,
+            "gas_fee": 1,
+            "log": 1,
+            "ma_half_time": 600,
+            "mid_fee": 0.0003,
+            "n": 3,
+            "out_fee": 0.003
+        }
+    ],
+    "datafile": [
+        "binance-short-btcusdt-1m-processed",
+        "binance-short-ethusdt-1m-processed",
+        "binance-short-ethbtc-1m-processed"
+    ],
+    "debug": 0
+}
