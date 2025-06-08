@@ -47,3 +47,9 @@ download/btcusdt-2019-2025.json filter=lfs diff=lfs merge=lfs -text
 download/btcusdt-2023-2025.json filter=lfs diff=lfs merge=lfs -text
 download/btcusdc-uni-1m.json filter=lfs diff=lfs merge=lfs -text
 download/ethusdc-uni-1m.json filter=lfs diff=lfs merge=lfs -text
+reference-check/data/binance-short-btcusdt-1m.json.xz filter=lfs diff=lfs merge=lfs -text
+reference-check/data/binance-short-btcusdt-1m-processed.json.xz filter=lfs diff=lfs merge=lfs -text
+reference-check/data/binance-short-ethbtc-1m.json.xz filter=lfs diff=lfs merge=lfs -text
+reference-check/data/binance-short-ethbtc-1m-processed.json.xz filter=lfs diff=lfs merge=lfs -text
+reference-check/data/binance-short-ethusdt-1m.json.xz filter=lfs diff=lfs merge=lfs -text
+reference-check/data/binance-short-ethusdt-1m-processed.json.xz filter=lfs diff=lfs merge=lfs -text
