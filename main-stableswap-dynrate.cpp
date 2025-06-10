@@ -216,6 +216,11 @@ vector<trade_data> get_data(std::string const &fname) {
             p = scan_double(p, &d.open);
             p = scan_double(p, &d.high);
             p = scan_double(p, &d.low);
+            if (d.high < d.low) {
+                auto _high = d.low;
+                d.low = d.high;
+                d.high = _high;
+            }
             p = scan_double(p, &d.close);
             p = scan_double(p, &d.volume);
             ret.push_back(d);
@@ -494,6 +499,7 @@ auto newton_D_2(money A, money gamma, money const *xx, money D0) {
             return D;
         }
     }
+    return D; // we ignore convergence error in simulation
     throw std::logic_error("Newton_D: did not converge");
 }
 
@@ -544,6 +550,7 @@ auto newton_D_3(money A, money gamma, money const *xx, money D0) {
             return D;
         }
     }
+    return D;  // XXX
     throw std::logic_error("Newton_D: did not converge");
 }
 
@@ -565,6 +572,7 @@ auto newton_y(money A, money gamma, money const *x, size_t N, money D, int i) {
             return y;
         }
     }
+    return y;  // XXX
     throw std::logic_error("Did not converge");
 }
 
@@ -810,18 +818,6 @@ struct Trader {
         curve.xp_2(xp);
         auto f = reduction_coefficient_2(xp, fee_gamma);
         return (mid_fee * f + out_fee * (1.L - f));
-    }
-
-    auto reduction_coefficient(int N) {
-        if (N == 2) {
-            money xp[2];
-            curve.xp_2(xp);
-            return reduction_coefficient_2(xp, fee_gamma);
-        } else {
-            money xp[3];
-            curve.xp_3(xp);
-            return reduction_coefficient_3(xp, fee_gamma);
-        }
     }
 
     money get_xcp_3() const {
@@ -1472,7 +1468,7 @@ struct Trader {
             _low = last;
             lasts[d.pair1] = last;
 
-            auto local_boost_rate = this->boost_rate * (1.L - reduction_coefficient(N));
+            auto local_boost_rate = this->boost_rate * mabs((price_oracle[1] - curve.p[1]) / curve.p[1]) * curve.A;
 
             // Boost with special donations to the pool
             if (this->boost_rate > 0) {
