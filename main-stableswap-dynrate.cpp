@@ -783,6 +783,7 @@ struct Trader {
         this->ext_fee = jconf["ext_fee"];
         this->gas_fee = jconf["gas_fee"];
         this->boost_rate = jconf["boost_rate"];
+        this->boost_mul = jconf["boost_mul"];
         this->boost_rate = this->boost_rate / (86400L * 365L);
         this->boost_integral = 1.L;
         log = jconf["log"];
@@ -1468,7 +1469,10 @@ struct Trader {
             _low = last;
             lasts[d.pair1] = last;
 
-            auto local_boost_rate = this->boost_rate * mabs((price_oracle[1] - curve.p[1]) / curve.p[1]) * curve.A;
+            // auto local_boost_rate = this->boost_rate * sqrt(1.0 + pow(mabs((price_oracle[1] - curve.p[1]) * curve.A / curve.p[1]), 2));
+            auto local_boost_rate = this->boost_rate * sqrt(1.0 + pow(this->boost_mul * mabs((price_oracle[1] - curve.p[1]) * curve.A / curve.p[1]), 2));
+            // auto local_boost_rate = this->boost_rate * (1.0 + 10 * mabs((price_oracle[1] - curve.p[1]) * curve.A / curve.p[1]));
+            // auto local_boost_rate = this->boost_rate * pow(mabs((price_oracle[1] - curve.p[1]) * curve.A / curve.p[1]), 2);
 
             // Boost with special donations to the pool
             if (this->boost_rate > 0) {
@@ -1594,6 +1598,7 @@ struct Trader {
     money ext_fee;
     money gas_fee;
     money boost_rate;
+    money boost_mul;
     money boost_integral;
     money volume;
     money slippage;
@@ -1645,7 +1650,7 @@ bool simulation(simulation_data *data) {
     //money liq_density = jout["liq_density"];
     //money APY = jout["APY"];
     printf("Liquidity density vs that of xyz=k: %Lf\n", extdata.liq_density);
-    printf("APY-boost: %Lf\n", extdata.APY_boost);
+    printf("APY-boost: %Lf%%\n", extdata.APY_boost * 100.L);
     printf("APY: %Lf%%\n", extdata.APY * 100.L);
 //    json_save(out_json_name, jout);
     auto end = get_thread_time();
