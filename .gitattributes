@@ -56,3 +56,5 @@ reference-check/data/binance-short-ethusdt-1m-processed.json.xz filter=lfs diff=
 reference-check/data/uni-short-btcusdc-1m.json.xz filter=lfs diff=lfs merge=lfs -text
 reference-check/data/uni-short-ethbtc-1m.json.xz filter=lfs diff=lfs merge=lfs -text
 reference-check/data/uni-short-ethusdc-1m.json.xz filter=lfs diff=lfs merge=lfs -text
+download/curve-short-btcusdt-1m.json filter=lfs diff=lfs merge=lfs -text
+download/curve-btcusdc-1m.json filter=lfs diff=lfs merge=lfs -text
