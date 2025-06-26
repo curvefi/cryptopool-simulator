@@ -1,0 +1,5 @@
+A=230
+rate = 22%
+mid_fee=0.08%
+out_fee=0.58%
+fee_gamma=0.0129
