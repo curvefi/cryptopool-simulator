@@ -29,8 +29,9 @@ for deposit in deposits:
     print("---------------------")
     for size in tx_sizes:
         size_wad = int(price * size * 10**18)
-        p0 = 10**18 / curve.dy(1, 0, 10**18)
-        p1 = curve.dy(1, 0, size_wad) / size_wad
-        impact = (p0 - p1) / p0 * 100
-        print(f"Transaction size: {size} BRL  ->  Price impact: {impact:.4f}%")
+        p0 = curve.dy(0, 1, 10**18) / 1e18
+        p1 = size_wad / curve.dy(0, 1, size_wad)
+        print(p0, p1)
+        impact = (p1 - p0) / p0 * 100
+        print(f"Transaction size: {size*price} USD ->  Price impact: {impact:.4f}%")
     print()
