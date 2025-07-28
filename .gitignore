@@ -11,6 +11,7 @@
 /simu
 /simus
 
+configuration.json
 # build
 build/
 # cmake
