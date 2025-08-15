@@ -1422,7 +1422,7 @@ struct Trader {
             // printf("!!!1 %Lf %Lf\n", p_after, last);
 
             if (p_before != p_after) {
-                auto v = _dx / curve.x[b];
+                auto v = _dx / (curve.x[b] + curve.x[a] / p_after) * N / 2;
                 _slippage = (_dx * (p_before + p_after)) / (2.L * (mabs(p_before - p_after)) * curve.x[b]);
                 volume += v;
             }
@@ -1455,7 +1455,7 @@ struct Trader {
             // printf("!!!2 %Lf %Lf\n", p_after, last);
 
             if (p_before != p_after) {
-                auto v = _dx / curve.x[b];
+                auto v = _dx / (curve.x[b] + curve.x[a] / p_after) * N / 2;
                 _slippage = (_dx * (p_before + p_after)) / (2.L * (mabs(p_before - p_after)) * curve.x[b]);
                 volume += v;
             }
