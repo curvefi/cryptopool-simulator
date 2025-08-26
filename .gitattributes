@@ -63,3 +63,4 @@ brl/data/brl_usd_1min_one_year_2024.csv.xz filter=lfs diff=lfs merge=lfs -text
 brl/data/brl_usd_1min_one_year.csv.xz filter=lfs diff=lfs merge=lfs -text
 brl/data/brlusd-1m.json.xz filter=lfs diff=lfs merge=lfs -text
 brl/data/brl_usd_1min_one_year_2023.csv.xz filter=lfs diff=lfs merge=lfs -text
+chfusd/data/chfusd-2019-2024.json.xz filter=lfs diff=lfs merge=lfs -text
