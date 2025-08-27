@@ -1238,7 +1238,7 @@ struct Trader {
         }
         auto norm = S;
         norm = sqrt(norm); // .root_to();
-        auto _adjustment_step = max(adjustment_step, norm / 10);
+        auto _adjustment_step = max(adjustment_step, norm / 5);
         if (norm <= _adjustment_step) {
             // Already close to the target price
             is_light = true;
@@ -1303,7 +1303,7 @@ struct Trader {
         }
         auto norm = S;
         norm = sqrt(norm); // .root_to();
-        auto _adjustment_step = max(adjustment_step, norm / 10);
+        auto _adjustment_step = max(adjustment_step, norm / 5);
         if (norm <= _adjustment_step) {
             // Already close to the target price
             is_light = true;
@@ -1367,6 +1367,8 @@ struct Trader {
         money antislippage = 0;
         money slippage_count = 0;
         money _slippage;
+        money _high = 0;
+        money _low = 0;
 
         FILE *out_file;
         if (log) {
@@ -1395,8 +1397,6 @@ struct Trader {
             } else {
                 last = itl->second;
             }
-            auto _high = last;
-            auto _low = last;
 
             auto max_price = d.high * (1 - ext_fee);
             auto min_price = d.low * (1 + ext_fee);
@@ -1431,8 +1431,15 @@ struct Trader {
                 antislippage += last_time * _slippage;
                 slippage += last_time / _slippage;
             }
-
             _high = last;
+
+            if (ctr > 0) {
+                if (_low == 0) _low = last;
+                if (N == 2) tweak_price_2(d.t, a, b, (_high + _low) / 2.L);
+                else        tweak_price_3(d.t, a, b, (_high + _low) / 2.L);
+                ctr = 0;
+            }
+
             _dx = 0;
             p_before = p_after;
 
@@ -1481,8 +1488,11 @@ struct Trader {
                 this->boost_integral *= _boost;
             }
 
-            if (N == 2) tweak_price_2(d.t, a, b, (_high + _low) / 2.L);
-            else        tweak_price_3(d.t, a, b, (_high + _low) / 2.L);
+            if (ctr > 0) {
+                if (N == 2) tweak_price_2(d.t, a, b, (_high + _low) / 2.L);
+                else        tweak_price_3(d.t, a, b, (_high + _low) / 2.L);
+            }
+
             total_vol += vol;
             last_time = d.t;
             long double ARU_x = xcp_profit_real;
