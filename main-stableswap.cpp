@@ -1436,7 +1436,7 @@ struct Trader {
                 _slippage = (_dx * (p_before + p_after)) / (2.L * (mabs(p_before - p_after)) * curve.x[b]);
                 volume += v;
             }
-            if (_slippage > 0) {
+            if (_slippage > 1e-10) {
                 slippage_count += last_time;
                 antislippage += last_time * _slippage;
                 slippage += last_time / _slippage;
@@ -1477,7 +1477,7 @@ struct Trader {
                 _slippage = (_dx * (p_before + p_after)) / (2.L * (mabs(p_before - p_after)) * curve.x[b]);
                 volume += v;
             }
-            if (_slippage > 0) {
+            if (_slippage > 1e-10) {
                 slippage_count += last_time;
                 antislippage += last_time * _slippage;
                 slippage += last_time / _slippage;
