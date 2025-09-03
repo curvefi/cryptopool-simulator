@@ -13,6 +13,7 @@
 #include <cmath>
 #include <fstream>
 #include <iomanip>
+#include <sstream>
 #include "json.hpp"
 #include <queue>
 #include <pthread.h>
@@ -328,6 +329,7 @@ bool get_all(json const &jin, int last_elems, vector<money> & price_vector, mapp
                 trade_max.volume = trade.volume / 2;
 
                 if (mabs(trade.open - trade.low) + mabs(trade.close - trade.high) < mabs(trade.open - trade.high) + mabs(trade.close - trade.low)) {
+                    // shortest path: open -> low -> high -> close
                     trade_min.high = trade.low;
                     trade_min.low = trade.low;
                     trade_min.close = trade.low;
@@ -335,6 +337,7 @@ bool get_all(json const &jin, int last_elems, vector<money> & price_vector, mapp
                     trade_max.high = trade.high;
                     trade_max.low = trade.high;
                 } else {
+                    // shortest path: open -> high -> low -> close
                     trade_min.high = trade.high;
                     trade_min.low = trade.high;
                     trade_min.close = trade.high;
@@ -343,20 +346,18 @@ bool get_all(json const &jin, int last_elems, vector<money> & price_vector, mapp
                     trade_max.low = trade.low;
                 }
 
+                    
+
                 out.push_back({trade.t - (trade.pair1.first + trade.pair1.second) * 10 + 5, trade_min});
                 out.push_back({trade.t + (trade.pair1.first + trade.pair1.second) * 10 - 5, trade_max});
             }
         }
     }
     auto start_time = get_thread_time();
-    //debug_print("out first 5", out, 5);
-    //debug_print("out last 5", out, -5);
     sort(out.begin(), out.end(), [](trade_one const &l, trade_one const &r) {
         return l.t < r.t;
     });
     auto end_time = get_thread_time();
-    //debug_print("sorted out first 5", out, 5);
-    //debug_print("sorted out last 5", out, -5);
     vector<trade_data> ret;
     for (auto &q: out) {
         ret.push_back(q.trade);
@@ -376,9 +377,15 @@ bool get_all(json const &jin, int last_elems, vector<money> & price_vector, mapp
     }
     printf("Using temp file '%s' as interprocedural connect\n", tmp_name.c_str());
     fwrite(&ret[0], sizeof(trade_data), ret.size(), tmp);
+
+    fflush(tmp);
+    // int fd = fileno(tmp);
+    // if (fd >= 0) fsync(fd);
+    fclose(tmp);
     //unlink(tmp_name.c_str()); // Does not work in Windows
     mf.map(tmp_name);
     return true;
+
 }
 
 money geometric_mean_2(money const *x) {
@@ -495,7 +502,7 @@ auto newton_D_2(money A, money gamma, money const *xx, money D0) {
         }
         money Dprev = D;
         D = (A * S + D_P * N) * D / ((A - 1) * D + (N + 1) * D_P);
-        if (mabs(D - Dprev) <= 1) {
+        if (mabs(D - Dprev) <= 1e-6) {
             return D;
         }
     }
@@ -752,9 +759,20 @@ struct Curve {
 struct extra_data {
     money APY = 0;
     money APY_boost = 0;
+    money xcp_profit_real = 0;
+    money APY_vp = 0;                 // APY from virtual price (alias of APY for clarity)
+    money APY_coin0_raw = -1;         // Raw APY from TVL growth in coin0 units
+    money APY_coin0_boost_raw = -1;   // Raw APY excluding donations (boost) in coin0
+    money APY_coin0 = -1;             // Baseline-subtracted APY vs HODL
+    money APY_coin0_boost = -1;       // Baseline-subtracted APY excluding donations
+    money donation_coin0_total = 0;    // Total donation (boost) value measured in coin0 units
     money liq_density = 0;
     money slippage = 0;
     money volume = 0;
+    money trade_volume = 0; // sum of external trade volumes (USD)
+    money arb_profit_coin0 = 0; // sum of positive arbitrage profits in coin0 units
+    unsigned long long n_rebalances = 0; // count of successful tweak_price adjustments
+    unsigned long long n_trades = 0; // total number of executed trades
 };
 
 struct simulation_data {
@@ -803,6 +821,8 @@ struct Trader {
         this->light_tx = 0;
         this->is_light = false;
         this->t = 0;
+        this->n_rebalances = 0;
+        this->n_trades = 0;
     }
 
 
@@ -992,6 +1012,119 @@ struct Trader {
         return _dx;
     }
 
+    // auto step_for_price_2(money p_min, money p_max, pair<int, int> p, money vol, money ext_vol) {
+    //     // Size using marginal post-trade price with fees.
+    //     money x0[2];
+    //     copy_money_2(x0, &curve.x[0]);
+    
+    //     money _dx = 0;         // total size (in "from" coin units)
+    //     money _dy = 0;         // total out (after pool fee) of the "to" coin (only for volume cap)
+    //     const bool upper = (p_max > 0);             // upper: buy `to` with `from`
+    //     const int  from  = upper ? p.first : p.second;
+    //     const int  to    = upper ? p.second : p.first;
+    
+    //     const money step0 = dx / curve.p[from];
+    //     money step = step0;
+    
+    //     // CEX bound already fee-adjusted by caller
+    //     const money p_cex = upper ? p_max : p_min;
+    
+    //     bool good = false;
+    
+    //     // ---------------- grow (like original) ----------------
+    //     while (true) {
+    //         const money _dx_prev = _dx;
+    //         const money _dy_prev = _dy;
+    
+    //         _dx += step;
+    
+    //         // Post-trade (pre-fee) state for candidate size
+    //         const money x = x0[from] + _dx;
+    //         const money y = curve.y_2(x, from, to);
+    
+    //         // Set temporary state to measure dynamic fee & marginal price at the new skew
+    //         curve.x[from] = x;
+    //         curve.x[to]   = y;
+    
+    //         const money one_minus_fee = 1.L - this->fee_2();
+    
+    //         // Total out after fee (for volume cap)
+    //         const money dy_total = (x0[to] - y) * one_minus_fee;
+    
+    //         // Marginal mid (pre-fee) at post-trade state (from per to)
+    //         const money p_mid_post = price_2(p.first, p.second);
+    
+    //         // Pool marginal price incl. pool fee (ask/bid)
+    //         const money p_pool_marg = upper ? (p_mid_post / one_minus_fee)   // ask
+    //                                         : (p_mid_post * one_minus_fee);  // bid
+    
+    //         // Optional resonance guard (use mid without fee as in your original checks)
+    //         const bool cond_mid = upper ? (p_mid_post <= p_max) : (p_mid_post >= p_min);
+    
+    //         // Restore state
+    //         copy_money_2(&curve.x[0], x0);
+    
+    //         // External volume cap
+    //         const money v = vol + dy_total * curve.p[to];
+    //         if (v > ext_vol / 2.L) { _dx = _dx_prev; _dy = _dy_prev; break; }
+    
+    //         // Marginal-profit condition vs CEX
+    //         const bool cond = upper ? (p_pool_marg <= p_cex) : (p_pool_marg >= p_cex);
+    
+    //         if (cond && cond_mid) {
+    //             good = true;
+    //             _dy  = dy_total;
+    //             step += step;             // same growth as your original 2-coin logic
+    //         } else {
+    //             _dx = _dx_prev;
+    //             _dy = _dy_prev;
+    //             break;
+    //         }
+    //     }
+    
+    //     // ---------------- refine by halving (like original) ----------------
+    //     while (true) {
+    //         const money _dx_prev = _dx;
+    //         const money _dy_prev = _dy;
+    
+    //         step /= 2;
+    //         if (step < step0) break;
+    
+    //         _dx += step;
+    
+    //         const money x = x0[from] + _dx;
+    //         const money y = curve.y_2(x, from, to);
+    
+    //         curve.x[from] = x;
+    //         curve.x[to]   = y;
+    
+    //         const money one_minus_fee = 1.L - this->fee_2();
+    //         const money dy_total      = (x0[to] - y) * one_minus_fee;
+    
+    //         const money p_mid_post  = price_2(p.first, p.second);
+    //         const money p_pool_marg = upper ? (p_mid_post / one_minus_fee)
+    //                                         : (p_mid_post * one_minus_fee);
+    
+    //         // Restore for next iteration
+    //         copy_money_2(&curve.x[0], x0);
+    
+    //         const money v = vol + dy_total * curve.p[to];
+    //         const bool vol_ok  = (v <= ext_vol / 2.L);
+    //         const bool cond    = upper ? (p_pool_marg <= p_cex) : (p_pool_marg >= p_cex);
+    //         const bool cond_mid= upper ? (p_mid_post <= p_max)  : (p_mid_post >= p_min);
+    
+    //         if (vol_ok && cond && cond_mid) {
+    //             _dy = dy_total;       // keep the improved point
+    //         } else {
+    //             _dx = _dx_prev;       // revert
+    //             _dy = _dy_prev;
+    //         }
+    //     }
+    
+    //     if (!good) _dx = 0;
+    //     return _dx;
+    // }
+    
     auto step_for_price_2(money p_min, money p_max, pair<int, int> p, money vol, money ext_vol) {
         money x0[2];
         copy_money_2(x0, &curve.x[0]);
@@ -1000,8 +1133,6 @@ struct Trader {
         money x = 0;
         money y = 0;
         money price = 0;
-        money price_with_gas = 0;
-        bool good_with_gas = false;
         auto _from = p.first;
         auto _to = p.second;
         if (p_min > 0) {
@@ -1011,6 +1142,8 @@ struct Trader {
         auto step0 = dx / curve.p[_from];  // step in units of currency being sold
         auto step = step0;
         money gas = gas_fee / curve.p[_from];
+
+        money previous_profit = 0;
 
         // + (step increases)
         while (true) {
@@ -1034,35 +1167,32 @@ struct Trader {
 
             if (_from == p.first) {
                 price = _dx / _dy;
-                price_with_gas = (_dx + gas) / _dy;  // need to buy higher than without gas
             }
             else {
                 price = _dy / _dx;
-                price_with_gas = _dy / (_dx + gas); // need to sell lower than without gas
             }
             auto v = vol + _dy * curve.p[_to];
 
             // Needed to prevent resonant trading which doesn't happen in reality
-            auto inst_price = price_2(p.first, p.second);
             copy_money_2(&curve.x[0], x0);  // restore the state
             // printf("::: %Lf %Lf %Lf %Lf\n", price, inst_price, p_min, p_max);
+            // _from == p.first - buy
+            // _from != p.first - sell
+            money new_profit;
+            if (_from == p.first)
+                new_profit = (_dx / price - _dx / p_max) * p_max;
+            else
+                new_profit = (price - p_min) * _dx;
 
-            if ((p_min > 0 and (price_with_gas >= p_min) and inst_price >= p_min) or (p_max > 0 and (price_with_gas <= p_max) and inst_price <= p_max)) {
-                good_with_gas = true;
+            // printf("*** price=%Lf, min=%Lf, max=%Lf, _dx=%Le, new_p=%Lf, pr_p=%Lf\n", price, p_min, p_max, _dx, new_profit, previous_profit);
+
+            if (new_profit > previous_profit and v <= ext_vol / 2.L) {
+                previous_profit = new_profit;
             } else {
-                if (good_with_gas) {
-                    _dx = _dx_prev;
-                    _dy = _dy_prev;
-                    break;
-                }
-            }
-
-            if ((p_min > 0 and (price < p_min or inst_price < p_min)) or (p_max > 0 and (price > p_max or inst_price > p_max)) or (v > ext_vol / 2.L)) {
                 _dx = _dx_prev;
                 _dy = _dy_prev;
                 break;
             }
-            // printf("*** price=%Lf, min=%Lf, max=%Lf, _dx=%Lf\n", price, p_min, p_max, _dx);
 
             step += step;
         }
@@ -1071,60 +1201,70 @@ struct Trader {
         while (true) {
             auto _dx_prev = _dx;
             auto _dy_prev = _dy;
+            if (step < 0) step = -step;
             step /= 2;
 
             if (step < step0) {
                 break;
             }
 
-            _dx += step;
+            for (int ctr=0;ctr<2;ctr++) {
+                step = -step;
+                _dx = _dx_prev + step;
 
-            x = x0[_from] + _dx;
-            y = curve.y_2(x, _from, _to);
+                x = x0[_from] + _dx;
+                y = curve.y_2(x, _from, _to);
 
-            curve.x[_from] = x;
-            curve.x[_to] = y;
-            auto fee_mul = 1.L - this->fee_2();
+                curve.x[_from] = x;
+                curve.x[_to] = y;
+                auto fee_mul = 1.L - this->fee_2();
 
-            _dy = (x0[_to] - y) * fee_mul;
-            curve.x[_to] = x0[_to] - _dy;
+                _dy = (x0[_to] - y) * fee_mul;
+                curve.x[_to] = x0[_to] - _dy;
 
-            if (_from == p.first) {
-                price = _dx / _dy;
-                price_with_gas = (_dx + gas) / _dy;  // need to buy higher than without gas
+                if (_from == p.first) {
+                    price = _dx / _dy;
+                }
+                else {
+                    price = _dy / _dx;
+                }
+                auto v = vol + _dy * curve.p[_to];
+
+                copy_money_2(&curve.x[0], x0);  // restore the state
+
+                
+                // _from == p.first - buy
+                // _from != p.first - sell
+                money new_profit;
+                if (_from == p.first)
+                    new_profit = (_dx / price - _dx / p_max) * p_max;
+                else
+                    new_profit = (price - p_min) * _dx;
+
+                if (new_profit > previous_profit and v <= ext_vol / 2.L) {
+                    previous_profit = new_profit;
+                    break;
+                } else {
+                    _dx = _dx_prev;
+                    _dy = _dy_prev;
+                }
             }
-            else {
-                price = _dy / _dx;
-                price_with_gas = _dy / (_dx + gas); // need to sell lower than without gas
-            }
-            auto v = vol + _dy * curve.p[_to];
-
-            // Needed to prevent resonant trading which doesn't happen in reality
-            auto inst_price = price_2(p.first, p.second);
-            copy_money_2(&curve.x[0], x0);  // restore the state
-            // printf("::: %Lf %Lf %Lf %Lf\n", price, inst_price, p_min, p_max);
-
-            if ((p_min > 0 and (price_with_gas >= p_min) and inst_price >= p_min) or (p_max > 0 and (price_with_gas <= p_max) and inst_price <= p_max)) {
-                good_with_gas = true;
-            } else {
-                _dx = _dx_prev;
-                _dy = _dy_prev;
-            }
-            if (v > ext_vol / 2.L) {
-                 _dx = _dx_prev;
-                 _dy = _dy_prev;
-            }
-            // printf("*** price=%Lf, min=%Lf, max=%Lf, _dx=%Lf\n", price, p_min, p_max, _dx);
         }
-
-        if (!good_with_gas) {
-            _dx = 0;
-        }
-
         // printf("*** p_min=%Lf, p_max=%Lf, _dy=%Lf, y=%Lf\n", p_min, p_max, _dy, curve.x[_to]);
+
+        if (_from == p.first) {
+            price = (_dx + gas) / _dy;  // need to buy higher than without gas
+            previous_profit = (_dx / price - _dx / p_max) * p_max;
+        }
+        else {
+            price = _dy / (_dx + gas); // need to sell lower than without gas
+            previous_profit = (price - p_min) * _dx;
+        }
+
+        if (previous_profit <= 0) _dx = 0;
         return _dx;
     }
-
+    
     void update_xcp_3(bool only_real=false) {
         auto _xcp = get_xcp_3();
         auto old_xcp_profit_real = xcp_profit_real;
@@ -1192,19 +1332,17 @@ struct Trader {
             copy_money_2(x_old, &curve.x[0]);
             auto x = curve.x[i] + dx;
             auto y = curve.y_2(x, i, j);
-
             curve.x[i] = x;
             curve.x[j] = y;
             auto fee_mul = 1.L - this->fee_2();
             auto dy = x_old[j] - y;
-
             curve.x[j] = x_old[j] - dy * fee_mul;
             if ((dx / dy) > max_price or dy < 0) {
                 copy_money_2(&curve.x[0], x_old);
                 return 0;
             }
             update_xcp_2();
-            return dy;
+            return dy; //return is pre-fee
         } catch (...) {
             return 0;
         }
@@ -1221,14 +1359,27 @@ struct Trader {
         }
     }
 
-    auto tweak_price_2(u64 t, int a, int b, money p) {
-        ma_recorder(t, last_price);
+    // auto tweak_price_2(u64 t, int a, int b, money p) {
+    //     ma_recorder(t, last_price);
+    //     const int N = 2;
+    //     if (b > 0) {
+    //         last_price[b] = p * last_price[a];
+    //     } else {
+    //         last_price[a] = last_price[0] / p;
+    //     }
+
+    auto tweak_price_2(u64 t, int /*a*/, int /*b*/, money /*p*/) {
         const int N = 2;
-        if (b > 0) {
-            last_price[b] = p * last_price[a];
-        } else {
-            last_price[a] = last_price[0] / p;
-        }
+    
+        // --- Feed the EMA with the pool's own spot (pre-fee marginal price),
+        //     coin0 per coin1, computed at the current state.
+        money amm_p01 = price_2(0, 1);             // dx/dy (coin0 per coin1)
+        // Optional: cap like the real pool (avoid extreme oracle jumps)
+        money capped_p01 = std::min(amm_p01, 2.L * curve.p[1]);
+    
+        std::vector<money> spot = {1.L, capped_p01};
+        ma_recorder(t, spot);
+    
 
         // # price_oracle looks like [1, p1, p2, ...] normalized to 1e18
         money S = 0;
@@ -1238,7 +1389,7 @@ struct Trader {
         }
         auto norm = S;
         norm = sqrt(norm); // .root_to();
-        auto _adjustment_step = max(adjustment_step, norm / 10);
+        auto _adjustment_step = max(adjustment_step, norm / 5);
         if (norm <= _adjustment_step) {
             // Already close to the target price
             is_light = true;
@@ -1246,6 +1397,8 @@ struct Trader {
             return norm;
         }
         // if (not not_adjusted and (xcp_profit_real > sqrt(xcp_profit) * (1.L + allowed_extra_profit))) {
+        // THIS: 2 * vp - 1 > xcpp
+        // POOL: vp - 1 > (xcpp - 1)/2 ::: 2vp - 2 > xcpp - 1 ::: 2vp-1 > xcpp
         if (not not_adjusted and (2 * xcp_profit_real - 1.L > xcp_profit + 2 * allowed_extra_profit)) {
             not_adjusted = true;
         }
@@ -1281,6 +1434,9 @@ struct Trader {
             not_adjusted = false;
             // auto val = ((xcp_profit_real - 1.L - (xcp_profit - 1.L) / 2.L));
             // printf("%.10Lf\n", val);
+        } else {
+            // successful heavy rebalance
+            this->n_rebalances += 1;
         }
         return norm;
     }
@@ -1303,7 +1459,7 @@ struct Trader {
         }
         auto norm = S;
         norm = sqrt(norm); // .root_to();
-        auto _adjustment_step = max(adjustment_step, norm / 10);
+        auto _adjustment_step = max(adjustment_step, norm / 5);
         if (norm <= _adjustment_step) {
             // Already close to the target price
             is_light = true;
@@ -1347,6 +1503,9 @@ struct Trader {
             not_adjusted = false;
             // auto val = ((xcp_profit_real - 1.L - (xcp_profit - 1.L) / 2.L));
             // printf("%.10Lf\n", val);
+        } else {
+            // successful heavy rebalance
+            this->n_rebalances += 1;
         }
         return norm;
     }
@@ -1358,27 +1517,87 @@ struct Trader {
         map<pair<int, int>, money> lasts;
         size_t N = price_oracle.size();
         u64 start_t = 0;
+        u64 end_t = 0;
         long double last_time = 0;
+        long double last_time_tweak_price = 0;
         size_t total_elements = in->size / sizeof(trade_data);
+        printf("in->size: %zu\n", in->size);
+        printf("sizeof(trade_data): %zu\n", sizeof(trade_data));
+        printf("total_elements: %zu\n", total_elements);
         simdata->total = total_elements;
         auto mapped_data = (trade_data const *) in->base;
         auto mapped_data_ptr = mapped_data;
         money slippage = 0;
         money antislippage = 0;
         money slippage_count = 0;
-        money _slippage;
+        money _slippage = 0; // initialize to avoid using garbage when price doesn't move
+
+        // Track TVL growth in coin0 units and HODL baseline
+        // TVL in coin0 units: sum_i x[i] * p[i] (p[0] == 1)
+        auto tvl_in_coin0 = [&](vector<money> const &x, vector<money> const &p) -> long double {
+            long double v = 0;
+            for (size_t i = 0; i < x.size(); i++) v += (long double)(x[i] * p[i]);
+            return v;
+        };
+        vector<money> x_start = curve.x; // initial LP balances by coin
+        long double tvl_start = tvl_in_coin0(curve.x, curve.p);
+        long double donation_coin0_total = 0.0L;
 
         FILE *out_file;
+        FILE *trades_file = nullptr;
         if (log) {
-            out_file = fopen("detailed-output.json", "w");
+            out_file = fopen("states.json", "w");
             fprintf(out_file, "[");
+            // Open per-configuration trades log (JSON Lines)
+            char trades_name[64];
+            snprintf(trades_name, sizeof(trades_name), "trades-%d.jsonl", simdata->num);
+            trades_file = fopen(trades_name, "w");
         }
 
+        long double arb_profit_sum_coin0 = 0.0L;
+
         for (size_t i = 0; i < total_elements; i++) {
+            // Per-event extended state snapshots accumulator
+            std::string snapshots_json;
+            bool first_snapshot = true;
+            auto append_snapshot = [&](const char* phase_label, unsigned long long t_label) {
+                std::ostringstream ss;
+                ss.setf(std::ios::fixed);
+                ss << std::setprecision(12);
+                long double D_now_local = (price_oracle.size() == 3) ? (long double)curve.D_3() : (long double)curve.D_2();
+                ss << "{";
+                ss << "\"phase\":\"" << phase_label << "\",";
+                ss << "\"t\":" << t_label << ",";
+                // balances
+                ss << "\"x\":[";
+                for (size_t k = 0; k < curve.x.size(); ++k) { if (k) ss << ","; ss << (long double)curve.x[k]; }
+                ss << "],";
+                // prices
+                ss << "\"p\":[";
+                for (size_t k = 0; k < curve.p.size(); ++k) { if (k) ss << ","; ss << (long double)curve.p[k]; }
+                ss << "],";
+                // xp = x * p
+                ss << "\"xp\":[";
+                for (size_t k = 0; k < curve.x.size(); ++k) {
+                    if (k) ss << ",";
+                    long double pk = (k < curve.p.size() ? (long double)curve.p[k] : 1.0L);
+                    ss << ((long double)curve.x[k] * pk);
+                }
+                ss << "],";
+                ss << "\"D\":" << D_now_local << ",";
+                ss << "\"xcp\":" << (long double)xcp << ",";
+                ss << "\"xcp_profit\":" << (long double)xcp_profit << ",";
+                ss << "\"xcp_profit_real\":" << (long double)xcp_profit_real;
+                ss << "}";
+                if (!first_snapshot) snapshots_json += ",";
+                snapshots_json += ss.str();
+                first_snapshot = false;
+            };
             simdata->current = i;
             // if (i > 10) abort();
             trade_data d = *mapped_data_ptr++;
             if (i == 0) start_t = d.t;
+            end_t = d.t;
             if (last_time > 0) {
                 last_time = d.t - last_time;
             }
@@ -1397,22 +1616,73 @@ struct Trader {
             }
             auto _high = last;
             auto _low = last;
+            _slippage = 0; // reset per-iteration before any accumulation
 
             auto max_price = d.high * (1 - ext_fee);
             auto min_price = d.low * (1 + ext_fee);
             money _dx = 0;
             auto p_before = N == 3 ? price_3(a, b) : price_2(a, b);
-
+            bool trade_happened = false;
             if ((max_price != 0) & (max_price > p_before)) {
                 auto step = N == 3 ? step_for_price_3(0, max_price, d.pair1, vol, ext_vol) : step_for_price_2(0, max_price, d.pair1, vol, ext_vol);
                 if (step > 0) {
+                    // Snapshot before upper-branch trade
+                    if (log) append_snapshot("trade_upper_before", d.t);
                     // printf("+++ %Lf %Lf %d %d\n", curve.x[a], curve.x[b], a, b);
+                    // Capture pre-exchange balances to compute taker amounts
+                    auto bal_a_before = curve.x[a];
+                    auto bal_b_before = curve.x[b];
+                    
                     auto dy = N == 3 ? exchange_3(step, a, b) : exchange_2(step, a, b);
+                    trade_happened = true;
                     // printf("+++ %Lf %Lf\n", curve.x[a], curve.x[b]);
                     vol += step * price_oracle[a];
                     _dx += dy;
                     last = N == 3 ? price_3(a, b) : price_2(a, b);
                     ctr += 1;
+                    // Snapshot after upper-branch trade
+                    if (log) append_snapshot("trade_upper_after", d.t);
+
+                    // Approximate arbitrage profit in coin0 units when buying coin b on pool and selling b on CEX
+                    if (price_oracle.size() == 2) {
+                        long double dx_in = (long double)(curve.x[a] - bal_a_before); // in coin a
+                        long double dy_after_fee = (long double)(bal_b_before - curve.x[b]); // in coin b
+                        if (dx_in > 0 && dy_after_fee > 0) {
+                            long double cex_price = (long double)d.high; // coin0 per coin1
+                            long double f_buy = 1.0L - (long double)this->ext_fee;
+                            long double gas_coin0 = (long double)this->gas_fee;
+                            long double profit_coin0;
+                            if (a == 0) {
+                                // Buy coin1 on pool with coin0; sell coin1 on CEX
+                                profit_coin0 = dy_after_fee * cex_price * f_buy - dx_in - gas_coin0;
+                            } else {
+                                // Buy coin0 on pool with coin1; sell coin0 on CEX
+                                // Revenue is in coin0 already; apply CEX sell fee only
+                                profit_coin0 = dy_after_fee * f_buy - dx_in * cex_price - gas_coin0;
+                            }
+                            if (profit_coin0 > 0) arb_profit_sum_coin0 += profit_coin0;
+                        }
+                    }
+
+                    // Debug trade log: upper branch (sell coin a, buy coin b)
+                    if (trades_file && price_oracle.size() == 2) {
+                        long double dx_in_log = (long double)(curve.x[a] - bal_a_before);
+                        long double dy_out_log = (long double)(bal_b_before - curve.x[b]);
+                        long double cex_price_log = (long double)d.high;
+                        long double pool_price_dbg = (N == 3 ? price_3(a, b) : price_2(a, b));
+                        long double gas_coin0_log = (long double)this->gas_fee;
+                        long double f_buy_log = 1.0L - (long double)this->ext_fee;
+                        long double profit_coin0_log = 0.0L;
+                        if (a == 0) {
+                            profit_coin0_log = dy_out_log * cex_price_log * f_buy_log - dx_in_log - gas_coin0_log;
+                        } else {
+                            profit_coin0_log = dy_out_log * f_buy_log - dx_in_log * cex_price_log - gas_coin0_log;
+                        }
+                        fprintf(trades_file,
+                                "{\"t\": %llu, \"branch\": \"upper\", \"from\": %d, \"to\": %d, \"dx\": %.12Lf, \"dy\": %.12Lf, \"cex_price\": %.12Lf, \"pool_price\": %.12Lf, \"profit_coin0\": %.12Lf, \"x0_before\": %.12Lf, \"x1_before\": %.12Lf, \"x0_after\": %.12Lf, \"x1_after\": %.12Lf}\n",
+                                d.t, a, b, dx_in_log, dy_out_log, cex_price_log, pool_price_dbg, profit_coin0_log,
+                                bal_a_before, bal_b_before, curve.x[0], curve.x[1]);
+                    }
                 }
             }
 
@@ -1439,14 +1709,66 @@ struct Trader {
             if ((min_price != 0) & (min_price < p_before)) {
                 auto step = N == 3 ? step_for_price_3(min_price, 0, d.pair1, vol, ext_vol) : step_for_price_2(min_price, 0, d.pair1, vol, ext_vol);
                 if (step > 0) {
+                    // Snapshot before lower-branch trade
+                    if (log) append_snapshot("trade_lower_before", d.t);
                     // printf("=== %Lf %Lf %d %d\n", curve.x[a], curve.x[b], a, b);
+                    // Capture pre-exchange balances to compute taker amounts
+                    auto bal_a_before = curve.x[a];
+                    auto bal_b_before = curve.x[b];
+                    
                     auto dy = N == 3 ? exchange_3(step, b, a) : exchange_2(step, b, a);
+                    trade_happened = true;
+
                     // printf("=== %Lf %Lf %d %d\n", curve.x[a], curve.x[b], a, b);
                     // printf("!===! %Lf %Lf\n", step, dy);
                     vol += dy * price_oracle[a];
                     _dx += step;
                     last = N == 3 ? price_3(a, b) : price_2(a, b);
                     ctr += 1;
+                    // Snapshot after lower-branch trade
+                    if (log) append_snapshot("trade_lower_after", d.t);
+                    
+
+                    // Approximate arbitrage profit in coin0 units when buying coin a (possibly coin0) on pool and selling a on CEX
+                    if (price_oracle.size() == 2) {
+                        // In this path we call exchange(..., from=b, to=a)
+                        long double dx_in = (long double)(curve.x[b] - bal_b_before); // spent coin b
+                        long double dy_after_fee = (long double)(bal_a_before - curve.x[a]); // received coin a
+                        if (dx_in > 0 && dy_after_fee > 0) {
+                            long double cex_price = (long double)d.low; // coin0 per coin1
+                            long double f_sell = 1.0L - (long double)this->ext_fee;
+                            long double gas_coin0 = (long double)this->gas_fee;
+                            long double profit_coin0;
+                            if (a == 0) {
+                                // Buy coin0 on pool with coin1; sell coin0 on CEX
+                                profit_coin0 = dy_after_fee * f_sell - dx_in * cex_price - gas_coin0;
+                            } else {
+                                // Buy coin1 on pool with coin0; sell coin1 on CEX
+                                profit_coin0 = dy_after_fee * cex_price * f_sell - dx_in - gas_coin0;
+                            }
+                            if (profit_coin0 > 0) arb_profit_sum_coin0 += profit_coin0;
+                        }
+                    }
+
+                    // Debug trade log: lower branch (sell coin b, buy coin a)
+                    if (trades_file && price_oracle.size() == 2) {
+                        long double dx_in_log = (long double)(curve.x[b] - bal_b_before);
+                        long double dy_out_log = (long double)(bal_a_before - curve.x[a]);
+                        long double cex_price_log = (long double)d.low;
+                        long double pool_price_dbg = (N == 3 ? price_3(a, b) : price_2(a, b));
+                        long double gas_coin0_log = (long double)this->gas_fee;
+                        long double f_sell_log = 1.0L - (long double)this->ext_fee;
+                        long double profit_coin0_log = 0.0L;
+                        if (a == 0) {
+                            profit_coin0_log = dy_out_log * f_sell_log - dx_in_log * cex_price_log - gas_coin0_log;
+                        } else {
+                            profit_coin0_log = dy_out_log * cex_price_log * f_sell_log - dx_in_log - gas_coin0_log;
+                        }
+                        fprintf(trades_file,
+                                "{\"t\": %llu, \"branch\": \"lower\", \"from\": %d, \"to\": %d, \"dx\": %.12Lf, \"dy\": %.12Lf, \"cex_price\": %.12Lf, \"pool_price\": %.12Lf, \"profit_coin0\": %.12Lf, \"x0_before\": %.12Lf, \"x1_before\": %.12Lf, \"x0_after\": %.12Lf, \"x1_after\": %.12Lf}\n",
+                                d.t, b, a, dx_in_log, dy_out_log, cex_price_log, pool_price_dbg, profit_coin0_log,
+                                bal_a_before, bal_b_before, curve.x[0], curve.x[1]);
+                    }
                 }
             }
 
@@ -1467,10 +1789,28 @@ struct Trader {
 
             _low = last;
             lasts[d.pair1] = last;
+            
 
             // Boost with special donations to the pool
             if (this->boost_rate > 0) {
+                // Snapshot pre-donation
+                if (log) append_snapshot("donation_before", d.t);
                 auto _boost = (1.L + last_time * this->boost_rate);
+                // donation amount in coin0 units before applying boost
+                long double tvl_before = tvl_in_coin0(curve.x, curve.p);
+                if (_boost > 1.L) {
+                    // Donation equals the increase of each balance converted to coin0 units
+                    // i.e., sum_i x[i] * (boost-1) * p[i] == tvl_before * (boost-1)
+                    long double donation0 = (long double)curve.x[0] * ((long double)_boost - 1.0L);
+                    long double donation1 = (long double)curve.x[1] * ((long double)_boost - 1.0L);
+                    long double donation_coin0 = donation0 + donation1 * (curve.p.size() > 1 ? (long double)curve.p[1] : 1.0L);
+                    donation_coin0_total += donation_coin0;
+                    if (trades_file) {
+                        fprintf(trades_file,
+                                "{\"t\": %llu, \"type\": \"donation\", \"boost\": %.12Lf, \"amt0\": %.12Lf, \"amt1\": %.12Lf, \"coin0_value\": %.12Lf}\n",
+                                d.t, _boost, donation0, donation1, donation_coin0);
+                    }
+                }
                 curve.x[0] = curve.x[0] * _boost;
                 curve.x[1] = curve.x[1] * _boost;
                 if (N == 3) {
@@ -1479,11 +1819,24 @@ struct Trader {
                 xcp_profit_real *= _boost;
                 xcp *= _boost;
                 this->boost_integral *= _boost;
+                // Snapshot post-donation
+                if (log) append_snapshot("donation_after", d.t);
             }
 
-            if (N == 2) tweak_price_2(d.t, a, b, (_high + _low) / 2.L);
-            else        tweak_price_3(d.t, a, b, (_high + _low) / 2.L);
+            long double norm = 0;
+            if (d.t - last_time_tweak_price >= 600 || trade_happened) {
+
+            // Snapshot before price tweak
+            if (log) append_snapshot("tweak_before", d.t);
+            // only tweak_price every 600 seconds or on trade
+                if (N == 2) norm = tweak_price_2(d.t, a, b, (_high + _low) / 2.L);
+                else        norm = tweak_price_3(d.t, a, b, (_high + _low) / 2.L);
+                last_time_tweak_price = d.t;
+            // Snapshot after price tweak
+            if (log) append_snapshot("tweak_after", d.t);
+            }
             total_vol += vol;
+            this->n_trades += (unsigned long long)ctr;
             last_time = d.t;
             long double ARU_x = xcp_profit_real;
             long double ARU_y = (86400.L * 365.L / (d.t - start_t + 1.L));
@@ -1542,7 +1895,8 @@ struct Trader {
             }
 
             if (log) {
-                fprintf(out_file, "{\"t\": %llu, \"token0\": %.6Le, \"token1\": %.6Le, \"price_oracle\": %.6Le, \"price_scale\": %.6Le, \"profit\": %.6Le, \"open\": %.6Le, \"high\": %.6Le, \"low\": %.6Le, \"close\": %.6Le}",
+                // Per-event summary plus detailed snapshots
+                fprintf(out_file, "{\"t\": %llu, \"token0\": %.6Lf, \"token1\": %.6Lf, \"price_oracle\": %.6Lf, \"price_scale\": %.6Lf, \"profit\": %.6Lf, \"open\": %.6Lf, \"high\": %.6Lf, \"low\": %.6Lf, \"close\": %.6Lf, \"snapshots\": ",
                         d.t,
                         curve.x[0],
                         curve.x[1],
@@ -1550,6 +1904,10 @@ struct Trader {
                         curve.p[1],
                         xcp_profit_real - 1.0,
                         d.open, d.high, d.low, d.close);
+                fputc('[', out_file);
+                if (!snapshots_json.empty()) fputs(snapshots_json.c_str(), out_file);
+                fputc(']', out_file);
+                fputc('}', out_file);
                 if (i < total_elements - 1) {
                     fprintf(out_file, ",\n");
                 }
@@ -1559,14 +1917,57 @@ struct Trader {
                 printf("*** Slippage is too high %.5Lf\n", slippage);
             }
         }
+        // Compute APY metrics based on coin0 growth vs HODL baseline
+        long double duration_s = (end_t > start_t) ? ((long double)end_t - (long double)start_t) : 0.0L;
+        long double exponent = (duration_s > 0.0L) ? ((86400.L * 365.L) / duration_s) : 0.0L;
+        long double tvl_end = tvl_in_coin0(curve.x, curve.p);
+        long double v_hold_end = 0.0L; // value of initial LP holdings if simply held, priced at end
+        for (size_t i = 0; i < x_start.size(); i++) v_hold_end += (long double)(x_start[i] * curve.p[i]);
+
+        // Virtual price APY is what we already compute as APY via xcp_profit_real
+        long double apy_vp = APY;
+
+        long double apy_coin0_raw = -1.0L;
+        long double apy_coin0_boost_raw = -1.0L;
+        long double apy_coin0 = -1.0L;
+        long double apy_coin0_boost = -1.0L;
+
+        if (duration_s > 0.0L && tvl_start > 0.0L) {
+            if (tvl_end > 0.0L) {
+                apy_coin0_raw = powl((long double)(tvl_end / tvl_start), exponent) - 1.0L;
+            }
+            long double tvl_end_adj_raw = tvl_end - donation_coin0_total;
+            if (tvl_end_adj_raw > 0.0L) {
+                apy_coin0_boost_raw = powl((long double)(tvl_end_adj_raw / tvl_start), exponent) - 1.0L;
+            }
+            if (v_hold_end > 0.0L) {
+                apy_coin0 = powl((long double)(tvl_end / v_hold_end), exponent) - 1.0L;
+                long double tvl_end_adj = tvl_end - donation_coin0_total;
+                if (tvl_end_adj > 0.0L) {
+                    apy_coin0_boost = powl((long double)(tvl_end_adj / v_hold_end), exponent) - 1.0L;
+                }
+            }
+        }
+
         extdata->slippage = slippage / slippage_count / 2.L;
         extdata->liq_density = 2.L * antislippage / slippage_count;
         extdata->APY = APY;
         extdata->volume = volume;
         extdata->APY_boost = APY_boost;
-
+        extdata->APY_vp = apy_vp;
+        extdata->APY_coin0_raw = apy_coin0_raw;
+        extdata->APY_coin0_boost_raw = apy_coin0_boost_raw;
+        extdata->APY_coin0 = apy_coin0;
+        extdata->APY_coin0_boost = apy_coin0_boost;
+        extdata->donation_coin0_total = (money)donation_coin0_total;
+        extdata->trade_volume = total_vol;
+        extdata->arb_profit_coin0 = (money)arb_profit_sum_coin0;
+        extdata->n_rebalances = this->n_rebalances;
+        extdata->n_trades = this->n_trades;
+        
         if (log) {
             fprintf(out_file, "]");
+            if (trades_file) fclose(trades_file);
         }
     }
 
@@ -1602,6 +2003,8 @@ struct Trader {
     int  heavy_tx;
     int  light_tx;
     bool is_light;
+    unsigned long long n_rebalances;
+    unsigned long long n_trades;
     Curve curve;
 };
 
@@ -1674,11 +2077,21 @@ void *simulation_thread(void *args) {
         simulation(&simdata);
         pthread_mutex_lock(data->result_lock);
         (*(data->result))["configuration"][simdata.num]["Result"]["APY"] = simdata.result.APY;
+        (*(data->result))["configuration"][simdata.num]["Result"]["APY_vp"] = simdata.result.APY_vp;
+        (*(data->result))["configuration"][simdata.num]["Result"]["APY_coin0_raw"] = simdata.result.APY_coin0_raw;
+        (*(data->result))["configuration"][simdata.num]["Result"]["APY_coin0_boost_raw"] = simdata.result.APY_coin0_boost_raw;
+        (*(data->result))["configuration"][simdata.num]["Result"]["APY_coin0"] = simdata.result.APY_coin0;
+        (*(data->result))["configuration"][simdata.num]["Result"]["APY_coin0_boost"] = simdata.result.APY_coin0_boost;
         (*(data->result))["configuration"][simdata.num]["Result"]["liq_density"] = simdata.result.liq_density;
         (*(data->result))["configuration"][simdata.num]["Result"]["slippage"] = simdata.result.slippage;
         (*(data->result))["configuration"][simdata.num]["Result"]["volume"] = simdata.result.volume;
         (*(data->result))["configuration"][simdata.num]["Result"]["APY_boost"] = simdata.result.APY_boost;
-
+        (*(data->result))["configuration"][simdata.num]["Result"]["trade_volume"] = simdata.result.trade_volume;
+        (*(data->result))["configuration"][simdata.num]["Result"]["n_rebalances"] = simdata.result.n_rebalances;
+        (*(data->result))["configuration"][simdata.num]["Result"]["n_trades"] = simdata.result.n_trades;
+        (*(data->result))["configuration"][simdata.num]["Result"]["donation_coin0_total"] = simdata.result.donation_coin0_total;
+        (*(data->result))["configuration"][simdata.num]["Result"]["arb_profit_coin0"] = simdata.result.arb_profit_coin0;
+        (*(data->result))["configuration"][simdata.num]["Result"]["xcp_profit_real"] = simdata.result.xcp_profit_real;
         pthread_mutex_unlock(data->result_lock);
 
     }
