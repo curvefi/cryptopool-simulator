@@ -755,6 +755,7 @@ struct extra_data {
     money liq_density = 0;
     money slippage = 0;
     money volume = 0;
+    money imbalance = 0;
 };
 
 struct simulation_data {
@@ -1372,6 +1373,7 @@ struct Trader {
         auto mapped_data = (trade_data const *) in->base;
         auto mapped_data_ptr = mapped_data;
         money slippage = 0;
+        money imbalance = 0;
         money antislippage = 0;
         money slippage_count = 0;
         money _slippage;
@@ -1438,6 +1440,7 @@ struct Trader {
                 slippage_count += last_time;
                 antislippage += last_time * _slippage;
                 slippage += last_time / _slippage;
+                imbalance += logl(mabs((_high + _low) / (2.L * curve.p[1]))) * curve.A * last_time;
             }
             _high = last;
 
@@ -1478,6 +1481,7 @@ struct Trader {
                 slippage_count += last_time;
                 antislippage += last_time * _slippage;
                 slippage += last_time / _slippage;
+                imbalance += logl(mabs((_high + _low) / (2.L * curve.p[1]))) * curve.A * last_time;
             }
 
             _low = last;
@@ -1573,11 +1577,12 @@ struct Trader {
                 }
             }
 
-            if (slippage > 1e20) {
+            if (slippage > 1e20 and slippage_count > 0) {
                 printf("*** Slippage is too high %.5Lf\n", slippage);
             }
         }
         extdata->slippage = slippage / slippage_count / 2.L;
+        extdata->imbalance = imbalance / slippage_count / 2.L;
         extdata->liq_density = 2.L * antislippage / slippage_count;
         extdata->APY = APY;
         extdata->volume = volume;
@@ -1612,6 +1617,7 @@ struct Trader {
     money boost_integral;
     money volume;
     money slippage;
+    money imbalance;
     money antislippage;
     money slippage_count;
     long double APY;
@@ -1694,6 +1700,7 @@ void *simulation_thread(void *args) {
         (*(data->result))["configuration"][simdata.num]["Result"]["APY"] = simdata.result.APY;
         (*(data->result))["configuration"][simdata.num]["Result"]["liq_density"] = simdata.result.liq_density;
         (*(data->result))["configuration"][simdata.num]["Result"]["slippage"] = simdata.result.slippage;
+        (*(data->result))["configuration"][simdata.num]["Result"]["imbalance"] = simdata.result.imbalance;
         (*(data->result))["configuration"][simdata.num]["Result"]["volume"] = simdata.result.volume;
         (*(data->result))["configuration"][simdata.num]["Result"]["APY_boost"] = simdata.result.APY_boost;
 
