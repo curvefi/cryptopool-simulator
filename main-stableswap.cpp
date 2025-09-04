@@ -1440,7 +1440,7 @@ struct Trader {
                 slippage_count += last_time;
                 antislippage += last_time * _slippage;
                 slippage += last_time / _slippage;
-                imbalance += logl(mabs((_high + _low) / (2.L * curve.p[1]))) * curve.A * last_time;
+                imbalance += mabs(logl((_high + _low) / (2.L * curve.p[1]))) * curve.A * last_time;
             }
             _high = last;
 
