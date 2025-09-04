@@ -67,3 +67,12 @@ chfusd/data/chfusd-2019-2024.json.xz filter=lfs diff=lfs merge=lfs -text
 btcusd-boost/check-usdbtceth/check-curve-btcusdc-1m.json.xz filter=lfs diff=lfs merge=lfs -text
 btcusd-boost/check-usdbtceth/check-curve-ethbtc-1m.json.xz filter=lfs diff=lfs merge=lfs -text
 btcusd-boost/check-usdbtceth/check-curve-ethusdc-1m.json.xz filter=lfs diff=lfs merge=lfs -text
+btcusd-boost/check-usdbtceth/fetch/ethusdt-sample-processed.json.xz filter=lfs diff=lfs merge=lfs -text
+btcusd-boost/check-usdbtceth/fetch/btcusdt-sample.json.xz filter=lfs diff=lfs merge=lfs -text
+btcusd-boost/check-usdbtceth/fetch/btcusdt-sample-processed.json.xz filter=lfs diff=lfs merge=lfs -text
+btcusd-boost/check-usdbtceth/fetch/ethbtc-sample.json.xz filter=lfs diff=lfs merge=lfs -text
+btcusd-boost/check-usdbtceth/fetch/ethbtc-sample-processed.json.xz filter=lfs diff=lfs merge=lfs -text
+btcusd-boost/check-usdbtceth/fetch/ethusdt-sample.json.xz filter=lfs diff=lfs merge=lfs -text
+btcusd-boost/check-usdbtceth/2.5y/check-curve-btcusdc-1m.json.xz filter=lfs diff=lfs merge=lfs -text
+btcusd-boost/check-usdbtceth/2.5y/check-curve-ethbtc-1m.json.xz filter=lfs diff=lfs merge=lfs -text
+btcusd-boost/check-usdbtceth/2.5y/check-curve-ethusdc-1m.json.xz filter=lfs diff=lfs merge=lfs -text

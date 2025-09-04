@@ -18,9 +18,9 @@
         }
     ],
     "datafile": [
-        "check-curve-btcusdc-1m",
-        "check-curve-ethusdc-1m",
-        "check-curve-ethbtc-1m"
+        "btcusdc-sample",
+        "ethusdc-sample",
+        "ethbtc-sample"
     ],
     "debug": 0
 }

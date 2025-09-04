@@ -1,5 +1,9 @@
 from block = 21_500_000
 to block = 22_903_000
+>>> datetime.fromtimestamp(1735377287)
+datetime.datetime(2024, 12, 28, 10, 14, 47)
+>>> datetime.fromtimestamp(1752322271)
+datetime.datetime(2025, 7, 12, 14, 11, 11)
 
 vp1 = 1.01866
 xcp1 = 1.037319836
@@ -12,5 +16,5 @@ dt = 16944984 s = 196.12 days
 
 growth:
 1.0257970811617643
-
-inferred ext_fee: 1.5bps
+vp_growth ** 2:
+1.0265815764778754
