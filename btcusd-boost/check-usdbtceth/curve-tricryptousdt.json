@@ -12,15 +12,15 @@
             "log": 1,
             "boost_rate": 0,
             "allowed_extra_profit": 1e-10,
-            "ext_fee": 0.00015,
+            "ext_fee": 0.5e-4,
             "gamma": 8.05e-5,
             "A": 2
         }
     ],
     "datafile": [
-        "btcusdc-sample",
-        "ethusdc-sample",
-        "ethbtc-sample"
+        "btcusdt-sample-processed",
+        "ethusdt-sample-processed",
+        "ethbtc-sample-processed"
     ],
     "debug": 0
 }
