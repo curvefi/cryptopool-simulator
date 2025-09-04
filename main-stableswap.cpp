@@ -1033,6 +1033,7 @@ struct Trader {
             _dy = (x0[_to] - y) * fee_mul;
             curve.x[_to] = x0[_to] - _dy;
 
+            // price in units d_first / d_second
             if (_from == p.first) {
                 price = _dx / _dy;
             }
@@ -1041,7 +1042,6 @@ struct Trader {
             }
             auto v = vol + _dy * curve.p[_to];
 
-            // Needed to prevent resonant trading which doesn't happen in reality
             copy_money_2(&curve.x[0], x0);  // restore the state
             // printf("::: %Lf %Lf %Lf %Lf\n", price, inst_price, p_min, p_max);
             
