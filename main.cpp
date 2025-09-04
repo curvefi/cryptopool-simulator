@@ -922,8 +922,6 @@ struct Trader {
         money x = 0;
         money y = 0;
         money price = 0;
-        money price_with_gas = 0;
-        bool good_with_gas = false;
         auto _from = p.first;
         auto _to = p.second;
         if (p_min > 0) {
@@ -933,6 +931,8 @@ struct Trader {
         auto step0 = dx / curve.p[_from];  // step in units of currency being sold
         auto step = step0;
         money gas = gas_fee / curve.p[_from];
+
+        money previous_profit = 0;
 
         // + (step increases)
         while (true) {
@@ -956,35 +956,32 @@ struct Trader {
 
             if (_from == p.first) {
                 price = _dx / _dy;
-                price_with_gas = (_dx + gas) / _dy;  // need to buy higher than without gas
             }
             else {
                 price = _dy / _dx;
-                price_with_gas = _dy / (_dx + gas); // need to sell lower than without gas
             }
             auto v = vol + _dy * curve.p[_to];
 
-            // Needed to prevent resonant trading which doesn't happen in reality
-            auto inst_price = price_3(p.first, p.second);
             copy_money_3(&curve.x[0], x0);  // restore the state
             // printf("::: %Lf %Lf %Lf %Lf\n", price, inst_price, p_min, p_max);
 
-            if ((p_min > 0 and (price_with_gas >= p_min) and inst_price >= p_min) or (p_max > 0 and (price_with_gas <= p_max) and inst_price <= p_max)) {
-                good_with_gas = true;
-            } else {
-                if (good_with_gas) {
-                    _dx = _dx_prev;
-                    _dy = _dy_prev;
-                    break;
-                }
-            }
+            // _from == p.first - buy
+            // _from != p.first - sell
+            money new_profit;
+            if (_from == p.first)
+                new_profit = (_dx / price - _dx / p_max) * p_max;
+            else
+                new_profit = (price - p_min) * _dx;
 
-            if ((p_min > 0 and (price < p_min or inst_price < p_min)) or (p_max > 0 and (price > p_max or inst_price > p_max)) or (v > ext_vol / 2.L)) {
+            // printf("*** price=%Lf, min=%Lf, max=%Lf, _dx=%Le, new_p=%Lf, pr_p=%Lf\n", price, p_min, p_max, _dx, new_profit, previous_profit);
+
+            if (new_profit > previous_profit and v <= ext_vol / 2.L) {
+                previous_profit = new_profit;
+            } else {
                 _dx = _dx_prev;
                 _dy = _dy_prev;
                 break;
             }
-            // printf("*** price=%Lf, min=%Lf, max=%Lf, _dx=%Lf\n", price, p_min, p_max, _dx);
 
             step += step;
         }
@@ -993,57 +990,67 @@ struct Trader {
         while (true) {
             auto _dx_prev = _dx;
             auto _dy_prev = _dy;
+            if (step < 0) step = -step;
             step /= 2;
 
             if (step < step0) {
                 break;
             }
 
-            _dx += step;
+            for (int ctr=0;ctr<2;ctr++) {
+                step = -step;
+                _dx = _dx_prev + step;
 
-            x = x0[_from] + _dx;
-            y = curve.y_3(x, _from, _to);
+                x = x0[_from] + _dx;
+                y = curve.y_2(x, _from, _to);
 
-            curve.x[_from] = x;
-            curve.x[_to] = y;
-            auto fee_mul = 1.L - this->fee_3();
+                curve.x[_from] = x;
+                curve.x[_to] = y;
+                auto fee_mul = 1.L - this->fee_2();
 
-            _dy = (x0[_to] - y) * fee_mul;
-            curve.x[_to] = x0[_to] - _dy;
+                _dy = (x0[_to] - y) * fee_mul;
+                curve.x[_to] = x0[_to] - _dy;
 
-            if (_from == p.first) {
-                price = _dx / _dy;
-                price_with_gas = (_dx + gas) / _dy;  // need to buy higher than without gas
+                if (_from == p.first) {
+                    price = _dx / _dy;
+                }
+                else {
+                    price = _dy / _dx;
+                }
+                auto v = vol + _dy * curve.p[_to];
+
+                copy_money_3(&curve.x[0], x0);  // restore the state
+
+                
+                // _from == p.first - buy
+                // _from != p.first - sell
+                money new_profit;
+                if (_from == p.first)
+                    new_profit = (_dx / price - _dx / p_max) * p_max;
+                else
+                    new_profit = (price - p_min) * _dx;
+
+                if (new_profit > previous_profit and v <= ext_vol / 2.L) {
+                    previous_profit = new_profit;
+                    break;
+                } else {
+                    _dx = _dx_prev;
+                    _dy = _dy_prev;
+                }
             }
-            else {
-                price = _dy / _dx;
-                price_with_gas = _dy / (_dx + gas); // need to sell lower than without gas
-            }
-            auto v = vol + _dy * curve.p[_to];
-
-            // Needed to prevent resonant trading which doesn't happen in reality
-            auto inst_price = price_3(p.first, p.second);
-            copy_money_3(&curve.x[0], x0);  // restore the state
-            // printf("::: %Lf %Lf %Lf %Lf\n", price, inst_price, p_min, p_max);
-
-            if ((p_min > 0 and (price_with_gas >= p_min) and inst_price >= p_min) or (p_max > 0 and (price_with_gas <= p_max) and inst_price <= p_max)) {
-                good_with_gas = true;
-            } else {
-                _dx = _dx_prev;
-                _dy = _dy_prev;
-            }
-            if (v > ext_vol / 2.L) {
-                 _dx = _dx_prev;
-                 _dy = _dy_prev;
-            }
-            // printf("*** price=%Lf, min=%Lf, max=%Lf, _dx=%Lf\n", price, p_min, p_max, _dx);
         }
-
-        if (!good_with_gas) {
-            _dx = 0;
-        }
-
         // printf("*** p_min=%Lf, p_max=%Lf, _dy=%Lf, y=%Lf\n", p_min, p_max, _dy, curve.x[_to]);
+
+        if (_from == p.first) {
+            price = (_dx + gas) / _dy;  // need to buy higher than without gas
+            previous_profit = (_dx / price - _dx / p_max) * p_max;
+        }
+        else {
+            price = _dy / (_dx + gas); // need to sell lower than without gas
+            previous_profit = (price - p_min) * _dx;
+        }
+
+        if (previous_profit <= 0) _dx = 0;
         return _dx;
     }
 
@@ -1055,8 +1062,6 @@ struct Trader {
         money x = 0;
         money y = 0;
         money price = 0;
-        money price_with_gas = 0;
-        bool good_with_gas = false;
         auto _from = p.first;
         auto _to = p.second;
         if (p_min > 0) {
@@ -1066,6 +1071,8 @@ struct Trader {
         auto step0 = dx / curve.p[_from];  // step in units of currency being sold
         auto step = step0;
         money gas = gas_fee / curve.p[_from];
+
+        money previous_profit = 0;
 
         // + (step increases)
         while (true) {
@@ -1087,37 +1094,35 @@ struct Trader {
             _dy = (x0[_to] - y) * fee_mul;
             curve.x[_to] = x0[_to] - _dy;
 
+            // price in units d_first / d_second
             if (_from == p.first) {
                 price = _dx / _dy;
-                price_with_gas = (_dx + gas) / _dy;  // need to buy higher than without gas
             }
             else {
                 price = _dy / _dx;
-                price_with_gas = _dy / (_dx + gas); // need to sell lower than without gas
             }
             auto v = vol + _dy * curve.p[_to];
 
-            // Needed to prevent resonant trading which doesn't happen in reality
-            auto inst_price = price_2(p.first, p.second);
             copy_money_2(&curve.x[0], x0);  // restore the state
             // printf("::: %Lf %Lf %Lf %Lf\n", price, inst_price, p_min, p_max);
+            
+            // _from == p.first - buy
+            // _from != p.first - sell
+            money new_profit;
+            if (_from == p.first)
+                new_profit = (_dx / price - _dx / p_max) * p_max;
+            else
+                new_profit = (price - p_min) * _dx;
 
-            if ((p_min > 0 and (price_with_gas >= p_min) and inst_price >= p_min) or (p_max > 0 and (price_with_gas <= p_max) and inst_price <= p_max)) {
-                good_with_gas = true;
+            // printf("*** price=%Lf, min=%Lf, max=%Lf, _dx=%Le, new_p=%Lf, pr_p=%Lf\n", price, p_min, p_max, _dx, new_profit, previous_profit);
+
+            if (new_profit > previous_profit and v <= ext_vol / 2.L) {
+                previous_profit = new_profit;
             } else {
-                if (good_with_gas) {
-                    _dx = _dx_prev;
-                    _dy = _dy_prev;
-                    break;
-                }
-            }
-
-            if ((p_min > 0 and (price < p_min or inst_price < p_min)) or (p_max > 0 and (price > p_max or inst_price > p_max)) or (v > ext_vol / 2.L)) {
                 _dx = _dx_prev;
                 _dy = _dy_prev;
                 break;
             }
-            // printf("*** price=%Lf, min=%Lf, max=%Lf, _dx=%Lf\n", price, p_min, p_max, _dx);
 
             step += step;
         }
@@ -1126,57 +1131,67 @@ struct Trader {
         while (true) {
             auto _dx_prev = _dx;
             auto _dy_prev = _dy;
+            if (step < 0) step = -step;
             step /= 2;
 
             if (step < step0) {
                 break;
             }
 
-            _dx += step;
+            for (int ctr=0;ctr<2;ctr++) {
+                step = -step;
+                _dx = _dx_prev + step;
 
-            x = x0[_from] + _dx;
-            y = curve.y_2(x, _from, _to);
+                x = x0[_from] + _dx;
+                y = curve.y_2(x, _from, _to);
 
-            curve.x[_from] = x;
-            curve.x[_to] = y;
-            auto fee_mul = 1.L - this->fee_2();
+                curve.x[_from] = x;
+                curve.x[_to] = y;
+                auto fee_mul = 1.L - this->fee_2();
 
-            _dy = (x0[_to] - y) * fee_mul;
-            curve.x[_to] = x0[_to] - _dy;
+                _dy = (x0[_to] - y) * fee_mul;
+                curve.x[_to] = x0[_to] - _dy;
 
-            if (_from == p.first) {
-                price = _dx / _dy;
-                price_with_gas = (_dx + gas) / _dy;  // need to buy higher than without gas
+                if (_from == p.first) {
+                    price = _dx / _dy;
+                }
+                else {
+                    price = _dy / _dx;
+                }
+                auto v = vol + _dy * curve.p[_to];
+
+                copy_money_2(&curve.x[0], x0);  // restore the state
+
+                
+                // _from == p.first - buy
+                // _from != p.first - sell
+                money new_profit;
+                if (_from == p.first)
+                    new_profit = (_dx / price - _dx / p_max) * p_max;
+                else
+                    new_profit = (price - p_min) * _dx;
+
+                if (new_profit > previous_profit and v <= ext_vol / 2.L) {
+                    previous_profit = new_profit;
+                    break;
+                } else {
+                    _dx = _dx_prev;
+                    _dy = _dy_prev;
+                }
             }
-            else {
-                price = _dy / _dx;
-                price_with_gas = _dy / (_dx + gas); // need to sell lower than without gas
-            }
-            auto v = vol + _dy * curve.p[_to];
-
-            // Needed to prevent resonant trading which doesn't happen in reality
-            auto inst_price = price_2(p.first, p.second);
-            copy_money_2(&curve.x[0], x0);  // restore the state
-            // printf("::: %Lf %Lf %Lf %Lf\n", price, inst_price, p_min, p_max);
-
-            if ((p_min > 0 and (price_with_gas >= p_min) and inst_price >= p_min) or (p_max > 0 and (price_with_gas <= p_max) and inst_price <= p_max)) {
-                good_with_gas = true;
-            } else {
-                _dx = _dx_prev;
-                _dy = _dy_prev;
-            }
-            if (v > ext_vol / 2.L) {
-                 _dx = _dx_prev;
-                 _dy = _dy_prev;
-            }
-            // printf("*** price=%Lf, min=%Lf, max=%Lf, _dx=%Lf\n", price, p_min, p_max, _dx);
         }
-
-        if (!good_with_gas) {
-            _dx = 0;
-        }
-
         // printf("*** p_min=%Lf, p_max=%Lf, _dy=%Lf, y=%Lf\n", p_min, p_max, _dy, curve.x[_to]);
+
+        if (_from == p.first) {
+            price = (_dx + gas) / _dy;  // need to buy higher than without gas
+            previous_profit = (_dx / price - _dx / p_max) * p_max;
+        }
+        else {
+            price = _dy / (_dx + gas); // need to sell lower than without gas
+            previous_profit = (price - p_min) * _dx;
+        }
+
+        if (previous_profit <= 0) _dx = 0;
         return _dx;
     }
 
