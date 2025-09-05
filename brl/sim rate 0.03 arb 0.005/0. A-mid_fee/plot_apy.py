@@ -28,23 +28,23 @@ As = sorted(list(As))
 gammas = sorted(list(gammas))
 
 Z = np.zeros((len(gammas), len(As)))
-
+metric = 'APY'
 for row in results['configuration']:
     # APY
     # liq_density
     # volume
-    Z[gammas.index(row[y_axis]), As.index(row[x_axis])] = row['Result']['APY_boost']
-    # Z[gammas.index(row['gamma']), As.index(row['A'])] = row['Result']['APY']
+    # Z[gammas.index(row[y_axis]), As.index(row[x_axis])] = row['Result']['APY_boost']
+    Z[gammas.index(row[y_axis]), As.index(row[x_axis])] = row['Result'][metric]
 
 fig, ax = plt.subplots()
-plt.yscale('log')
-plt.xscale('log')
+# plt.yscale('log')
+# plt.xscale('log')
 im = ax.pcolormesh(As, gammas, Z, cmap=plt.get_cmap('jet'))
 im.set_edgecolor('face')
 cbar = fig.colorbar(im, ax=ax)
 
 plt.xlabel(x_axis)
 plt.ylabel(y_axis)
-cbar.set_label("APY", rotation=270, labelpad=15)
+cbar.set_label(metric, rotation=270, labelpad=15)
 plt.tight_layout()
 plt.show()

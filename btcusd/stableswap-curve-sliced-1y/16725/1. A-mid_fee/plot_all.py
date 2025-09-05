@@ -64,7 +64,7 @@ def parse_args(argv):
 def main(argv=None):
     args = parse_args(sys.argv[1:] if argv is None else argv)
 
-    metrics = args.metrics or [ "APY", "donation_coin0_total", "n_rebalances", "trade_volume", "n_trades", "max_cex_diff"]
+    metrics = args.metrics or [ "xcp_profit", "donation_coin0_total", "n_rebalances", "trade_volume", "n_trades", "cex_follow_time_frac"]
     results = load_results(args.file)
 
     x_axis = "A"

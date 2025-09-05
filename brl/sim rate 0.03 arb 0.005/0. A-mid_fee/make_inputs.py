@@ -6,10 +6,12 @@ import json
 import itertools
 from copy import copy
 
-
-X = np.logspace(log10(5), log10(300), 64)
+N_GRID = 8
+X = np.logspace(log10(5), log10(500), N_GRID)
+X = np.linspace(5, 500, N_GRID)
 Xname = "A"
-Y = np.logspace(log10(1e-4), log10(0.05), 64)
+Y = np.logspace(log10(1e-4), log10(0.05), N_GRID)
+Y = np.linspace(1e-4, 0.05, N_GRID)
 Yname = "mid_fee"
 
 other_params = dict(
@@ -19,11 +21,15 @@ other_params = dict(
     ma_half_time=600,
     mid_fee=0.003,
     out_fee=0.003,
-    gas_fee=0,
+    gas_fee=1,
     n=2,
     log=0,
     allowed_extra_profit=1e-12,
     ext_fee=0.005,
+    # 1 -> 10_000
+    # 0.5 -> 5_000
+    # 0.05 -> 500
+    # 0.005 -> 50
     gamma=0,
     boost_rate=0.03,
     A=10)
