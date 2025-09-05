@@ -568,7 +568,7 @@ auto newton_y(money A, money gamma, money const *x, size_t N, money D, int i) {
     for (size_t k = 0; k < 255; k++) {
         y_prev = y;
         y = (y*y + c) / (2 * y + b);
-        if (mabs(y - y_prev) <= 1) {
+        if (mabs(y - y_prev) <= 1e-12L) {
             return y;
         }
     }
@@ -755,6 +755,7 @@ struct extra_data {
     money liq_density = 0;
     money slippage = 0;
     money volume = 0;
+    money imbalance = 0;
 };
 
 struct simulation_data {
@@ -1001,8 +1002,6 @@ struct Trader {
         money x = 0;
         money y = 0;
         money price = 0;
-        money price_with_gas = 0;
-        bool good_with_gas = false;
         auto _from = p.first;
         auto _to = p.second;
         if (p_min > 0) {
@@ -1012,6 +1011,8 @@ struct Trader {
         auto step0 = dx / curve.p[_from];  // step in units of currency being sold
         auto step = step0;
         money gas = gas_fee / curve.p[_from];
+
+        money previous_profit = 0;
 
         // + (step increases)
         while (true) {
@@ -1033,37 +1034,35 @@ struct Trader {
             _dy = (x0[_to] - y) * fee_mul;
             curve.x[_to] = x0[_to] - _dy;
 
+            // price in units d_first / d_second
             if (_from == p.first) {
                 price = _dx / _dy;
-                price_with_gas = (_dx + gas) / _dy;  // need to buy higher than without gas
             }
             else {
                 price = _dy / _dx;
-                price_with_gas = _dy / (_dx + gas); // need to sell lower than without gas
             }
             auto v = vol + _dy * curve.p[_to];
 
-            // Needed to prevent resonant trading which doesn't happen in reality
-            auto inst_price = price_2(p.first, p.second);
             copy_money_2(&curve.x[0], x0);  // restore the state
             // printf("::: %Lf %Lf %Lf %Lf\n", price, inst_price, p_min, p_max);
+            
+            // _from == p.first - buy
+            // _from != p.first - sell
+            money new_profit;
+            if (_from == p.first)
+                new_profit = (_dx / price - _dx / p_max) * p_max;
+            else
+                new_profit = (price - p_min) * _dx;
 
-            if ((p_min > 0 and (price_with_gas >= p_min) and inst_price >= p_min) or (p_max > 0 and (price_with_gas <= p_max) and inst_price <= p_max)) {
-                good_with_gas = true;
+            // printf("*** price=%Lf, min=%Lf, max=%Lf, _dx=%Le, new_p=%Lf, pr_p=%Lf\n", price, p_min, p_max, _dx, new_profit, previous_profit);
+
+            if (new_profit > previous_profit and v <= ext_vol / 2.L) {
+                previous_profit = new_profit;
             } else {
-                if (good_with_gas) {
-                    _dx = _dx_prev;
-                    _dy = _dy_prev;
-                    break;
-                }
-            }
-
-            if ((p_min > 0 and (price < p_min or inst_price < p_min)) or (p_max > 0 and (price > p_max or inst_price > p_max)) or (v > ext_vol / 2.L)) {
                 _dx = _dx_prev;
                 _dy = _dy_prev;
                 break;
             }
-            // printf("*** price=%Lf, min=%Lf, max=%Lf, _dx=%Lf\n", price, p_min, p_max, _dx);
 
             step += step;
         }
@@ -1072,57 +1071,67 @@ struct Trader {
         while (true) {
             auto _dx_prev = _dx;
             auto _dy_prev = _dy;
+            if (step < 0) step = -step;
             step /= 2;
 
             if (step < step0) {
                 break;
             }
 
-            _dx += step;
+            for (int ctr=0;ctr<2;ctr++) {
+                step = -step;
+                _dx = _dx_prev + step;
 
-            x = x0[_from] + _dx;
-            y = curve.y_2(x, _from, _to);
+                x = x0[_from] + _dx;
+                y = curve.y_2(x, _from, _to);
 
-            curve.x[_from] = x;
-            curve.x[_to] = y;
-            auto fee_mul = 1.L - this->fee_2();
+                curve.x[_from] = x;
+                curve.x[_to] = y;
+                auto fee_mul = 1.L - this->fee_2();
 
-            _dy = (x0[_to] - y) * fee_mul;
-            curve.x[_to] = x0[_to] - _dy;
+                _dy = (x0[_to] - y) * fee_mul;
+                curve.x[_to] = x0[_to] - _dy;
 
-            if (_from == p.first) {
-                price = _dx / _dy;
-                price_with_gas = (_dx + gas) / _dy;  // need to buy higher than without gas
+                if (_from == p.first) {
+                    price = _dx / _dy;
+                }
+                else {
+                    price = _dy / _dx;
+                }
+                auto v = vol + _dy * curve.p[_to];
+
+                copy_money_2(&curve.x[0], x0);  // restore the state
+
+                
+                // _from == p.first - buy
+                // _from != p.first - sell
+                money new_profit;
+                if (_from == p.first)
+                    new_profit = (_dx / price - _dx / p_max) * p_max;
+                else
+                    new_profit = (price - p_min) * _dx;
+
+                if (new_profit > previous_profit and v <= ext_vol / 2.L) {
+                    previous_profit = new_profit;
+                    break;
+                } else {
+                    _dx = _dx_prev;
+                    _dy = _dy_prev;
+                }
             }
-            else {
-                price = _dy / _dx;
-                price_with_gas = _dy / (_dx + gas); // need to sell lower than without gas
-            }
-            auto v = vol + _dy * curve.p[_to];
-
-            // Needed to prevent resonant trading which doesn't happen in reality
-            auto inst_price = price_2(p.first, p.second);
-            copy_money_2(&curve.x[0], x0);  // restore the state
-            // printf("::: %Lf %Lf %Lf %Lf\n", price, inst_price, p_min, p_max);
-
-            if ((p_min > 0 and (price_with_gas >= p_min) and inst_price >= p_min) or (p_max > 0 and (price_with_gas <= p_max) and inst_price <= p_max)) {
-                good_with_gas = true;
-            } else {
-                _dx = _dx_prev;
-                _dy = _dy_prev;
-            }
-            if (v > ext_vol / 2.L) {
-                 _dx = _dx_prev;
-                 _dy = _dy_prev;
-            }
-            // printf("*** price=%Lf, min=%Lf, max=%Lf, _dx=%Lf\n", price, p_min, p_max, _dx);
         }
-
-        if (!good_with_gas) {
-            _dx = 0;
-        }
-
         // printf("*** p_min=%Lf, p_max=%Lf, _dy=%Lf, y=%Lf\n", p_min, p_max, _dy, curve.x[_to]);
+
+        if (_from == p.first) {
+            price = (_dx + gas) / _dy;  // need to buy higher than without gas
+            previous_profit = (_dx / price - _dx / p_max) * p_max;
+        }
+        else {
+            price = _dy / (_dx + gas); // need to sell lower than without gas
+            previous_profit = (price - p_min) * _dx;
+        }
+
+        if (previous_profit <= 0) _dx = 0;
         return _dx;
     }
 
@@ -1239,7 +1248,7 @@ struct Trader {
         }
         auto norm = S;
         norm = sqrt(norm); // .root_to();
-        auto _adjustment_step = max(adjustment_step, norm / 10);
+        auto _adjustment_step = max(adjustment_step, norm / 5);
         if (norm <= _adjustment_step) {
             // Already close to the target price
             is_light = true;
@@ -1304,7 +1313,7 @@ struct Trader {
         }
         auto norm = S;
         norm = sqrt(norm); // .root_to();
-        auto _adjustment_step = max(adjustment_step, norm / 10);
+        auto _adjustment_step = max(adjustment_step, norm / 5);
         if (norm <= _adjustment_step) {
             // Already close to the target price
             is_light = true;
@@ -1365,9 +1374,12 @@ struct Trader {
         auto mapped_data = (trade_data const *) in->base;
         auto mapped_data_ptr = mapped_data;
         money slippage = 0;
+        money imbalance = 0;
         money antislippage = 0;
         money slippage_count = 0;
         money _slippage;
+        money _high = 0;
+        money _low = 0;
 
         FILE *out_file;
         if (log) {
@@ -1396,8 +1408,6 @@ struct Trader {
             } else {
                 last = itl->second;
             }
-            auto _high = last;
-            auto _low = last;
 
             auto max_price = d.high * (1 - ext_fee);
             auto min_price = d.low * (1 + ext_fee);
@@ -1423,17 +1433,25 @@ struct Trader {
             // printf("!!!1 %Lf %Lf\n", p_after, last);
 
             if (p_before != p_after) {
-                auto v = _dx / curve.x[b];
+                auto v = _dx / (curve.x[b] + curve.x[a] / p_after) * N / 2;
                 _slippage = (_dx * (p_before + p_after)) / (2.L * (mabs(p_before - p_after)) * curve.x[b]);
                 volume += v;
             }
-            if (_slippage > 0) {
+            if (_slippage > 1e-10) {
                 slippage_count += last_time;
                 antislippage += last_time * _slippage;
                 slippage += last_time / _slippage;
+                imbalance += mabs(logl((_high + _low) / (2.L * curve.p[1]))) * curve.A * last_time;
+            }
+            _high = last;
+
+            if (ctr > 0) {
+                if (_low == 0) _low = last;
+                if (N == 2) tweak_price_2(d.t, a, b, (_high + _low) / 2.L);
+                else        tweak_price_3(d.t, a, b, (_high + _low) / 2.L);
+                ctr = 0;
             }
 
-            _high = last;
             _dx = 0;
             p_before = p_after;
 
@@ -1456,14 +1474,15 @@ struct Trader {
             // printf("!!!2 %Lf %Lf\n", p_after, last);
 
             if (p_before != p_after) {
-                auto v = _dx / curve.x[b];
+                auto v = _dx / (curve.x[b] + curve.x[a] / p_after) * N / 2;
                 _slippage = (_dx * (p_before + p_after)) / (2.L * (mabs(p_before - p_after)) * curve.x[b]);
                 volume += v;
             }
-            if (_slippage > 0) {
+            if (_slippage > 1e-10) {
                 slippage_count += last_time;
                 antislippage += last_time * _slippage;
                 slippage += last_time / _slippage;
+                imbalance += logl(mabs((_high + _low) / (2.L * curve.p[1]))) * curve.A * last_time;
             }
 
             _low = last;
@@ -1471,6 +1490,7 @@ struct Trader {
 
             // auto local_boost_rate = this->boost_rate * sqrt(1.0 + pow(mabs((price_oracle[1] - curve.p[1]) * curve.A / curve.p[1]), 2));
             auto local_boost_rate = this->boost_rate * sqrt(1.0 + pow(this->boost_mul * mabs((price_oracle[1] - curve.p[1]) * curve.A / curve.p[1]), 2));
+            // auto local_boost_rate = this->boost_rate * min(curve.A * mabs(logl(price_oracle[1] / curve.p[1])), 1.0L);
             // auto local_boost_rate = this->boost_rate * (1.0 + 10 * mabs((price_oracle[1] - curve.p[1]) * curve.A / curve.p[1]));
             // auto local_boost_rate = this->boost_rate * pow(mabs((price_oracle[1] - curve.p[1]) * curve.A / curve.p[1]), 2);
 
@@ -1487,8 +1507,11 @@ struct Trader {
                 this->boost_integral *= _boost;
             }
 
-            if (N == 2) tweak_price_2(d.t, a, b, (_high + _low) / 2.L);
-            else        tweak_price_3(d.t, a, b, (_high + _low) / 2.L);
+            if (ctr > 0) {
+                if (N == 2) tweak_price_2(d.t, a, b, (_high + _low) / 2.L);
+                else        tweak_price_3(d.t, a, b, (_high + _low) / 2.L);
+            }
+
             total_vol += vol;
             last_time = d.t;
             long double ARU_x = xcp_profit_real;
@@ -1567,6 +1590,7 @@ struct Trader {
             }
         }
         extdata->slippage = slippage / slippage_count / 2.L;
+        extdata->imbalance = imbalance / slippage_count / 2.L;
         extdata->liq_density = 2.L * antislippage / slippage_count;
         extdata->APY = APY;
         extdata->volume = volume;
@@ -1602,6 +1626,7 @@ struct Trader {
     money boost_integral;
     money volume;
     money slippage;
+    money imbalance;
     money antislippage;
     money slippage_count;
     long double APY;
@@ -1684,6 +1709,7 @@ void *simulation_thread(void *args) {
         (*(data->result))["configuration"][simdata.num]["Result"]["APY"] = simdata.result.APY;
         (*(data->result))["configuration"][simdata.num]["Result"]["liq_density"] = simdata.result.liq_density;
         (*(data->result))["configuration"][simdata.num]["Result"]["slippage"] = simdata.result.slippage;
+        (*(data->result))["configuration"][simdata.num]["Result"]["imbalance"] = simdata.result.imbalance;
         (*(data->result))["configuration"][simdata.num]["Result"]["volume"] = simdata.result.volume;
         (*(data->result))["configuration"][simdata.num]["Result"]["APY_boost"] = simdata.result.APY_boost;
 
