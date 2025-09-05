@@ -1488,10 +1488,10 @@ struct Trader {
             _low = last;
             lasts[d.pair1] = last;
 
-            // auto local_boost_rate = this->boost_rate * sqrt(1.0 + pow(mabs((price_oracle[1] - curve.p[1]) * curve.A / curve.p[1]), 2));
-            auto local_boost_rate = this->boost_rate * sqrt(1.0 + pow(this->boost_mul * mabs((price_oracle[1] - curve.p[1]) * curve.A / curve.p[1]), 2));
-            // auto local_boost_rate = this->boost_rate * min(curve.A * mabs(logl(price_oracle[1] / curve.p[1])), 1.0L);
-            // auto local_boost_rate = this->boost_rate * (1.0 + 10 * mabs((price_oracle[1] - curve.p[1]) * curve.A / curve.p[1]));
+            //auto local_boost_rate = this->boost_rate * sqrt(1.0 + pow(mabs((price_oracle[1] - curve.p[1]) * curve.A / curve.p[1]), 2));
+            // auto local_boost_rate = this->boost_rate * sqrt(1.0 + pow(this->boost_mul * mabs((price_oracle[1] - curve.p[1]) * curve.A / curve.p[1]), 2));
+            auto local_boost_rate = this->boost_rate * (1.0 + this->boost_mul * min(curve.A * mabs(logl(price_oracle[1] / curve.p[1])), 1.0L));
+            // auto local_boost_rate = this->boost_rate * (1.0 + this->boost_mul * mabs((price_oracle[1] - curve.p[1]) * curve.A / curve.p[1]));
             // auto local_boost_rate = this->boost_rate * pow(mabs((price_oracle[1] - curve.p[1]) * curve.A / curve.p[1]), 2);
 
             // Boost with special donations to the pool
