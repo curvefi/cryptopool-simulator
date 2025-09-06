@@ -347,10 +347,10 @@ bool get_all(json const &jin, int last_elems, vector<money> & price_vector, mapp
                 }
 
                     
-                if (trade.t < 1672643800*10) { // TS HARDSTOP
-                    out.push_back({trade.t - (trade.pair1.first + trade.pair1.second) * 10 + 10, trade_min});
-                    out.push_back({trade.t + (trade.pair1.first + trade.pair1.second) * 10 - 0, trade_max});
-                }
+                // if (trade.t < 1672643800*10) { // TS HARDSTOP
+                out.push_back({trade.t - (trade.pair1.first + trade.pair1.second) * 10 + 10, trade_min});
+                out.push_back({trade.t + (trade.pair1.first + trade.pair1.second) * 10 - 0, trade_max});
+                // }
             }
         }
     }
