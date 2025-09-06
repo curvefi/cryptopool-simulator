@@ -12,9 +12,9 @@ Xname = "A"
 Y = np.logspace(log10(5e-4), log10(0.1), Ngrid)
 Yname = "mid_fee"
 
-X = np.array([15.0])
-Y = np.array([0.02])
-LOG = 1
+# X = np.array([15.0])
+# Y = np.array([0.02])
+# LOG = 1
 
 
 other_params = dict(
