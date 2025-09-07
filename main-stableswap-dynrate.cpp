@@ -785,7 +785,9 @@ struct Trader {
         this->gas_fee = jconf["gas_fee"];
         this->boost_rate = jconf["boost_rate"];
         this->boost_mul = jconf["boost_mul"];
+        this->boost_min = jconf["boost_min"];
         this->boost_rate = this->boost_rate / (86400L * 365L);
+        this->boost_min = this->boost_min / (86400L * 365L);
         this->boost_integral = 1.L;
         log = jconf["log"];
         this->p0 = p0;
@@ -1491,7 +1493,9 @@ struct Trader {
             //auto local_boost_rate = this->boost_rate * sqrt(1.0 + pow(mabs((price_oracle[1] - curve.p[1]) * curve.A / curve.p[1]), 2));
             // auto local_boost_rate = this->boost_rate * sqrt(1.0 + pow(this->boost_mul * mabs((price_oracle[1] - curve.p[1]) * curve.A / curve.p[1]), 2));
             // auto local_boost_rate = this->boost_rate * min(this->boost_mul * mabs(logl(price_oracle[1] / curve.p[1])), 1.0L);
-            auto local_boost_rate = this->boost_rate * (1.0L + this->boost_mul * mabs(logl(price_oracle[1] / curve.p[1])));
+            // auto local_boost_rate = this->boost_rate + (this->boost_mul - this->boost_rate) * min(mabs(logl(price_oracle[1] / curve.p[1])) * curve.A, 1.0L);
+            auto local_boost_rate = this->boost_rate;
+            if (curve.A * mabs(logl(price_oracle[1] / curve.p[1])) * this->boost_mul < 1) local_boost_rate = this->boost_min;
             // auto local_boost_rate = this->boost_rate * (1.0 + this->boost_mul * mabs((price_oracle[1] - curve.p[1]) * curve.A / curve.p[1]));
             // auto local_boost_rate = this->boost_rate * pow(mabs((price_oracle[1] - curve.p[1]) * curve.A / curve.p[1]), 2);
 
@@ -1624,6 +1628,7 @@ struct Trader {
     money gas_fee;
     money boost_rate;
     money boost_mul;
+    money boost_min;
     money boost_integral;
     money volume;
     money slippage;
