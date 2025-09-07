@@ -1507,10 +1507,10 @@ struct Trader {
 
             total_vol += vol;
             last_time = d.t;
-            long double ARU_x = xcp_profit_real;
+            long double ARU_x = sqrtl(xcp_profit);
             long double ARU_y = (86400.L * 365.L / (d.t - start_t + 1.L));
             APY = powl(ARU_x, ARU_y) - 1.L;
-            APY_boost = powl(xcp_profit_real / this->boost_integral, ARU_y) - 1.L;
+            APY_boost = powl(sqrtl(xcp_profit) / this->boost_integral, ARU_y) - 1.L;
             if (i % 1024 == 0 && log) {
                 try {
                     long double last01, last02 = 0.0;
