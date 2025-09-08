@@ -495,7 +495,7 @@ auto newton_D_2(money A, money gamma, money const *xx, money D0) {
         }
         money Dprev = D;
         D = (A * S + D_P * N) * D / ((A - 1) * D + (N + 1) * D_P);
-        if (mabs(D - Dprev) <= 1) {
+        if (mabs(D - Dprev) <= 1e-12L) {
             return D;
         }
     }
