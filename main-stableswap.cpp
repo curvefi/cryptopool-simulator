@@ -1564,7 +1564,7 @@ struct Trader {
             }
 
             if (log) {
-                fprintf(out_file, "{\"t\": %llu, \"token0\": %.6Le, \"token1\": %.6Le, \"price_oracle\": %.6Le, \"price_scale\": %.6Le, \"profit\": %.6Le, \"xcp\": %.6Le, \"open\": %.6Le, \"high\": %.6Le, \"low\": %.6Le, \"close\": %.6Le}",
+                fprintf(out_file, "{\"t\": %llu, \"token0\": %.6Le, \"token1\": %.6Le, \"price_oracle\": %.6Le, \"price_scale\": %.6Le, \"profit\": %.6Le, \"xcp\": %.6Le, \"open\": %.6Le, \"high\": %.6Le, \"low\": %.6Le, \"close\": %.6Le, \"fee\": %.8Le}",
                         d.t,
                         curve.x[0],
                         curve.x[1],
@@ -1572,7 +1572,8 @@ struct Trader {
                         curve.p[1],
                         xcp_profit_real - 1.0,
                         xcp_profit,
-                        d.open, d.high, d.low, d.close);
+                        d.open, d.high, d.low, d.close,
+                        (curve.p.size() == 3 ? fee_3() : fee_2()));
                 if (i < total_elements - 1) {
                     fprintf(out_file, ",\n");
                 }
