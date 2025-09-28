@@ -752,6 +752,7 @@ struct Curve {
 struct extra_data {
     money APY = 0;
     money APY_boost = 0;
+    money APY_boost_2 = 0;
     money liq_density = 0;
     money slippage = 0;
     money volume = 0;
@@ -1044,7 +1045,7 @@ struct Trader {
 
             copy_money_2(&curve.x[0], x0);  // restore the state
             // printf("::: %Lf %Lf %Lf %Lf\n", price, inst_price, p_min, p_max);
-            
+
             // _from == p.first - buy
             // _from != p.first - sell
             money new_profit;
@@ -1379,6 +1380,7 @@ struct Trader {
         money _slippage;
         money _high = 0;
         money _low = 0;
+        money prodinv0 = (curve.p.size() == 2 ? sqrtl(curve.x[0] * curve.x[1]) : powl(curve.x[0] * curve.x[1] * curve.x[2], 1.0L / 3));
 
         FILE *out_file;
         if (log) {
@@ -1510,7 +1512,9 @@ struct Trader {
             long double ARU_x = sqrtl(xcp_profit);
             long double ARU_y = (86400.L * 365.L / (d.t - start_t + 1.L));
             APY = powl(ARU_x, ARU_y) - 1.L;
-            APY_boost = powl(sqrtl(xcp_profit) / this->boost_integral, ARU_y) - 1.L;
+            APY_boost = powl(sqrtl(xcp_profit) / this->boost_integral, ARU_y) - 1.L;  // XXX is it sqrt(xcp_profit) or (1 + xcp_profit) / 2
+            money prodinv = (curve.p.size() == 2 ? sqrtl(curve.x[0] * curve.x[1]) : powl(curve.x[0] * curve.x[1] * curve.x[2], 1.0L / 3)) * xcp_profit / (xcp_profit_real * 2 - 1.L);
+            APY_boost_2 = powl(prodinv / prodinv0 / this->boost_integral, ARU_y) - 1.L;
             if (i % 1024 == 0 && log) {
                 try {
                     long double last01, last02 = 0.0;
@@ -1589,6 +1593,7 @@ struct Trader {
         extdata->APY = APY;
         extdata->volume = volume;
         extdata->APY_boost = APY_boost;
+        extdata->APY_boost_2 = APY_boost_2;
 
         if (log) {
             fprintf(out_file, "]");
@@ -1624,6 +1629,7 @@ struct Trader {
     money slippage_count;
     long double APY;
     long double APY_boost;
+    long double APY_boost_2;
     bool not_adjusted;
     int  heavy_tx;
     int  light_tx;
@@ -1669,6 +1675,7 @@ bool simulation(simulation_data *data) {
     //money APY = jout["APY"];
     printf("Liquidity density vs that of xyz=k: %Lf\n", extdata.liq_density);
     printf("APY-boost: %Lf%%\n", extdata.APY_boost * 100.L);
+    printf("APY-boost-2: %Lf%%\n", extdata.APY_boost_2 * 100.L);
     printf("APY: %Lf%%\n", extdata.APY * 100.L);
 //    json_save(out_json_name, jout);
     auto end = get_thread_time();
@@ -1705,6 +1712,7 @@ void *simulation_thread(void *args) {
         (*(data->result))["configuration"][simdata.num]["Result"]["imbalance"] = simdata.result.imbalance;
         (*(data->result))["configuration"][simdata.num]["Result"]["volume"] = simdata.result.volume;
         (*(data->result))["configuration"][simdata.num]["Result"]["APY_boost"] = simdata.result.APY_boost;
+        (*(data->result))["configuration"][simdata.num]["Result"]["APY_boost_2"] = simdata.result.APY_boost_2;
 
         pthread_mutex_unlock(data->result_lock);
 
