@@ -495,7 +495,7 @@ auto newton_D_2(money A, money gamma, money const *xx, money D0) {
         }
         money Dprev = D;
         D = (A * S + D_P * N) * D / ((A - 1) * D + (N + 1) * D_P);
-        if (mabs(D - Dprev) <= 1e-12L) {
+        if (mabs(D - Dprev) <= 1e-6L) {
             return D;
         }
     }
@@ -546,7 +546,7 @@ auto newton_D_3(money A, money gamma, money const *xx, money D0) {
         if (D < 0) {
             D = mabs(D) / 2.L;
         }
-        if (mabs(D - D_prev) <= max(1e-16L, D / 1e14L)) {
+        if (mabs(D - D_prev) <= max(1e-6L, D / 1e14L)) {
             return D;
         }
     }
@@ -568,7 +568,7 @@ auto newton_y(money A, money gamma, money const *x, size_t N, money D, int i) {
     for (size_t k = 0; k < 255; k++) {
         y_prev = y;
         y = (y*y + c) / (2 * y + b);
-        if (mabs(y - y_prev) <= 1e-12L) {
+        if (mabs(y - y_prev) <= 1e-6L) {
             return y;
         }
     }
@@ -614,7 +614,7 @@ auto newton_y_3(money A, money gamma, money const *x, money D, int i) {
     }
     money max_x_sorted = x_sorted[1];
     money convergence_limit = max(max_x_sorted * 1E-14L, D * 1E-14L);
-    convergence_limit = max(convergence_limit, 1E-16L);
+    convergence_limit = max(convergence_limit, 1E-6L);
 
     y = y * D / (x_sorted[0] * 3);
     S_i += x_sorted[0];
