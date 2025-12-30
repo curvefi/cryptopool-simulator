@@ -377,6 +377,8 @@ bool get_all(json const &jin, int last_elems, vector<money> & price_vector, mapp
     printf("Using temp file '%s' as interprocedural connect\n", tmp_name.c_str());
     fwrite(&ret[0], sizeof(trade_data), ret.size(), tmp);
     //unlink(tmp_name.c_str()); // Does not work in Windows
+    fflush(tmp);
+    fclose(tmp);
     mf.map(tmp_name);
     return true;
 }
@@ -1248,7 +1250,7 @@ struct Trader {
         }
         auto norm = S;
         norm = sqrt(norm); // .root_to();
-        auto _adjustment_step = max(adjustment_step, norm / 5);
+        auto _adjustment_step = min(adjustment_step, norm / 5);
         if (norm <= _adjustment_step) {
             // Already close to the target price
             is_light = true;
@@ -1396,6 +1398,7 @@ struct Trader {
             if (last_time > 0) {
                 last_time = d.t - last_time;
             }
+            _slippage = 0;
 
             auto a = d.pair1.first;
             auto b = d.pair1.second;
@@ -1415,7 +1418,7 @@ struct Trader {
             money _dx = 0;
             auto p_before = N == 3 ? price_3(a, b) : price_2(a, b);
 
-            if ((max_price != 0) & (max_price > p_before)) {
+            if ((max_price != 0) && (max_price > p_before)) {
                 auto step = N == 3 ? step_for_price_3(0, max_price, d.pair1, vol, ext_vol) : step_for_price_2(0, max_price, d.pair1, vol, ext_vol);
                 if (step > 0) {
                     // printf("+++ %Lf %Lf %d %d\n", curve.x[a], curve.x[b], a, b);
@@ -1456,7 +1459,7 @@ struct Trader {
             _dx = 0;
             p_before = p_after;
 
-            if ((min_price != 0) & (min_price < p_before)) {
+            if ((min_price != 0) && (min_price < p_before)) {
                 auto step = N == 3 ? step_for_price_3(min_price, 0, d.pair1, vol, ext_vol) : step_for_price_2(min_price, 0, d.pair1, vol, ext_vol);
                 if (step > 0) {
                     // printf("=== %Lf %Lf %d %d\n", curve.x[a], curve.x[b], a, b);
