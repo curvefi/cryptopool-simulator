@@ -12,5 +12,8 @@ simus:	main-stableswap.cpp
 simudyn:	main-stableswap-dynrate.cpp
 	c++ -O3 -funroll-loops -fomit-frame-pointer -ffast-math -march=native -o simudyn  main-stableswap-dynrate.cpp -std=c++17 -lpthread
 
+simuy1:	main-stableswap-ybv1.cpp
+	c++ -O3 -funroll-loops -fomit-frame-pointer -ffast-math -march=native -o simuy1  main-stableswap-ybv1.cpp -std=c++17 -lpthread
+
 simul:	main-legacy.cpp
 	c++ -O3 -funroll-loops -fomit-frame-pointer -ffast-math -march=native -o simul  main-legacy.cpp -std=c++17 -lpthread
