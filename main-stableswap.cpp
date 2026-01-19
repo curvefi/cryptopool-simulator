@@ -1556,7 +1556,7 @@ struct Trader {
 
             long double norm = 0;
             // only tweak_price every N seconds or on trade
-            if (d.t - last_time_tweak_price >= 600 || trade_happened) {
+            if (d.t - last_time_tweak_price >= 3600 || trade_happened) {
                 previous_price_scale = curve.p[1];
                 money log_oracle_pre = price_oracle[1];
                 money cur_get_p = curve.p_2(0, 1);
