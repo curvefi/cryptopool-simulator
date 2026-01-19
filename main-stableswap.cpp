@@ -1466,6 +1466,16 @@ struct Trader {
             money _dx = 0;
             auto p_before = N == 3 ? price_3(a, b) : price_2(a, b);
             bool trade_happened = false;
+            auto apply_tweak_trade = [&](money spot_prev) {
+                if (N == 2) {
+                    money ps_before = curve.p[1];
+                    money cur_get_p = curve.p_2(0, 1);
+                    tweak_price_2(d.t, a, b, spot_prev);
+                    last_prices = cur_get_p * ps_before;
+                } else {
+                    tweak_price_3(d.t, a, b, spot_prev);
+                }
+            };
 
             if ((max_price != 0) & (max_price > p_before)) {
                 auto step = N == 3 ? step_for_price_3(0, max_price, d.pair1, vol, ext_vol) : step_for_price_2(0, max_price, d.pair1, vol, ext_vol);
@@ -1500,8 +1510,7 @@ struct Trader {
 
             if (ctr > 0) {
                 if (_low == 0) _low = last;
-                if (N == 2) tweak_price_2(d.t, a, b, (_high + _low) / 2.L);
-                else        tweak_price_3(d.t, a, b, (_high + _low) / 2.L);
+                apply_tweak_trade((_high + _low) / 2.L);
                 ctr = 0;
             }
 
@@ -1539,6 +1548,11 @@ struct Trader {
             }
 
             _low = last;
+            if (ctr > 0) {
+                if (_high == 0) _high = last;
+                apply_tweak_trade((_high + _low) / 2.L);
+                ctr = 0;
+            }
             lasts[d.pair1] = last;
 
             // Boost with special donations to the pool
