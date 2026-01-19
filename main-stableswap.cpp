@@ -1539,6 +1539,12 @@ struct Trader {
             }
 
             _low = last;
+            if (ctr > 0) {
+                if (_high == 0) _high = last;
+                if (N == 2) tweak_price_2(d.t, a, b, (_high + _low) / 2.L);
+                else        tweak_price_3(d.t, a, b, (_high + _low) / 2.L);
+                ctr = 0;
+            }
             lasts[d.pair1] = last;
 
             // Boost with special donations to the pool
