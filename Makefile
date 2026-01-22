@@ -17,3 +17,6 @@ simuy1:	main-stableswap-ybv1.cpp
 
 simul:	main-legacy.cpp
 	c++ -O3 -funroll-loops -fomit-frame-pointer -ffast-math -march=native -o simul  main-legacy.cpp -std=c++17 -lpthread
+
+simusl:	main-stableswap-legacy.cpp
+	c++ -O3 -funroll-loops -fomit-frame-pointer -ffast-math -march=native -o simusl  main-stableswap-legacy.cpp -std=c++17 -lpthread
