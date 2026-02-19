@@ -1407,6 +1407,8 @@ struct Trader {
         simdata->total = total_elements;
         auto mapped_data = (trade_data const *) in->base;
         auto mapped_data_ptr = mapped_data;
+        money xcp_profit_real_prev = 1.L;
+        money xcp_profit_real_adj = 1.L;
         money slippage = 0;
         money imbalance = 0;
         money antislippage = 0;
@@ -1425,7 +1427,6 @@ struct Trader {
         vector<money> x_start = curve.x; // initial LP balances by coin
         long double tvl_start = tvl_in_coin0(curve.x, curve.p);
         long double donation_coin0_total = 0.0L;
-        money prodinv0 = (curve.p.size() == 2 ? sqrtl(curve.x[0] * curve.x[1]) : powl(curve.x[0] * curve.x[1] * curve.x[2], 1.0L / 3));
 
         FILE *out_file;
         if (log) {
@@ -1591,14 +1592,20 @@ struct Trader {
 
             }
 
+            money _xp[2];
+            curve.xp_2(_xp);
+            money bal_mul = (_xp[0] + _xp[1]);
+            bal_mul = 4 * _xp[0] * _xp[1] / (bal_mul * bal_mul);
+            xcp_profit_real_adj *= (xcp_profit_real / xcp_profit_real_prev - 1.L) * bal_mul * bal_mul + 1.L;
+            xcp_profit_real_prev = xcp_profit_real;
+
             total_vol += vol;
             last_time = d.t;
             long double ARU_x = sqrtl(xcp_profit);
             long double ARU_y = (86400.L * 365.L / (d.t - start_t + 1.L));
             APY = powl(ARU_x, ARU_y) - 1.L;
             APY_boost = powl(sqrtl(xcp_profit) / this->boost_integral, ARU_y) - 1.L;  // XXX is it sqrt(xcp_profit) or (1 + xcp_profit) / 2
-            money prodinv = (curve.p.size() == 2 ? sqrtl(curve.x[0] * curve.x[1]) : powl(curve.x[0] * curve.x[1] * curve.x[2], 1.0L / 3)) * xcp_profit / (xcp_profit_real * 2 - 1.L);
-            APY_boost_2 = powl(prodinv / prodinv0 / this->boost_integral, ARU_y) - 1.L;
+            APY_boost_2 = powl(xcp_profit_real_adj / this->boost_integral, ARU_y) - 1.L;
             if (i % 1024 == 0 && log) {
                 try {
                     long double last01, last02 = 0.0;
