@@ -779,6 +779,7 @@ struct extra_data {
     money slippage = 0;
     money volume = 0;
     money imbalance = 0;
+    money imbalance_integral = 0;
 };
 
 struct simulation_data {
@@ -1417,6 +1418,7 @@ struct Trader {
         money spot_prev = price_2(0, 1);
         money last_prices = price_2(0, 1);
         money previous_price_scale = curve.p[1];
+        money imbalance_integral = 0;
         // Track TVL growth in coin0 units and HODL baseline
         // TVL in coin0 units: sum_i x[i] * p[i] (p[0] == 1)
         auto tvl_in_coin0 = [&](vector<money> const &x, vector<money> const &p) -> long double {
@@ -1600,6 +1602,7 @@ struct Trader {
             xcp_profit_real_prev = xcp_profit_real;
 
             total_vol += vol;
+            imbalance_integral += (1.L - bal_mul) * last_time;  // last_time is dt here
             last_time = d.t;
             long double ARU_x = sqrtl(xcp_profit);
             long double ARU_y = (86400.L * 365.L / (d.t - start_t + 1.L));
@@ -1678,6 +1681,7 @@ struct Trader {
                 printf("*** Slippage is too high %.5Lf\n", slippage);
             }
         }
+        extdata->imbalance_integral = imbalance_integral / (this->t - start_t + 1.L);
         extdata->slippage = slippage / slippage_count / 2.L;
         extdata->imbalance = imbalance / slippage_count / 2.L;
         extdata->liq_density = 2.L * antislippage / slippage_count;
@@ -1806,6 +1810,7 @@ void *simulation_thread(void *args) {
         (*(data->result))["configuration"][simdata.num]["Result"]["volume"] = simdata.result.volume;
         (*(data->result))["configuration"][simdata.num]["Result"]["APY_boost"] = simdata.result.APY_boost;
         (*(data->result))["configuration"][simdata.num]["Result"]["APY_boost_2"] = simdata.result.APY_boost_2;
+        (*(data->result))["configuration"][simdata.num]["Result"]["imbalance_integral"] = simdata.result.imbalance_integral;
 
         pthread_mutex_unlock(data->result_lock);
 
