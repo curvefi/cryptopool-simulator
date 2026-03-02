@@ -15,6 +15,7 @@
 #include <iomanip>
 #include "json.hpp"
 #include <queue>
+#include <deque>
 #include <pthread.h>
 #include <sys/time.h>
 #include <sys/resource.h>
@@ -775,6 +776,7 @@ struct extra_data {
     money APY = 0;
     money APY_boost = 0;
     money APY_boost_2 = 0;
+    money APR_geo_mean = 0;
     money liq_density = 0;
     money slippage = 0;
     money volume = 0;
@@ -1419,6 +1421,13 @@ struct Trader {
         money last_prices = price_2(0, 1);
         money previous_price_scale = curve.p[1];
         money imbalance_integral = 0;
+        // Moving 1-month window geometric-mean APY tracking
+        const u64 TW_APR_SECONDS = 2 * 30 * 86400;  // time window for APR_geo_mean
+        const money TW_APR_PER_YEAR = (365.L * 86400.L) / TW_APR_SECONDS;
+        std::deque<std::pair<u64, money>> xcp_history;
+        money sum_log_tw_apr = 0;
+        money tw_apr = 0;
+        long long n_monthly_samples = 0;
         // Track TVL growth in coin0 units and HODL baseline
         // TVL in coin0 units: sum_i x[i] * p[i] (p[0] == 1)
         auto tvl_in_coin0 = [&](vector<money> const &x, vector<money> const &p) -> long double {
@@ -1598,8 +1607,8 @@ struct Trader {
             curve.xp_2(_xp);
             money bal_mul = (_xp[0] + _xp[1]);
             bal_mul = 4 * _xp[0] * _xp[1] / (bal_mul * bal_mul);
-            xcp_profit_real_adj *= (xcp_profit_real / xcp_profit_real_prev - 1.L) * bal_mul * bal_mul + 1.L;
-            xcp_profit_real_prev = xcp_profit_real;
+            xcp_profit_real_adj *= (sqrtl(xcp_profit) / xcp_profit_real_prev - 1.L) * bal_mul * bal_mul + 1.L;
+            xcp_profit_real_prev = sqrtl(xcp_profit);
 
             total_vol += vol;
             imbalance_integral += (1.L - bal_mul) * last_time;  // last_time is dt here
@@ -1609,6 +1618,20 @@ struct Trader {
             APY = powl(ARU_x, ARU_y) - 1.L;
             APY_boost = powl(sqrtl(xcp_profit) / this->boost_integral, ARU_y) - 1.L;  // XXX is it sqrt(xcp_profit) or (1 + xcp_profit) / 2
             APY_boost_2 = powl(xcp_profit_real_adj / this->boost_integral, ARU_y) - 1.L;
+            // Moving 1-month window geometric-mean APR
+            xcp_history.push_back({d.t, xcp_profit_real_adj / this->boost_integral});
+            // Advance front to the closest entry at or before (d.t - TW_APR_SECONDS)
+            while (xcp_history.size() > 1 &&
+                   xcp_history[1].first <= d.t - TW_APR_SECONDS) {
+                xcp_history.pop_front();
+            }
+            if (d.t - xcp_history.front().first >= TW_APR_SECONDS) {
+                money tw_growth = (xcp_profit_real_adj / this->boost_integral) / xcp_history.front().second;
+                tw_apr = max((tw_growth - 1.L) * TW_APR_PER_YEAR, 1e-20L);
+                sum_log_tw_apr += logl(tw_apr);
+                n_monthly_samples++;
+                APR_geo_mean = expl(sum_log_tw_apr / n_monthly_samples);
+            }
             if (i % 1024 == 0 && log) {
                 try {
                     long double last01, last02 = 0.0;
@@ -1630,7 +1653,7 @@ struct Trader {
                         printf("t=%llu %.1Lf%%\ttrades: %d\t"
                                "AMM: %.3Lf, %0.3Lf\tTarget: %.3Lf, %.3Lf\t"
                                "Vol: %.4Lf\tPR:%.2Lf\txCP-growth: {%.10Lf}\t"
-                               "APY:%.1Lf%%\tfee:%.3Lf%% %c\n",
+                               "APY:%.1Lf%%\ttw_apr:%.1Lf%%\tfee:%.3Lf%% %c\n",
                                d.t,
                                100.L * i / total_elements, ctr, last01, last02,
                                curve.p[1],
@@ -1639,10 +1662,11 @@ struct Trader {
                                (xcp_profit_real - 1.) / (xcp_profit - 1.L),
                                xcp_profit_real,
                                APY * 100.L,
+                               tw_apr * 100.L,
                                (curve.p.size() == 3 ? fee_3() : fee_2()) * 100.L,
                                is_light ? '*' : '.');
                     } else if (N == 2) {
-                        printf("t=%llu %.1Lf%%\ttrades: %d\tAMM: %.5Lf\tTarget: %.5Lf\tVol: %.4Lf\tPR:%.2Lf\txCP-growth: {%.10Lf}\tAPY:%.1Lf%%\tfee:%.3Lf%% %c\n",
+                        printf("t=%llu %.1Lf%%\ttrades: %d\tAMM: %.5Lf\tTarget: %.5Lf\tVol: %.4Lf\tPR:%.2Lf\txCP-growth: {%.10Lf}\tAPY:%.1Lf%%\ttw_apr:%.1Lf%%\tfee:%.3Lf%% %c\n",
                                 d.t,
                                 100.L * i / total_elements,
                                 ctr,
@@ -1652,6 +1676,7 @@ struct Trader {
                                 (xcp_profit_real - 1.) / (xcp_profit - 1.L),
                                 xcp_profit_real,
                                 APY * 100.L,
+                                tw_apr * 100.L,
                                 fee_2() * 100.L,
                                 is_light ? '*' : '.');
 
@@ -1689,6 +1714,7 @@ struct Trader {
         extdata->volume = volume;
         extdata->APY_boost = APY_boost;
         extdata->APY_boost_2 = APY_boost_2;
+        extdata->APR_geo_mean = APR_geo_mean;
 
         if (log) {
             fprintf(out_file, "]");
@@ -1727,6 +1753,7 @@ struct Trader {
     long double APY;
     long double APY_boost;
     long double APY_boost_2;
+    long double APR_geo_mean;
     bool not_adjusted;
     int  heavy_tx;
     int  light_tx;
@@ -1773,6 +1800,7 @@ bool simulation(simulation_data *data) {
     printf("Liquidity density vs that of xyz=k: %Lf\n", extdata.liq_density);
     printf("APY-boost: %Lf%%\n", extdata.APY_boost * 100.L);
     printf("APY-boost-2: %Lf%%\n", extdata.APY_boost_2 * 100.L);
+    printf("APR-geo-mean: %Lf%%\n", extdata.APR_geo_mean * 100.L);
     printf("APY: %Lf%%\n", extdata.APY * 100.L);
 //    json_save(out_json_name, jout);
     auto end = get_thread_time();
@@ -1810,6 +1838,7 @@ void *simulation_thread(void *args) {
         (*(data->result))["configuration"][simdata.num]["Result"]["volume"] = simdata.result.volume;
         (*(data->result))["configuration"][simdata.num]["Result"]["APY_boost"] = simdata.result.APY_boost;
         (*(data->result))["configuration"][simdata.num]["Result"]["APY_boost_2"] = simdata.result.APY_boost_2;
+        (*(data->result))["configuration"][simdata.num]["Result"]["APR_geo_mean"] = simdata.result.APR_geo_mean;
         (*(data->result))["configuration"][simdata.num]["Result"]["imbalance_integral"] = simdata.result.imbalance_integral;
 
         pthread_mutex_unlock(data->result_lock);
