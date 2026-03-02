@@ -1290,7 +1290,6 @@ struct Trader {
             light_tx += 1;
             return norm;
         }
-        // if (not not_adjusted and (xcp_profit_real > sqrt(xcp_profit) * (1.L + allowed_extra_profit))) {
         if (not not_adjusted and (2 * xcp_profit_real - 1.L > xcp_profit + 2 * allowed_extra_profit)) {
             not_adjusted = true;
         }
@@ -1355,7 +1354,6 @@ struct Trader {
             light_tx += 1;
             return norm;
         }
-        // if (not not_adjusted and (xcp_profit_real > sqrt(xcp_profit) * (1.L + allowed_extra_profit))) {
         if (not not_adjusted and (xcp_profit_real - 1.L > (xcp_profit - 1.L) / 2.L + allowed_extra_profit * xcp_profit_real)) {
             not_adjusted = true;
         }
@@ -1597,7 +1595,7 @@ struct Trader {
                 money log_xcp_profit_pre = xcp_profit;
                 if (N == 2) norm = tweak_price_2(d.t, a, b, last_prices);
                 else        norm = tweak_price_3(d.t, a, b, (_high + _low) / 2.L);
-                // spot_prev = price_2(0, 1) * ps_pre / curve.p[1]; 
+                // spot_prev = price_2(0, 1) * ps_pre / curve.p[1];
                 last_prices = cur_get_p * previous_price_scale;
                 last_time_tweak_price = d.t;
 
@@ -1606,17 +1604,18 @@ struct Trader {
             money _xp[2];
             curve.xp_2(_xp);
             money bal_mul = (_xp[0] + _xp[1]);
+            money ideal_vp = (xcp_profit + 1.L) / 2.L;
             bal_mul = 4 * _xp[0] * _xp[1] / (bal_mul * bal_mul);
-            xcp_profit_real_adj *= (sqrtl(xcp_profit) / xcp_profit_real_prev - 1.L) * bal_mul * bal_mul + 1.L;
-            xcp_profit_real_prev = sqrtl(xcp_profit);
+            xcp_profit_real_adj *= (ideal_vp / xcp_profit_real_prev - 1.L) * bal_mul * bal_mul + 1.L;
+            xcp_profit_real_prev = ideal_vp;
 
             total_vol += vol;
             imbalance_integral += (1.L - bal_mul) * last_time;  // last_time is dt here
             last_time = d.t;
-            long double ARU_x = sqrtl(xcp_profit);
+            long double ARU_x = ideal_vp;
             long double ARU_y = (86400.L * 365.L / (d.t - start_t + 1.L));
             APY = powl(ARU_x, ARU_y) - 1.L;
-            APY_boost = powl(sqrtl(xcp_profit) / this->boost_integral, ARU_y) - 1.L;  // XXX is it sqrt(xcp_profit) or (1 + xcp_profit) / 2
+            APY_boost = powl(ideal_vp / this->boost_integral, ARU_y) - 1.L;
             APY_boost_2 = powl(xcp_profit_real_adj / this->boost_integral, ARU_y) - 1.L;
             // Moving 1-month window geometric-mean APR
             xcp_history.push_back({d.t, xcp_profit_real_adj / this->boost_integral});
